@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-05-31T22:01:06Z",
+  "generated_at": "2026-05-31T23:20:41Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 1,
+    "done": 2,
     "blocked": 0
   },
   "tasks": [
@@ -20,10 +20,10 @@
     {
       "id": "TASK-0002",
       "title": "Доработка скелета: рабочая Alembic-миграция, FK в моделях, реальный CI",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0002-skeleton-fixes.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0002-skeleton-fixes.md",
       "milestone": "M1",
-      "report": null
+      "report": "handoff/reports/TASK-0002-report.md"
     }
   ]
 }

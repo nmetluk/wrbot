@@ -9,24 +9,37 @@ from pathlib import Path
 from typing import Literal
 
 from dotenv import load_dotenv
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Загружаем .env из корня проекта (или директории запуска)
 load_dotenv()
 
 
+def _expand_db_url(url: str) -> str:
+    """Раскрыть тильду в database_url."""
+    if url.startswith("sqlite") and "~" in url:
+        # sqlite+aiosqlite:///~/path -> sqlite+aiosqlite:////full/path
+        parts = url.split("///", 1)
+        if len(parts) == 2:
+            scheme, path = parts
+            expanded = Path(path).expanduser().absolute()
+            return f"{scheme}////{expanded}"
+    return url
+
+
 class Settings(BaseSettings):
     """
     Настройки приложения.
 
-    Загружаются из переменных окружения с дефолтными значениями.
+    Загружаются из переменных окружения.
     """
 
-    # Telegram Bot
-    bot_token: str = "test_token"  # Required for bot, default for tests
+    # Telegram Bot - обязателен, без дефолта
+    bot_token: str
 
     # Database
-    database_url: str = "sqlite+aiosqlite:///~/.local/share/wrbot/wrbot.db"
+    database_url: str = "sqlite+aiosqlite:///./data/wrbot.db"
 
     # Timezone (ADR-0004)
     default_timezone: str = "Europe/Moscow"
@@ -45,6 +58,12 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
         extra="ignore",
     )
+
+    @model_validator(mode="after")
+    def expand_database_url(self) -> "Settings":
+        """Раскрыть тильду в database_url после загрузки настроек."""
+        self.database_url = _expand_db_url(self.database_url)
+        return self
 
 
 def get_settings() -> Settings:

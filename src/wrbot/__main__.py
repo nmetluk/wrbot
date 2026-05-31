@@ -14,11 +14,26 @@ from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 from wrbot.bot.handlers import start as start_handler
 from wrbot.config import settings
 from wrbot.db import get_engine, get_session_factory
-from wrbot.db.models import Base
 from wrbot.logging import setup_logging
 from wrbot.scheduler.app import setup_scheduler
 
 logger = logging.getLogger(__name__)
+
+
+async def run_migrations() -> None:
+    """Выполнить миграции Alembic при старте."""
+    from alembic import command
+    from alembic.config import Config
+
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", settings.database_url)
+
+    try:
+        command.upgrade(alembic_cfg, "head")
+        logger.info("Migrations upgraded to head")
+    except Exception as e:
+        logger.error("Migration failed: %s", e)
+        raise
 
 
 async def setup_bot_commands(bot: Bot) -> None:
@@ -39,14 +54,14 @@ async def main() -> None:
     setup_logging()
     logger.info("Starting wrbot...")
 
+    # Выполняем миграции при старте
+    logger.info("Running database migrations...")
+    await run_migrations()
+
     # Инициализация БД
     logger.info("Initializing database...")
     engine = get_engine(settings.database_url)
     get_session_factory(engine)
-
-    # Создание таблиц (для dev; в prod — только через миграции)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
     # Инициализация бота
     logger.info("Initializing bot...")

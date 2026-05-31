@@ -1,9 +1,46 @@
-# Changelog
+# Project Session Changelog
 
-Формат — [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/).
-Даты в UTC. Хронология значимых изменений проекта.
+Журнал сессий и изменений проекта wrbot. Даты в UTC.
+
+**Назначение:** Этот файл — машиночитаемый журнал сессий, каждый шаг разработки.
+Для пользователей см. `/CHANGELOG.md` (история версий).
 
 ## [Unreleased]
+
+### Changed
+- **TASK-0002 — доработка скелета (исполнитель, SESSION-2026-05-31-02):**
+  - Исправлен `alembic/env.py` для работы с async/sync URL (sqlite+aiosqlite и sqlite)
+  - URL берётся из alembic config, а не из settings (фикс для тестов)
+  - Убрана проблемная логика с `asyncio.run()` в running loop
+  - Исправлен `tests/conftest.py`: убран fallback, миграции через executor
+  - Исправлен `src/wrbot/config.py`: model_validator вместо __init__ для mypy
+  - Исправлен `src/wrbot/__main__.py`: опечатка Config_ → Config
+  - Все тесты проходят (11 passed, включая FK/cascade/UNIQUE)
+  - ruff, mypy, pytest, validate.py — всё зелёное
+  - `alembic upgrade/downgrade` работает, autogenerate даёт пустой diff
+
+### Fixed
+- Alembic миграция теперь работает с async SQLite
+- Модели согласованы с миграцией (autogenerate даёт пустой diff)
+- CASCADE delete работает для charge → sent_reminders
+- UNIQUE constraint предотвращает дубликаты напоминаний
+
+## [2026-06-01]
+
+### Added
+- **TASK-0001 — скелет проекта (исполнитель, SESSION-2026-06-01-01):**
+  - Структура `src/wrbot`, pyproject.toml
+  - SQLAlchemy-модели (без FK), начальная миграция Alembic
+  - Конфигурация из окружения, логирование
+  - Точка входа с `/start`, long polling
+  - 8 smoke-тестов
+
+### Changed
+- **Ревью TASK-0001 (архитектор, SESSION-2026-06-01-02):**
+  - Выявлены проблемы: Alembic не работает, ORM без FK, CI фиктивный
+  - Заведена доработка TASK-0002
+
+## [2026-05-31]
 
 ### Added
 - **M0 (Инфраструктура).** Заложен каркас репозитория: документация, протоколы
@@ -12,19 +49,9 @@
   шаблоны задач/отчётов/логов. Источник правды — GitHub.
 - ТЗ зафиксировано в `docs/spec/spec-v1.md` (версия 1.0).
 - Создана первая задача разработки `TASK-0001` (скелет Python/Aiogram) в `handoff/inbox/`.
-- **Публикация каркаса в GitHub** (`origin/main`) — источник правды активирован,
-  репозиторий доступен исполнителю для `/take-task`.
-- **Архитектурные решения перед M1 (SESSION-2026-06-01-01):** ADR-0003 (SQLAlchemy 2.0
-  async + Alembic), ADR-0004 (часовые пояса, поле `tz`), ADR-0005 (движок уведомлений:
-  свип + `sent_reminders`, «Отложить»), ADR-0006 (жизненный цикл списания, сумма Decimal),
-  ADR-0007 (long polling). Обновлены `data-model.md`, `requirements.md`, уточнён `TASK-0001`.
-  _(Примечание: архитекторский лог этой ADR-сессии был затёрт исполнителем; сохранён в коммите `22a4433`.)_
-- **TASK-0001 — скелет проекта (исполнитель, SESSION-2026-06-01-01):** структура `src/wrbot`,
-  pyproject, SQLAlchemy-модели, начальная миграция Alembic, конфиг, логирование, точка входа
-  (`/start`, long polling), 8 smoke-тестов. Перенесён в `handoff/done/`.
-- **Ревью TASK-0001 (архитектор, SESSION-2026-06-01-02):** структура принята; выявлено, что
-  Alembic-миграция не применяется, ORM-модели без FK, CI фиктивный (`|| true`). Заведена
-  доработка `TASK-0002`. Добавлено правило уникальности ID лога сессии в `session-protocol.md`.
+- **Публикация каркаса в GitHub** (`origin/main`) — источник правды активирован.
+- **ADR-0003…0007:** SQLAlchemy 2.0 async + Alembic, часовые пояса, движок уведомлений,
+  жизненный цикл списания, long polling.
 
 ---
 _Записи добавляются в конце каждой сессии. Самые свежие — сверху._

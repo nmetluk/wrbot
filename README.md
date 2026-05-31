@@ -57,8 +57,11 @@
 ├── state/                 ← машиночитаемое состояние проекта (project.json, backlog.json, CHANGELOG.md)
 ├── scripts/               ← кроссплатформенная автоматизация на Python (без ручных команд)
 ├── .github/               ← CI: валидация handoff/state, lint+test, аудит
+├── CHANGELOG.md           ← история версий для пользователей (Keep a Changelog)
 └── src/                   ← код самого бота (Python/Aiogram) — появляется с TASK-0001
 ```
+
+> **Два CHANGELOG:** `/CHANGELOG.md` — для пользователей (история релизов), `state/CHANGELOG.md` — журнал сессий разработчика.
 
 ## Быстрый старт
 

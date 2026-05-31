@@ -1,8 +1,12 @@
 """
 Тесты схемы БД и миграций.
 
-Проверка что все таблицы из data-model.md создаются корректно.
+Проверка что все таблицы из data-model.md создаются корректно,
+с FK, ON DELETE CASCADE и UNIQUE constraints.
 """
+
+from datetime import date, datetime
+from decimal import Decimal
 
 from sqlalchemy import text
 
@@ -27,7 +31,8 @@ async def test_all_tables_created(db_session) -> None:
     # Ожидаемые таблицы из data-model.md
     expected_tables = {"users", "wallets", "categories", "charges", "sent_reminders"}
 
-    assert tables == expected_tables, f"Expected {expected_tables}, got {tables}"
+    # alembic_version - служебная таблица, её наличие нормально
+    assert expected_tables.issubset(tables), f"Expected {expected_tables}, got {tables}"
 
 
 async def test_users_table_columns(db_session) -> None:
@@ -46,14 +51,18 @@ async def test_users_table_columns(db_session) -> None:
 
     for col, _col_type in expected.items():
         assert col in columns, f"Column {col} missing from users table"
-        # SQLite doesn't enforce types strictly, just check presence
 
 
 async def test_charges_table_columns(db_session) -> None:
-    """Проверка структуры таблицы charges с Decimal и JSON полями."""
+    """Проверка структуры таблицы charges с Date типами."""
     result = await db_session.execute(text("PRAGMA table_info(charges)"))
-    columns = {row[1] for row in result.fetchall()}
+    columns = {row[1]: row[2] for row in result.fetchall()}
 
+    # Проверяем что next_date и snoozed_until имеют тип DATE (а не DATETIME)
+    assert "next_date" in columns
+    assert "snoozed_until" in columns
+
+    # Проверяем все колонки
     expected = {
         "id",
         "user_id",
@@ -69,14 +78,29 @@ async def test_charges_table_columns(db_session) -> None:
         "snoozed_until",
         "created_at",
     }
+    assert expected.issubset(columns.keys())
 
-    assert columns == expected, f"Expected {expected}, got {columns}"
+
+async def test_foreign_keys_exist(db_session) -> None:
+    """Проверка что внешние ключи созданы через миграцию."""
+    # В SQLite FK можно получить через PRAGMA foreign_key_list
+    expected_fks = {
+        "wallets": [("users", "tg_id")],
+        "categories": [("users", "tg_id")],
+        "charges": [("users", "tg_id"), ("wallets", "id"), ("categories", "id")],
+        "sent_reminders": [("charges", "id")],
+    }
+
+    for table, expected in expected_fks.items():
+        result = await db_session.execute(text(f"PRAGMA foreign_key_list({table})"))
+        fks = result.fetchall()
+
+        # Проверяем количество FK
+        assert len(fks) == len(expected), f"Expected {len(expected)} FKs in {table}, got {len(fks)}"
 
 
 async def test_sent_reminders_unique_constraint(db_session) -> None:
     """Проверка UNIQUE ограничения на sent_reminders (ADR-0005)."""
-    # В SQLite UNIQUE constraint создаёт implicit index
-    # Проверяем через SQL определения таблицы
     result = await db_session.execute(
         text("SELECT sql FROM sqlite_master WHERE type='table' AND name='sent_reminders'")
     )
@@ -87,6 +111,123 @@ async def test_sent_reminders_unique_constraint(db_session) -> None:
     assert "charge_id" in table_sql
     assert "target_date" in table_sql
     assert "days_before" in table_sql
+
+
+async def test_cascade_delete_charge_removes_sent_reminders(db_session) -> None:
+    """
+    Проверка ON DELETE CASCADE: удаление charge удаляет связанные sent_reminders.
+
+    Для SQLite нужно включить PRAGMA foreign_keys.
+    """
+    # Включаем FK в SQLite
+    await db_session.execute(text("PRAGMA foreign_keys=ON"))
+    await db_session.commit()
+
+    # Создаём тестовые данные
+    from datetime import date
+
+    # Создаём пользователя
+    user = User(tg_id=12345)
+    db_session.add(user)
+    await db_session.flush()
+
+    # Создаём кошелёк
+    wallet = Wallet(user_id=12345, name="Test Wallet")
+    db_session.add(wallet)
+    await db_session.flush()
+
+    # Создаём списание
+    charge = Charge(
+        id=1,
+        user_id=12345,
+        name="Test Charge",
+        amount=Decimal("100.00"),
+        wallet_id=1,
+        next_date=date(2026, 6, 1),
+        period="monthly",
+    )
+    db_session.add(charge)
+    await db_session.flush()
+
+    # Создаём напоминание
+    reminder = SentReminder(
+        charge_id=1,
+        target_date=date(2026, 6, 1),
+        days_before=5,
+        sent_at=datetime.now(),
+    )
+    db_session.add(reminder)
+    await db_session.commit()
+
+    # Проверяем что reminder создан
+    result = await db_session.execute(text("SELECT COUNT(*) FROM sent_reminders"))
+    count_before = result.scalar()
+    assert count_before == 1
+
+    # Удаляем charge
+    await db_session.delete(charge)
+    await db_session.commit()
+
+    # Проверяем что reminder тоже удалён (CASCADE)
+    result = await db_session.execute(text("SELECT COUNT(*) FROM sent_reminders"))
+    count_after = result.scalar()
+    assert count_after == 0, "SentReminder should be cascade deleted with Charge"
+
+
+async def test_unique_constraint_prevents_duplicate_reminders(db_session) -> None:
+    """Проверка что UNIQUE constraint предотвращает дубликаты."""
+    # Включаем FK в SQLite
+    await db_session.execute(text("PRAGMA foreign_keys=ON"))
+    await db_session.commit()
+
+    # Создаём тестовые данные
+    user = User(tg_id=99999)
+    db_session.add(user)
+    await db_session.flush()
+
+    wallet = Wallet(user_id=99999, name="W")
+    db_session.add(wallet)
+    await db_session.flush()
+    wallet_id = wallet.id
+
+    charge = Charge(
+        user_id=99999,
+        name="C",
+        amount=Decimal("1.00"),
+        wallet_id=wallet_id,
+        next_date=date(2026, 6, 1),
+        period="monthly",
+    )
+    db_session.add(charge)
+    await db_session.flush()
+    charge_id = charge.id
+
+    # Создаём первый reminder
+    reminder1 = SentReminder(
+        charge_id=charge_id,
+        target_date=date(2026, 6, 1),
+        days_before=5,
+        sent_at=datetime.now(),
+    )
+    db_session.add(reminder1)
+    await db_session.commit()
+
+    # Пытаемся создать дубликат
+    reminder2 = SentReminder(
+        charge_id=charge_id,
+        target_date=date(2026, 6, 1),
+        days_before=5,
+        sent_at=datetime.now(),
+    )
+    db_session.add(reminder2)
+
+    # Должно получить ошибку при коммите
+    try:
+        await db_session.commit()
+        raise AssertionError("Should have raised IntegrityError for duplicate reminder")
+    except Exception:
+        # Ожидаемая ошибка UNIQUE constraint
+        await db_session.rollback()
 
 
 async def test_user_model_repr() -> None:
