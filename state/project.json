@@ -5,9 +5,9 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T00:00:00Z",
-  "current_phase": "M0 завершён → подготовка M1",
-  "current_milestone": "M0",
+  "updated_at": "2026-06-01T01:00:00Z",
+  "current_phase": "M1: Скелет проекта",
+  "current_milestone": "M1",
   "active_task": null,
   "last_session": "SESSION-2026-06-01-01",
   "stack": {
@@ -27,5 +27,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Каркас опубликован в GitHub. Архитектурные решения закрыты ADR-0003…0007, TASK-0001 уточнён. Далее: исполнитель берёт TASK-0001 (/take-task) — скелет на SQLAlchemy+Alembic, long polling."
+  "next_step": "TASK-0001 выполнен: создан скелет Python/Aiogram-проекта с SQLAlchemy 2.0 async, Alembic, long polling. Бот отвечает на /start с инлайн-меню. Все тесты проходят. Далее: следующая задача из M1 или M2."
 }

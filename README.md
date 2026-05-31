@@ -62,6 +62,28 @@
 
 ## Быстрый старт
 
+### Локальный запуск бота
+
+Для запуска бота требуется Python 3.11+ и токен Telegram-бота от [@BotFather](https://t.me/BotFather).
+
+```bash
+# Клонирование и установка зависимостей
+git clone https://github.com/nmetluk/wrbot.git
+cd wrbot
+python -m venv venv
+source venv/bin/activate  # на Windows: venv\Scripts\activate
+pip install -e ".[dev]"
+
+# Создание .env файла с токеном
+cp .env.example .env
+# Отредактируйте .env и вставьте ваш bot_token
+
+# Запуск бота
+python -m wrbot
+```
+
+После запуска бот будет отвечать на команду `/start` в Telegram. Логи пишутся в `logs/wrbot.log`.
+
 ### Первичная публикация (один раз)
 Репозиторий уже инициализирован и закоммичен локально. Чтобы опубликовать каркас в GitHub:
 
