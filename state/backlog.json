@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-05-31T23:26:39Z",
+  "generated_at": "2026-05-31T23:36:15Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
     "inbox": 1,
@@ -27,7 +27,7 @@
     },
     {
       "id": "TASK-0003",
-      "title": "Исправить запуск pytest без BOT_TOKEN",
+      "title": "Развязать импорт пакета и секреты; зелёный CI без BOT_TOKEN",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0003-pytest-fix-bot-token.md",
       "milestone": "M1",

@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-05-31T23:45:00Z",
-  "current_phase": "M1: Скелет проекта",
+  "updated_at": "2026-06-01T03:00:00Z",
+  "current_phase": "M1: Скелет проекта (переоткрыт — CI красный)",
   "current_milestone": "M1",
   "active_task": "TASK-0003",
-  "last_session": "SESSION-2026-05-31-03",
+  "last_session": "SESSION-2026-06-01-03",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -27,5 +27,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Аудит M1 завершён: принято с замечаниями. TASK-0003 (minor) — исправить pytest без BOT_TOKEN. После закрытия TASK-0003 → старт M2."
+  "next_step": "Ревью TASK-0002 (SESSION-2026-06-01-03): слой данных принят, но M1 переоткрыт — CI красный (pytest и validate). TASK-0003 = BLOCKER: развязать импорт и секреты, зелёный CI. После закрытия TASK-0003 → ПЕРЕАУДИТ M1, и только потом M2."
 }
