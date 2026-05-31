@@ -16,6 +16,9 @@
 
 ## Конец сессии (обязательно)
 1. Создать лог `sessions/SESSION-YYYY-MM-DD-NN.md` (шаблон `docs/templates/session-log.template.md`).
+   **ID уникален.** Если на дату уже есть лог с этим `NN` — увеличь `NN` (01 → 02 → …).
+   **Никогда не перезаписывай существующий лог сессии** (в нескольких сессиях за день
+   участвуют разные роли/агенты; затирание уничтожает их контекст).
 2. Обновить `state/project.json` (`updated_at`, `current_phase`, `active_task`,
    `last_session`, `next_step`).
 3. Запустить `python scripts/update_state.py` (пересбор `backlog.json`).
