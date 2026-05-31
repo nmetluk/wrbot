@@ -5,7 +5,7 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-05-31T20:40:35Z",
+  "updated_at": "2026-05-31T21:05:05Z",
   "current_phase": "M0 — Инфраструктура",
   "current_milestone": "M0",
   "active_task": null,
@@ -27,5 +27,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Опубликовать каркас в GitHub (bootstrap push), затем взять TASK-0001 из handoff/inbox."
+  "next_step": "Каркас опубликован в GitHub (origin/main, commit 5128548). Далее: исполнитель берёт TASK-0001 из handoff/inbox через /take-task."
 }
