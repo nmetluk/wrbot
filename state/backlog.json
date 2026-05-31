@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-05-31T23:20:41Z",
+  "generated_at": "2026-05-31T23:26:39Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 1,
     "in_progress": 0,
     "done": 2,
     "blocked": 0
@@ -24,6 +24,14 @@
       "file": "handoff/done/TASK-0002-skeleton-fixes.md",
       "milestone": "M1",
       "report": "handoff/reports/TASK-0002-report.md"
+    },
+    {
+      "id": "TASK-0003",
+      "title": "Исправить запуск pytest без BOT_TOKEN",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0003-pytest-fix-bot-token.md",
+      "milestone": "M1",
+      "report": null
     }
   ]
 }

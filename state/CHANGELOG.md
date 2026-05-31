@@ -25,6 +25,15 @@
 - CASCADE delete работает для charge → sent_reminders
 - UNIQUE constraint предотвращает дубликаты напоминаний
 
+### Audited
+- **M1 — аудит майлстоуна (аудитор, SESSION-2026-05-31-03):**
+  - Вердикт: принято с замечаниями
+  - validate.py, ruff, mypy, pytest — зелёные
+  - pip-audit: 4 CVE в pip 24.0 (mitigation: обновить до 26.1+)
+  - Найходка: pytest требует BOT_TOKEN=test → TASK-0003 (minor)
+  - Безопасность секретов: ок (.env в .gitignore)
+  - Архитектура: слои соблюдены, ADR на месте
+
 ## [2026-06-01]
 
 ### Added
