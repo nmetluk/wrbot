@@ -1,0 +1,31 @@
+{
+  "$schema": "./project.schema.json",
+  "project": "wrbot",
+  "title": "Telegram-бот «Напоминания об оплатах»",
+  "spec": "docs/spec/spec-v1.md",
+  "spec_version": "1.0",
+  "source_of_truth": "https://github.com/nmetluk/wrbot",
+  "updated_at": "2026-05-31T20:40:35Z",
+  "current_phase": "M0 — Инфраструктура",
+  "current_milestone": "M0",
+  "active_task": null,
+  "last_session": "SESSION-2026-05-31-01",
+  "stack": {
+    "language": "Python 3",
+    "bot_framework": "Aiogram 3.x",
+    "database": "SQLite (старт) / PostgreSQL",
+    "scheduler": "APScheduler",
+    "tooling": ["ruff", "mypy", "pytest"]
+  },
+  "roles": {
+    "architect": "Cowork (постановка задач, ревью, аудит)",
+    "executor": "Claude Code на машине с PAT (реализация, push)"
+  },
+  "key_facts": [
+    "Источник правды — GitHub; синхронизация только через git pull/push.",
+    "Каждый шаг — отдельная сессия; контекст восстанавливается из AGENTS.md + state/ + последнего лога sessions/.",
+    "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
+    "Интерфейс бота — только русский (ТЗ §4)."
+  ],
+  "next_step": "Опубликовать каркас в GitHub (bootstrap push), затем взять TASK-0001 из handoff/inbox."
+}

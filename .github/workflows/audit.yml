@@ -1,0 +1,39 @@
+name: audit
+
+# Запускается вручную (по завершении майлстоуна). Готовит автоматическую часть
+# аудита; содержательный аудит проводится агентом в отдельной сессии (/audit).
+on:
+  workflow_dispatch:
+    inputs:
+      milestone:
+        description: "Майлстоун для аудита (например M1)"
+        required: true
+        default: "M1"
+
+jobs:
+  automated-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Process integrity
+        run: python scripts/validate.py
+      - name: Dependency audit
+        run: |
+          pip install pip-audit
+          if [ -f pyproject.toml ] || [ -f requirements.txt ]; then
+            pip-audit || true
+          else
+            echo "Зависимостей пока нет — пропуск pip-audit."
+          fi
+      - name: Secret-scan heuristic
+        shell: bash
+        run: |
+          echo "Проверка, что .env не закоммичен:"
+          if git ls-files | grep -E '(^|/)\.env$'; then
+            echo "::error::.env найден в репозитории!"; exit 1;
+          else echo "ok: .env не отслеживается"; fi
+      - name: Reminder
+        run: echo "Запусти содержательный аудит '${{ github.event.inputs.milestone }}' в отдельной сессии командой /audit."

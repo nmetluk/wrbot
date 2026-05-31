@@ -1,0 +1,47 @@
+# ---- Секреты и окружение (НИКОГДА не коммитим) ----
+.env
+.env.*
+!.env.example
+*.pat
+*token*
+*secret*
+credentials*.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ---- База данных (локальные данные не коммитим) ----
+*.sqlite
+*.sqlite3
+*.db
+data/*.sqlite*
+
+# ---- ОС ----
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# ---- Редакторы ----
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# ---- Логи рантайма бота (не путать с sessions/ — это документация) ----
+logs/
+*.log

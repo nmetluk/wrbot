@@ -1,0 +1,21 @@
+{
+  "generated_by": "scripts/update_state.py",
+  "generated_at": "2026-05-31T20:55:03Z",
+  "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
+  "counts": {
+    "inbox": 1,
+    "in_progress": 0,
+    "done": 0,
+    "blocked": 0
+  },
+  "tasks": [
+    {
+      "id": "TASK-0001",
+      "title": "Скелет Python/Aiogram-проекта",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0001-project-skeleton.md",
+      "milestone": "M1",
+      "report": null
+    }
+  ]
+}

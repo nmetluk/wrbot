@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nmetluk/wrbot/state/project.schema.json",
+  "title": "wrbot project state",
+  "type": "object",
+  "required": ["project", "updated_at", "current_milestone", "last_session", "next_step"],
+  "properties": {
+    "project": { "type": "string" },
+    "title": { "type": "string" },
+    "spec": { "type": "string" },
+    "spec_version": { "type": "string" },
+    "source_of_truth": { "type": "string", "format": "uri" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "current_phase": { "type": "string" },
+    "current_milestone": { "type": "string" },
+    "active_task": { "type": ["string", "null"] },
+    "last_session": { "type": "string" },
+    "stack": { "type": "object" },
+    "roles": { "type": "object" },
+    "key_facts": { "type": "array", "items": { "type": "string" } },
+    "next_step": { "type": "string" }
+  }
+}
