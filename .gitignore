@@ -1,11 +1,19 @@
 # ---- Секреты и окружение (НИКОГДА не коммитим) ----
+# Паттерны узкие: широкие *token*/*secret* молча проглатывали легальные файлы
+# (имена задач, модули вроде token_service.py) — см. SESSION-2026-06-01-03.
 .env
 .env.*
 !.env.example
 *.pat
-*token*
-*secret*
+*.token
+*.secret
+*.pem
+*.key
+secrets.json
+secrets.yaml
+secrets.yml
 credentials*.json
+.git-credentials
 
 # ---- Python ----
 __pycache__/
