@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T19:45:00Z",
-  "current_phase": "M3 ПРИНЯТ (AUDIT-M3) → старт M4 (уведомления)",
+  "updated_at": "2026-06-01T20:15:00Z",
+  "current_phase": "M4: Уведомления (задачи поставлены)",
   "current_milestone": "M4",
   "active_task": null,
-  "last_session": "SESSION-2026-06-01-22",
+  "last_session": "SESSION-2026-06-01-23",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "M3 ПРИНЯТ аудитом (AUDIT-M3-2026-06-01, SESSION-2026-06-01-22): CI зелёный, домен дат/mark_paid и роутинг проверены. Заведена TASK-0013 (low, router-тест charges). Следующий шаг: архитектор декомпозирует M4 (уведомления: APScheduler, свип, sent_reminders, дни, отправка, «Отложить» — ADR-0005)."
+  "next_step": "M4 декомпозирован (SESSION-2026-06-01-23): TASK-0014 (due-логика + sent_reminders + snooze), TASK-0015 (текст+кнопки уведомления), TASK-0016 (свип-планировщик) в inbox; плюс TASK-0013 (low). Исполнитель: /take-task → TASK-0014 → 0015 → 0016. После M4 — строгий аудит (рестарт/идемпотентность/точность)."
 }

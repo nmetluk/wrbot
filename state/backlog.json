@@ -3,7 +3,7 @@
   "generated_at": "2026-06-01T19:12:54Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 4,
     "in_progress": 0,
     "done": 12,
     "blocked": 0
@@ -111,6 +111,30 @@
       "status": "inbox",
       "file": "handoff/inbox/TASK-0013-charge-routing-test.md",
       "milestone": "M3",
+      "report": null
+    },
+    {
+      "id": "TASK-0014",
+      "title": "M4: логика напоминаний (due-расчёт) + SentReminderRepository + snooze",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0014-m4-reminder-logic.md",
+      "milestone": "M4",
+      "report": null
+    },
+    {
+      "id": "TASK-0015",
+      "title": "M4: текст уведомления + кнопки Оплачено/Отложить/Редактировать (FR-12)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0015-m4-reminder-message.md",
+      "milestone": "M4",
+      "report": null
+    },
+    {
+      "id": "TASK-0016",
+      "title": "M4: свип-планировщик APScheduler (рестарт-безопасность, идемпотентность)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0016-m4-sweep-scheduler.md",
+      "milestone": "M4",
       "report": null
     }
   ]
