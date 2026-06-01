@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T20:54:55Z",
+  "generated_at": "2026-06-01T21:02:12Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 14,
+    "done": 15,
     "blocked": 0
   },
   "tasks": [
@@ -132,10 +132,10 @@
     {
       "id": "TASK-0016",
       "title": "\"M4: свип-планировщик APScheduler (рестарт-безопасность, идемпотентность)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0016-m4-sweep-scheduler.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0016-m4-sweep-scheduler.md",
       "milestone": "M4",
-      "report": null
+      "report": "handoff/reports/TASK-0016-report.md"
     }
   ]
 }

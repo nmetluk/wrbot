@@ -22,7 +22,7 @@ from wrbot.bot.middlewares.db import DbSessionMiddleware
 from wrbot.config import get_settings
 from wrbot.db import get_engine, get_session_factory
 from wrbot.logging import setup_logging
-from wrbot.scheduler.app import setup_scheduler
+from wrbot.scheduler.app import register_sweep_job, setup_scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +94,10 @@ async def main() -> None:
     # Настройка команд в меню
     await setup_bot_commands(bot)
 
-    # Инициализация планировщика
+    # Инициализация планировщика + регистрация свипа (M4 TASK-0016)
     logger.info("Initializing scheduler...")
     scheduler = setup_scheduler()
+    register_sweep_job(scheduler, bot, session_factory)
     scheduler.start()
 
     # Запуск long polling

@@ -16,6 +16,13 @@
   - Полный CI зелёный (134 pytest, 0 от нашего кода в mypy, ruff, alembic, validate).
   - Отчёт: `handoff/reports/TASK-0015-report.md`. Следующий: 0016 (свип).
 
+- **TASK-0016 — M4 свип-планировщик APScheduler (исполнитель, SESSION-2026-06-01-26):**
+  - AsyncIOScheduler (UTC) + 1-минутный IntervalTrigger, регистрация свипа после создания bot.
+  - `run_sweep`: использует готовые due-функции (0014), шлёт bot.send_message + клавиатуру (0015), пишет sent_reminders только после успеха, изоляция ошибок.
+  - Рестарт-безопасность и идемпотентность через БД (тест: 2 тика = 1 отправка).
+  - Тесты + полный CI (138 pytest, ruff/mypy 0 на новых файлах).
+  - Отчёт: `handoff/reports/TASK-0016-report.md`. **M4 завершён → аудит.**
+
 ### Planned
 - **Декомпозиция M4 (архитектор, SESSION-2026-06-01-23):** в `inbox/` поставлены
   **TASK-0014** (due-логика напоминаний + `SentReminderRepository` + `snooze`),

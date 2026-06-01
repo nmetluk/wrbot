@@ -1,10 +1,23 @@
 """
-APScheduler integration.
+APScheduler integration (M4, TASK-0016).
 
-Планировщик для своевременной отправки напоминаний (NFR-1).
+Планировщик для своевременной отправки напоминаний (NFR-1, NFR-2).
+- UTC время, 1-минутный тик.
+- In-memory jobstore (истина в БД + sent_reminders).
+- Регистрация свипа после создания бота.
 """
 
+from __future__ import annotations
+
+from datetime import UTC
+from typing import TYPE_CHECKING
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+
+if TYPE_CHECKING:
+    from aiogram import Bot
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 # Глобальный планировщик (инициализируется в __main__.py)
 scheduler: AsyncIOScheduler | None = None
@@ -16,8 +29,30 @@ def get_scheduler() -> AsyncIOScheduler | None:
 
 
 def setup_scheduler() -> AsyncIOScheduler:
-    """Создать и настроить планировщик."""
+    """Создать и настроить AsyncIOScheduler (UTC, in-memory jobstore)."""
     global scheduler
-    # TODO: M3 - настроить timezone, job stores
-    scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler(timezone=UTC)
     return scheduler
+
+
+def register_sweep_job(
+    scheduler: AsyncIOScheduler,
+    bot: Bot,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    """
+    Зарегистрировать периодический свип (каждую минуту по UTC).
+
+    Вызывается из __main__ после создания bot и session_factory.
+    """
+    from wrbot.scheduler.sweep import run_sweep  # локальный импорт, чтобы избежать циклов
+
+    scheduler.add_job(
+        run_sweep,
+        trigger=IntervalTrigger(minutes=1, timezone=UTC),
+        args=[bot, session_factory],
+        id="reminder_sweep",
+        name="Reminder sweep (due notifications)",
+        replace_existing=True,
+        misfire_grace_time=30,  # секунд, на случай задержек
+    )
