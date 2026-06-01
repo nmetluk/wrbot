@@ -3,7 +3,7 @@
   "generated_at": "2026-06-01T23:31:00Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 1,
     "in_progress": 0,
     "done": 25,
     "blocked": 0
@@ -208,6 +208,14 @@
       "file": "handoff/done/TASK-0025-m5-timezone-ui.md",
       "milestone": "M5",
       "report": "handoff/reports/TASK-0025-report.md"
+    },
+    {
+      "id": "TASK-0026",
+      "title": "RELEASE BLOCKER: UI глобальных уведомлений (FR-10) — время и дни",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0026-global-notify-settings.md",
+      "milestone": "M5",
+      "report": null
     }
   ]
 }

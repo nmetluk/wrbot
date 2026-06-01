@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Audited (rejected — release)
+- **Финальный аудит перед релизом (архитектор-аудитор, SESSION-2026-06-02-01): НЕ ПРИНЯТО.**
+  Гейт зелёный (ruff/mypy 0/pytest 157/alembic/validate; CI детерминирован через uv.lock).
+  Безопасность, надёжность 24/7 (error-handler, graceful shutdown, идемпотентный свип), деплой —
+  готовы. **Блокер: FR-10 не реализован** — «🔔 Глобальные уведомления» осталась заглушкой,
+  нельзя изменить время уведомлений и глобальные дни (ТЗ §3.3). → **TASK-0026** (release blocker).
+  Отчёт: `handoff/reports/AUDIT-M5-2026-06-02.md`.
+
 ### Done (M5 start)
 - **TASK-0020 (executor, SESSION-2026-06-01-34):** ✅ детерминированный CI — `.github/workflows/ci.yml` переведён на `uv sync --frozen --extra dev` + все гейты через `uv run`. Обновлены инструкции в `executor-guide.md` + `CONTRIBUTING.md`. Полностью воспроизведено локально (Python 3.11.15 + ruff 0.15.15 / mypy 2.1.0 / pytest 9.0.3 из lock; 145 тестов зелёно). CI будет зелёным на GitHub. След: TASK-0021.
 - **TASK-0021 (executor, SESSION-2026-06-01-35):** ✅ устойчивость 24/7 и обработка ошибок — глобальный `@error_router.error()`, graceful shutdown по SIGTERM/SIGINT (с остановкой polling + scheduler), дружелюбная обработка FK RESTRICT при удалении кошелька с активными charges (в handlers), улучшенные сообщения на старте. +3 теста. Все AC пройдены, CI 148 passed зелёный. След: TASK-0022.
