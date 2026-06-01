@@ -7,6 +7,16 @@
 
 ## [Unreleased]
 
+### Fixed
+- **TASK-0003 — развязать импорт пакета от секретов (исполнитель, SESSION-2026-05-31-04, SESSION-2026-06-01-04):**
+  - Убран глобальный `settings` из config.py, добавлен `@lru_cache` к `get_settings()`
+  - Убран импорт `settings` из `__init__.py` — импорт пакета теперь не требует BOT_TOKEN
+  - Изменён `logging.py` и `__main__.py` на ленивый `get_settings()`
+  - Изменён `test_config.py` и `test_imports.py` для работы без BOT_TOKEN
+  - CI зелёный: pytest (11 passed) проходит без BOT_TOKEN, ruff/mypy/validate — OK
+  - alembic upgrade head работает без BOT_TOKEN
+  - TASK-0003 перенесена в done/, отчёт и логи сессий добавлены
+
 ### Changed
 - **TASK-0002 — доработка скелета (исполнитель, SESSION-2026-05-31-02):**
   - Исправлен `alembic/env.py` для работы с async/sync URL (sqlite+aiosqlite и sqlite)
