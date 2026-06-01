@@ -13,6 +13,7 @@
 - **TASK-0022 (executor, SESSION-2026-06-01-36):** ✅ Docker деплой 24/7. `Dockerfile` (uv+lock), entrypoint с миграциями, compose (postgres profile). Образ собирается, CI зелёный.
 - **TASK-0023 (executor, SESSION-2026-06-01-37):** ✅ документация + «Помощь». Расширен help_text, README, deployment.md. CI зелёный.
 - **TASK-0024 (executor, SESSION-2026-06-01-38):** ✅ edge-тесты и полировка. test_edge_scenarios.py + test_e2e_smoke.py (6 новых тестов). Review открытых вопросов requirements (большинство закрыты предыдущими тасками). CI 154 passed зелёный. Готово к финальному аудиту.
+- **TASK-0025 (executor, SESSION-2026-06-01-39):** ✅ UI выбора TZ в Настройках. Добавлен пункт в меню, клавиатура с 11 российскими поясами, валидация ZoneInfo, сохранение, специфичные callbacks + router test, тексты. CI 157 passed зелёный.
 
 ### Planned
 - **Декомпозиция M5 (архитектор, SESSION-2026-06-01-33):** в `inbox/` — **TASK-0020** (детерминизм

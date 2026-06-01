@@ -13,9 +13,12 @@ if TYPE_CHECKING:
     from aiogram.types import CallbackQuery, Message
     from sqlalchemy.ext.asyncio import AsyncSession
 
+from zoneinfo import ZoneInfo
+
 from wrbot.bot.keyboards import (
     get_categories_keyboard,
     get_settings_menu_keyboard,
+    get_tz_keyboard,
     get_wallets_keyboard,
 )
 from wrbot.bot.texts import Texts
@@ -127,3 +130,52 @@ async def cancel_command(message: Message, state: FSMContext) -> None:
     """Отменить текущее действие (команда)."""
     await state.clear()
     await message.answer(Texts.action_cancelled)
+
+
+@router.callback_query(F.data == "settings_tz")
+async def tz_menu(callback: CallbackQuery, **data: Any) -> None:
+    """Показать текущий часовой пояс и меню выбора."""
+    session: AsyncSession = cast("AsyncSession", data["session"])
+    user_repo = UserRepository(session)
+    tg_id = callback.from_user.id
+    await user_repo.get_or_create(tg_id)
+
+    user = await user_repo.get(tg_id)
+    current_tz = user.tz if user else "Europe/Moscow"
+
+    text = Texts.settings_tz_current.format(tz=current_tz)
+    keyboard = get_tz_keyboard(current_tz)
+
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        text, reply_markup=keyboard
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("tz_set_"))
+async def process_tz_choice(callback: CallbackQuery, **data: Any) -> None:
+    """Обработать выбор TZ из списка. Валидация + сохранение."""
+    session: AsyncSession = cast("AsyncSession", data["session"])
+    user_repo = UserRepository(session)
+    tg_id = callback.from_user.id
+
+    # Parse IANA from callback (tz_set_Europe_Moscow -> Europe/Moscow)
+    tz_raw = (callback.data or "").replace("tz_set_", "").replace("_", "/")
+
+    # Валидация через ZoneInfo (некорректное — отклонить)
+    try:
+        ZoneInfo(tz_raw)
+    except Exception:
+        await callback.answer(Texts.invalid_tz, show_alert=True)
+        return
+
+    await user_repo.set_tz(tg_id, tz_raw)
+
+    # Возврат в меню настроек с подтверждением
+    text = Texts.tz_changed.format(tz=tz_raw)
+    from wrbot.bot.keyboards import get_settings_menu_keyboard
+
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.settings_menu, reply_markup=get_settings_menu_keyboard()
+    )
+    await callback.answer(text)

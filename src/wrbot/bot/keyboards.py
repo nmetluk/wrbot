@@ -9,6 +9,21 @@ from typing import Any
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+# Curated list of main Russian timezones for UI (per TASK-0025, not full IANA)
+TZ_CHOICES: list[tuple[str, str]] = [
+    ("Калининград (Europe/Kaliningrad) UTC+2", "Europe/Kaliningrad"),
+    ("Москва (Europe/Moscow) UTC+3", "Europe/Moscow"),
+    ("Самара (Europe/Samara) UTC+4", "Europe/Samara"),
+    ("Екатеринбург (Asia/Yekaterinburg) UTC+5", "Asia/Yekaterinburg"),
+    ("Омск (Asia/Omsk) UTC+6", "Asia/Omsk"),
+    ("Красноярск (Asia/Krasnoyarsk) UTC+7", "Asia/Krasnoyarsk"),
+    ("Иркутск (Asia/Irkutsk) UTC+8", "Asia/Irkutsk"),
+    ("Якутск (Asia/Yakutsk) UTC+9", "Asia/Yakutsk"),
+    ("Владивосток (Asia/Vladivostok) UTC+10", "Asia/Vladivostok"),
+    ("Магадан (Asia/Magadan) UTC+11", "Asia/Magadan"),
+    ("Камчатка (Asia/Kamchatka) UTC+12", "Asia/Kamchatka"),
+]
+
 
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     """
@@ -53,6 +68,7 @@ def get_settings_menu_keyboard() -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(text="🔔 Глобальные уведомления", callback_data="settings_global")
     )
+    builder.row(InlineKeyboardButton(text="🕒 Часовой пояс", callback_data="settings_tz"))
     builder.row(InlineKeyboardButton(text="◀️ Назад", callback_data="main_menu"))
     return builder.as_markup()
 
@@ -330,4 +346,29 @@ def get_reminder_actions_keyboard(charge_id: int) -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"remind_edit_{charge_id}"),
     )
+    return builder.as_markup()
+
+
+def get_tz_keyboard(current_tz: str) -> InlineKeyboardMarkup:
+    """
+    Клавиатура выбора часового пояса.
+
+    Показывает текущий с пометкой, кнопки для каждого из курируемого списка.
+    Callbacks специфичны tz_set_<iana_replaced> — не перехватывают чужие (урок TASK-0008).
+
+    Args:
+        current_tz: текущий IANA tz пользователя
+
+    Returns:
+        InlineKeyboardMarkup с выбором TZ
+    """
+    builder = InlineKeyboardBuilder()
+
+    for display, iana in TZ_CHOICES:
+        prefix = "✅ " if iana == current_tz else ""
+        # Replace / with _ for safe callback_data
+        cb_data = f"tz_set_{iana.replace('/', '_')}"
+        builder.row(InlineKeyboardButton(text=f"{prefix}{display}", callback_data=cb_data))
+
+    builder.row(InlineKeyboardButton(text="◀️ Назад", callback_data="settings"))
     return builder.as_markup()

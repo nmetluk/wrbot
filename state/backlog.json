@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T23:22:57Z",
+  "generated_at": "2026-06-01T23:31:00Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 24,
+    "done": 25,
     "blocked": 0
   },
   "tasks": [
@@ -204,10 +204,10 @@
     {
       "id": "TASK-0025",
       "title": "\"M5: выбор часового пояса в Настройках (корректное время для не-МСК)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0025-m5-timezone-ui.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0025-m5-timezone-ui.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0025-report.md"
     }
   ]
 }

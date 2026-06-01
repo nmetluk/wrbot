@@ -68,3 +68,27 @@ class UserRepository:
         await self._session.flush()
         logger.info("Created user: tg_id=%s", tg_id)
         return user
+
+    async def get(self, tg_id: int) -> User | None:
+        """Получить пользователя по tg_id."""
+        result = await self._session.execute(select(User).where(User.tg_id == tg_id))
+        return result.scalar_one_or_none()
+
+    async def set_tz(self, tg_id: int, tz: str) -> User | None:
+        """
+        Установить часовой пояс пользователю.
+
+        Валидация ZoneInfo должна быть снаружи (в handler).
+
+        Returns:
+            Обновлённый User или None
+        """
+        from sqlalchemy import update
+
+        result = await self._session.execute(
+            update(User).where(User.tg_id == tg_id).values(tz=tz).returning(User)
+        )
+        user = result.scalar_one_or_none()
+        if user:
+            logger.info("TZ updated: tg_id=%s, tz=%s", tg_id, tz)
+        return user
