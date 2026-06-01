@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T01:00:25Z",
+  "generated_at": "2026-06-01T01:41:02Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 4,
+    "done": 5,
     "blocked": 0
   },
   "tasks": [
@@ -44,10 +44,10 @@
     {
       "id": "TASK-0005",
       "title": "Справочники: бот-UI (Настройки → Кошельки/Категории), CRUD",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0005-m2-reference-ui.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0005-m2-reference-ui.md",
       "milestone": "M2",
-      "report": null
+      "report": "handoff/reports/TASK-0005-report.md"
     }
   ]
 }

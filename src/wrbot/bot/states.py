@@ -2,10 +2,9 @@
 FSM states for multi-step dialogs.
 
 Состояния для aiogram FSM — пошаговые диалоги создания/редактирования сущностей.
-Будут заполнены в M2–M4.
 """
 
-from aiogram.fsm.state import StatesGroup
+from aiogram.fsm.state import State, StatesGroup
 
 
 class FormStates(StatesGroup):
@@ -14,7 +13,28 @@ class FormStates(StatesGroup):
     pass
 
 
-# TODO: M2 - добавить состояния для создания списания:
+# M2 - состояния для кошельков
+class WalletStates(StatesGroup):
+    """Состояния для создания/переименования кошелька."""
+
+    name = State()  # Ввод названия кошелька
+
+
+# M2 - состояния для категорий
+class CategoryStates(StatesGroup):
+    """Состояния для создания/переименования категории."""
+
+    name = State()  # Ввод названия категории
+
+
+# M2 - состояние подтверждения удаления
+class ConfirmDeleteStates(StatesGroup):
+    """Состояние для подтверждения удаления."""
+
+    confirm = State()  # Ожидание подтверждения
+
+
+# TODO: M3 - добавить состояния для создания списания:
 # class NewChargeStates(StatesGroup):
 #     name = State()
 #     amount = State()
@@ -22,16 +42,6 @@ class FormStates(StatesGroup):
 #     category = State()
 #     next_date = State()
 #     period = State()
-
-
-# TODO: M2 - добавить состояния для создания кошелька:
-# class NewWalletStates(StatesGroup):
-#     name = State()
-
-
-# TODO: M2 - добавить состояния для создания категории:
-# class NewCategoryStates(StatesGroup):
-#     name = State()
 
 
 # TODO: M3 - добавить состояния для настроек:

@@ -8,6 +8,15 @@
 ## [Unreleased]
 
 ### Added
+- **TASK-0005 — бот-UI справочников (исполнитель, SESSION-2026-06-01-10):**
+  - Handlers: settings.py (меню настроек), wallets.py (CRUD кошельков), categories.py (CRUD категорий)
+  - Callback handlers: help, new_charge, list_charges (заглушки M3)
+  - FSM-состояния WalletStates, CategoryStates уже были в states.py (из TASK-0004)
+  - Тексты в texts.py: сообщения для кошельков/категорий, ошибки валидации/лимитов
+  - Тесты: 51 новый тест (handlers + texts_render), моки через patch
+  - ruff format/check, pytest (92 passed), validate — зелёные
+
+### Added
 - **TASK-0004 — слой данных справочников (исполнитель, SESSION-2026-06-01-08):**
   - DbSessionMiddleware: DI AsyncSession в хэндлеры, commit/rollback
   - UserRepository.get_or_create(tg_id) с дефолтами

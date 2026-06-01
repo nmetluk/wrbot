@@ -1,0 +1,81 @@
+"""
+Тест рендера текстов с подстановками.
+
+Проверяет, что все строки с format() корректно рендерятся.
+"""
+
+import pytest
+
+from wrbot.bot.texts import Texts
+
+
+@pytest.mark.parametrize(
+    ("template", "kwargs"),
+    [
+        # Кошельки
+        (Texts.wallet_list_item, {"name": "Тинькофф"}),
+        (Texts.wallet_added, {"name": "Наличные"}),
+        (Texts.wallet_renamed, {"name": "Сбер"}),
+        (Texts.wallet_deleted, {"name": "VTB"}),
+        (Texts.wallet_enter_new_name, {"name": "Старое"}),
+        (Texts.wallet_confirm_delete, {"name": "Тест"}),
+        # Категории
+        (Texts.category_list_item, {"name": "Подписки"}),
+        (Texts.category_added, {"name": "ЖКХ"}),
+        (Texts.category_renamed, {"name": "Кредиты"}),
+        (Texts.category_deleted, {"name": "Еда"}),
+        (Texts.category_enter_new_name, {"name": "Старая"}),
+        (Texts.category_confirm_delete, {"name": "Тест"}),
+        # Ошибки
+        (Texts.error_name_too_long, {"max": 100}),
+        (Texts.error_limit_exceeded, {"max": 10}),
+    ],
+)
+def test_text_template_renders(template, kwargs):
+    """Все шаблоны текстов рендерятся без ошибок с корректными параметрами."""
+    result = template.format(**kwargs)
+    assert isinstance(result, str)
+    assert len(result) > 0
+    # Проверка, что подстановка действительно произошла
+    for value in kwargs.values():
+        assert str(value) in result or value in result
+
+
+def test_wallet_added_render_real_example():
+    """Реальный пример рендера текста добавления кошелька."""
+    wallet_name = "Тинькофф Black"
+    result = Texts.wallet_added.format(name=wallet_name)
+
+    assert result == "✅ Кошелёк «Тинькофф Black» добавлен."
+    assert "Тинькофф Black" in result
+    assert "добавлен" in result
+
+
+def test_category_renamed_render_real_example():
+    """Реальный пример рендера текста переименования категории."""
+    category_name = "Продукты"
+    result = Texts.category_renamed.format(name=category_name)
+
+    assert result == "✅ Категория переименована в «Продукты»."
+    assert "Продукты" in result
+    assert "переименована" in result
+
+
+def test_error_limit_exceeded_render_real_example():
+    """Реальный пример рендера ошибки лимита."""
+    limit = 15
+    result = Texts.error_limit_exceeded.format(max=limit)
+
+    assert result == f"❌ Превышен лимит (максимум {limit} шт.)."
+    assert "15" in result
+    assert "лимит" in result
+
+
+def test_wallet_confirm_delete_render_real_example():
+    """Реальный пример рендера подтверждения удаления кошелька."""
+    wallet_name = "Мой кошелёк"
+    result = Texts.wallet_confirm_delete.format(name=wallet_name)
+
+    assert "Мой кошелёк" in result
+    assert "удалить" in result
+    assert "История списаний" in result
