@@ -107,3 +107,25 @@ async def test_select_users_to_notify_at(async_session):
     users = await select_users_to_notify_at(async_session, now)
     # May or may not find depending on fixture data, but function runs without error
     assert isinstance(users, list)
+
+
+@pytest.mark.asyncio
+async def test_select_users_to_notify_at_respects_notify_time(async_session):
+    """Изменение notify_time реально влияет на выбор пользователей в свипе (FR-10 coverage)."""
+    from datetime import time
+
+    from wrbot.repositories.users import UserRepository
+
+    user_repo = UserRepository(async_session)
+    # Пользователь с 09:00 (UTC+3 -> 06:00 UTC)
+    await user_repo.get_or_create(8888, notify_time=time(9, 0), tz="Europe/Moscow")
+
+    # Точное совпадение 09:00 local
+    now_match = datetime(2026, 8, 15, 6, 0, tzinfo=UTC)
+    users_match = await select_users_to_notify_at(async_session, now_match)
+    assert any(u.tg_id == 8888 for u in users_match)
+
+    # Несовпадение
+    now_mismatch = datetime(2026, 8, 15, 7, 0, tzinfo=UTC)  # 10:00 local
+    users_mismatch = await select_users_to_notify_at(async_session, now_mismatch)
+    assert not any(u.tg_id == 8888 for u in users_mismatch)

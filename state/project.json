@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-02T05:10:00Z",
-  "current_phase": "M5 / финальный аудит: НЕ принято к релизу — FR-10 не реализован",
+  "updated_at": "2026-06-02T06:30:00Z",
+  "current_phase": "M5: FR-10 реализован (TASK-0026 закрыта). Готов к повторному аудиту и релизу v1.",
   "current_milestone": "M5",
-  "active_task": "TASK-0026",
-  "last_session": "SESSION-2026-06-02-01",
+  "active_task": null,
+  "last_session": "SESSION-2026-06-01-40",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Финальный аудит (AUDIT-M5-2026-06-02, SESSION-2026-06-02-01): CI/безопасность/надёжность/деплой готовы, но FR-10 (UI глобальных уведомлений: время+дни) НЕ реализован — заглушка settings_global. Заведена TASK-0026 (release blocker). Исполнитель: /take-task → TASK-0026, затем повторный аудит соответствия ТЗ → релиз v1."
+  "next_step": "Заполнить TASK-0026-report.md, затем отдельная сессия повторного аудита M5 (проверка FR-10 + регресс по ТЗ). При приёме — релиз v1. Далее планирование v2 (§6 ТЗ)."
 }

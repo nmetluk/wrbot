@@ -35,6 +35,10 @@ from wrbot.bot.texts import Texts
             {"name": "Тест", "amount": "1500.00", "wallet": "Тинькофф", "next_date": "2026-06-15"},
         ),
         (Texts.reminder_paid_periodic, {"next_date": "2026-07-15"}),
+        # Глобальные уведомления (TASK-0026)
+        (Texts.global_notify_current, {"time": "09:30", "days": "5, 3, 1"}),
+        (Texts.global_notify_time_saved, {"time": "08:00"}),
+        (Texts.global_days_edit_title, {"current": "5, 3, 1"}),
     ],
 )
 def test_text_template_renders(template, kwargs):
@@ -100,3 +104,11 @@ def test_wallet_confirm_delete_render_real_example():
     assert "Мой кошелёк" in result
     assert "удалить" in result
     assert "История списаний" in result
+
+
+def test_global_notify_current_render_real_example():
+    """Реальный рендер экрана глобальных уведомлений (TASK-0026)."""
+    result = Texts.global_notify_current.format(time="10:00", days="5, 3, 1")
+    assert "10:00" in result
+    assert "5, 3, 1" in result
+    assert "Глобальные уведомления" in result

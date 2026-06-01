@@ -65,3 +65,47 @@ async def test_different_users_are_isolated(async_session):
     assert user1.tg_id == 11111
     assert user2.tg_id == 22222
     assert user1 is not user2  # Разные объекты
+
+
+@pytest.mark.asyncio
+async def test_set_notify_time_updates(async_session):
+    """set_notify_time сохраняет новое время и доступно через get."""
+    from datetime import time
+
+    from wrbot.repositories.users import UserRepository
+
+    repo = UserRepository(async_session)
+    await repo.get_or_create(12345)  # дефолт 10:00
+
+    updated = await repo.set_notify_time(12345, time(8, 30))
+    assert updated is not None
+    assert updated.notify_time.isoformat() == "08:30:00"
+
+    user = await repo.get(12345)
+    assert user is not None
+    assert user.notify_time.isoformat() == "08:30:00"
+
+
+@pytest.mark.asyncio
+async def test_set_global_days_updates(async_session):
+    """set_global_days сохраняет JSON (в т.ч. [] для выключения)."""
+    from wrbot.repositories.users import UserRepository
+
+    repo = UserRepository(async_session)
+    await repo.get_or_create(12345)
+
+    import json
+
+    updated = await repo.set_global_days(12345, "[7,1]")
+    assert updated is not None
+    # json.dumps даёт компактно без пробела после запятой в этом окружении
+    assert updated.global_days in (json.dumps([7, 1]), "[7,1]", "[7, 1]")
+
+    user = await repo.get(12345)
+    assert user is not None
+    assert user.global_days in (json.dumps([7, 1]), "[7,1]", "[7, 1]")
+
+    # выключить
+    await repo.set_global_days(12345, "[]")
+    user2 = await repo.get(12345)
+    assert user2.global_days == "[]"

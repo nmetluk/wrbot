@@ -92,3 +92,41 @@ class UserRepository:
         if user:
             logger.info("TZ updated: tg_id=%s, tz=%s", tg_id, tz)
         return user
+
+    async def set_notify_time(self, tg_id: int, notify_time: time) -> User | None:
+        """
+        Установить время уведомлений (notify_time) для пользователя.
+
+        Используется в глобальных настройках (FR-10 / TASK-0026).
+
+        Returns:
+            Обновлённый User или None
+        """
+        from sqlalchemy import update
+
+        result = await self._session.execute(
+            update(User).where(User.tg_id == tg_id).values(notify_time=notify_time).returning(User)
+        )
+        user = result.scalar_one_or_none()
+        if user:
+            logger.info("notify_time updated: tg_id=%s, notify_time=%s", tg_id, notify_time)
+        return user
+
+    async def set_global_days(self, tg_id: int, global_days: str) -> User | None:
+        """
+        Установить глобальные дни напоминаний (JSON-строка списка, напр. "[5,3,1]" или "[]").
+
+        Валидация списка — в handler. Пустой = выключено.
+
+        Returns:
+            Обновлённый User или None
+        """
+        from sqlalchemy import update
+
+        result = await self._session.execute(
+            update(User).where(User.tg_id == tg_id).values(global_days=global_days).returning(User)
+        )
+        user = result.scalar_one_or_none()
+        if user:
+            logger.info("global_days updated: tg_id=%s, global_days=%s", tg_id, global_days)
+        return user

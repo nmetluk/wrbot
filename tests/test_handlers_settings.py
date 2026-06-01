@@ -59,18 +59,6 @@ async def test_main_menu_callback():
 
 
 @pytest.mark.asyncio
-async def test_global_settings_stub():
-    """Заглушка глобальных настроек."""
-    callback = AsyncMock(spec=CallbackQuery)
-    callback.data = "settings_global"
-    callback.answer = AsyncMock()
-
-    await settings_handler.global_settings_stub(callback)
-
-    callback.answer.assert_called_once_with(Texts.global_settings_stub, show_alert=True)
-
-
-@pytest.mark.asyncio
 async def test_wallets_list_empty(mock_state, mock_session):
     """Список кошельков когда пусто."""
     tg_user = Mock(spec=User)

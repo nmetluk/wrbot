@@ -47,8 +47,9 @@ class NewChargeStates(StatesGroup):
     notify = State()  # 7. Уведомления (глобальные / свои дни / отключить)
 
 
-# TODO: M3 - добавить состояния для настроек:
-# class SettingsStates(StatesGroup):
-#     notify_time = State()
-#     timezone = State()
-#     global_days = State()
+# M5 / TASK-0026 - состояния для глобальных уведомлений (FR-10)
+class SettingsStates(StatesGroup):
+    """Состояния для редактирования настроек глобальных уведомлений: время и дни."""
+
+    notify_time = State()  # Ввод времени ЧЧ:ММ
+    global_days = State()  # Редактирование дней (toggle или ввод)

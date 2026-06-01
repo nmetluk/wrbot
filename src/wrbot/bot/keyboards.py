@@ -372,3 +372,63 @@ def get_tz_keyboard(current_tz: str) -> InlineKeyboardMarkup:
 
     builder.row(InlineKeyboardButton(text="◀️ Назад", callback_data="settings"))
     return builder.as_markup()
+
+
+# TASK-0026: клавиатуры для глобальных уведомлений (FR-10)
+
+
+def get_global_notify_keyboard(notify_time: str, global_days: list[int]) -> InlineKeyboardMarkup:
+    """
+    Экран «Глобальные уведомления»: показывает текущие значения и кнопки редактирования.
+
+    Callbacks: gnotify_time, gnotify_days — специфичные (не перехватываются).
+
+    Args:
+        notify_time: строка "ЧЧ:ММ"
+        global_days: список дней, [] = выключено
+
+    Returns:
+        Клавиатура с текущим статусом и действиями.
+    """
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="🕒 Изменить время", callback_data="gnotify_time"),
+        InlineKeyboardButton(text="📆 Изменить дни", callback_data="gnotify_days"),
+    )
+    builder.row(InlineKeyboardButton(text="◀️ Назад", callback_data="settings"))
+    return builder.as_markup()
+
+
+def get_global_days_edit_keyboard(selected: list[int]) -> InlineKeyboardMarkup:
+    """
+    Экран редактирования дней с переключателями (toggle) и сохранением.
+
+    Использует специфичные callback'и gday_toggle_<n> (урок TASK-0008 — не ловятся broad).
+    Поддерживает комбинации 5/3/1 и произвольные (через «Ввести вручную»).
+
+    Args:
+        selected: текущий выбранный список дней
+
+    Returns:
+        InlineKeyboard с кнопками дней и управлением.
+    """
+    COMMON_DAYS = [1, 2, 3, 5, 7, 10, 14, 21, 30]
+    builder = InlineKeyboardBuilder()
+
+    # Кнопки toggle в 3 колонки
+    row: list[InlineKeyboardButton] = []
+    for d in COMMON_DAYS:
+        prefix = "✅ " if d in selected else "⬜ "
+        row.append(InlineKeyboardButton(text=f"{prefix}{d}", callback_data=f"gday_toggle_{d}"))
+        if len(row) == 3:
+            builder.row(*row)
+            row = []
+    if row:
+        builder.row(*row)
+
+    builder.row(
+        InlineKeyboardButton(text="💾 Сохранить", callback_data="gdays_save"),
+        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"),
+    )
+    builder.row(InlineKeyboardButton(text="✏️ Ввести вручную", callback_data="gdays_input"))
+    return builder.as_markup()

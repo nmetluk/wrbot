@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import logging
+from datetime import time
 from typing import TYPE_CHECKING, Any, cast
 
 from aiogram import F, Router
@@ -16,11 +18,15 @@ if TYPE_CHECKING:
 from zoneinfo import ZoneInfo
 
 from wrbot.bot.keyboards import (
+    get_cancel_keyboard,
     get_categories_keyboard,
+    get_global_days_edit_keyboard,
+    get_global_notify_keyboard,
     get_settings_menu_keyboard,
     get_tz_keyboard,
     get_wallets_keyboard,
 )
+from wrbot.bot.states import SettingsStates
 from wrbot.bot.texts import Texts
 from wrbot.repositories.categories import CategoryRepository
 from wrbot.repositories.users import UserRepository
@@ -52,9 +58,270 @@ async def main_menu(callback: CallbackQuery) -> None:
 
 
 @router.callback_query(F.data == "settings_global")
-async def global_settings_stub(callback: CallbackQuery) -> None:
-    """Заглушка для глобальных уведомлений (M3)."""
-    await callback.answer(Texts.global_settings_stub, show_alert=True)
+async def global_notify_menu(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
+    """Показать текущие глобальные настройки уведомлений (время + дни) и кнопки редактирования."""
+    await state.clear()
+    session: AsyncSession = cast("AsyncSession", data["session"])
+    user_repo = UserRepository(session)
+    tg_id = callback.from_user.id
+    await user_repo.get_or_create(tg_id)
+
+    user = await user_repo.get(tg_id)
+    nt: time = user.notify_time if user else time(10, 0)
+    gd_str: str = user.global_days if user else "[5,3,1]"
+    try:
+        gd: list[int] = json.loads(gd_str) if gd_str else []
+        if not isinstance(gd, list):
+            gd = [5, 3, 1]
+        gd = sorted({int(x) for x in gd if isinstance(x, (int, str))})
+    except Exception:
+        gd = [5, 3, 1]
+
+    time_str = f"{nt.hour:02d}:{nt.minute:02d}"
+    days_str = ", ".join(str(d) for d in gd) if gd else "выключено"
+    text = Texts.global_notify_current.format(time=time_str, days=days_str)
+    keyboard = get_global_notify_keyboard(time_str, gd)
+
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        text, reply_markup=keyboard
+    )
+    await callback.answer()
+
+
+# --- Глобальные уведомления: изменение времени (TASK-0026) ---
+
+
+@router.callback_query(F.data == "gnotify_time")
+async def gnotify_time_start(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
+    """Начать ввод нового времени уведомлений."""
+    session: AsyncSession = cast("AsyncSession", data["session"])
+    await state.update_data(session=session)
+    await state.set_state(SettingsStates.notify_time)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.global_notify_enter_time, reply_markup=get_cancel_keyboard()
+    )
+    await callback.answer()
+
+
+@router.message(SettingsStates.notify_time)
+async def process_notify_time_input(message: Message, state: FSMContext) -> None:
+    """Обработать ввод времени ЧЧ:ММ, валидация, сохранение, возврат к экрану глобальных."""
+    text = (message.text or "").strip()
+    try:
+        if ":" in text:
+            hh_str, mm_str = text.split(":", 1)
+            hh, mm = int(hh_str), int(mm_str)
+        else:
+            # поддержка 0930 или 930
+            clean = text.replace(" ", "")
+            if len(clean) == 4:
+                hh, mm = int(clean[:2]), int(clean[2:])
+            elif len(clean) == 3:
+                hh, mm = int(clean[:1]), int(clean[1:])
+            else:
+                raise ValueError
+        if not (0 <= hh <= 23 and 0 <= mm <= 59):
+            raise ValueError
+        nt = time(hh, mm)
+    except Exception:
+        await message.answer(Texts.global_notify_invalid_time)
+        return
+
+    state_data = await state.get_data()
+    session = state_data.get("session")
+    if not session:
+        await message.answer(Texts.error_generic)
+        await state.clear()
+        return
+
+    user_repo = UserRepository(session)
+    tg_id = message.from_user.id  # type: ignore[union-attr]
+    await user_repo.set_notify_time(tg_id, nt)
+
+    await state.clear()
+
+    # Показать обновлённый экран глобальных уведомлений (как после input в charges/wallets)
+    user = await user_repo.get(tg_id)
+    nt2: time = user.notify_time if user else nt
+    gd_str: str = user.global_days if user else "[5,3,1]"
+    try:
+        gd: list[int] = json.loads(gd_str) if gd_str else []
+        gd = sorted({int(x) for x in gd if isinstance(x, (int, str))})
+    except Exception:
+        gd = [5, 3, 1]
+
+    time_str = f"{nt2.hour:02d}:{nt2.minute:02d}"
+    days_str = ", ".join(str(d) for d in gd) if gd else "выключено"
+    view_text = Texts.global_notify_current.format(time=time_str, days=days_str)
+    keyboard = get_global_notify_keyboard(time_str, gd)
+
+    await message.answer(Texts.global_notify_time_saved.format(time=time_str))
+    await message.answer(view_text, reply_markup=keyboard)
+
+
+# --- Глобальные уведомления: изменение дней (TASK-0026) ---
+
+
+@router.callback_query(F.data == "gnotify_days")
+async def gnotify_days_start(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
+    """Открыть экран выбора/переключения дней с toggle-кнопками."""
+    session: AsyncSession = cast("AsyncSession", data["session"])
+    user_repo = UserRepository(session)
+    tg_id = callback.from_user.id
+    await user_repo.get_or_create(tg_id)
+    user = await user_repo.get(tg_id)
+
+    gd_str: str = user.global_days if user else "[5,3,1]"
+    try:
+        selected: list[int] = json.loads(gd_str) if gd_str else []
+        selected = sorted({int(x) for x in selected if isinstance(x, (int, str))})
+    except Exception:
+        selected = [5, 3, 1]
+
+    await state.update_data(session=session, selected_days=selected)
+    await state.set_state(SettingsStates.global_days)
+
+    days_str = ", ".join(str(d) for d in selected) if selected else "выключено"
+    text = Texts.global_days_edit_title.format(current=days_str)
+    keyboard = get_global_days_edit_keyboard(selected)
+
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        text, reply_markup=keyboard
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("gday_toggle_"), SettingsStates.global_days)
+async def process_gday_toggle(callback: CallbackQuery, state: FSMContext) -> None:
+    """Переключить день в наборе (toggle). Обновить клавиатуру на месте."""
+    data = await state.get_data()
+    selected: list[int] = list(data.get("selected_days", []))
+    try:
+        n = int((callback.data or "").rsplit("_", 1)[-1])
+    except Exception:
+        await callback.answer()
+        return
+
+    if n in selected:
+        selected.remove(n)
+    else:
+        selected.append(n)
+    selected = sorted(set(selected))
+
+    await state.update_data(selected_days=selected)
+
+    days_str = ", ".join(str(d) for d in selected) if selected else "выключено"
+    text = Texts.global_days_edit_title.format(current=days_str)
+    keyboard = get_global_days_edit_keyboard(selected)
+
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        text, reply_markup=keyboard
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "gdays_save", SettingsStates.global_days)
+async def gdays_save(callback: CallbackQuery, state: FSMContext) -> None:
+    """Сохранить выбранные дни (в т.ч. [] = выкл), вернуться к экрану глобальных."""
+    data = await state.get_data()
+    selected: list[int] = list(data.get("selected_days", []))
+    session = data.get("session")
+    if not session:
+        await callback.answer(Texts.error_generic, show_alert=True)
+        await state.clear()
+        return
+
+    gd_str = "[]" if not selected else json.dumps(sorted(selected))
+    user_repo = UserRepository(session)
+    tg_id = callback.from_user.id
+    await user_repo.set_global_days(tg_id, gd_str)
+
+    await state.clear()
+
+    # Вернуться к виду глобальных уведомлений, отредактировав текущее сообщение
+    user = await user_repo.get(tg_id)
+    nt: time = user.notify_time if user else time(10, 0)
+    gd2_str: str = user.global_days if user else gd_str
+    try:
+        gd2: list[int] = json.loads(gd2_str) if gd2_str else []
+        gd2 = sorted({int(x) for x in gd2 if isinstance(x, (int, str))})
+    except Exception:
+        gd2 = selected
+
+    time_str = f"{nt.hour:02d}:{nt.minute:02d}"
+    days_str = ", ".join(str(d) for d in gd2) if gd2 else "выключено"
+    view_text = Texts.global_notify_current.format(time=time_str, days=days_str)
+    keyboard = get_global_notify_keyboard(time_str, gd2)
+
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        view_text, reply_markup=keyboard
+    )
+    await callback.answer(Texts.global_notify_days_saved)
+
+
+@router.callback_query(F.data == "gdays_input", SettingsStates.global_days)
+async def gnotify_days_input_start(callback: CallbackQuery, state: FSMContext) -> None:
+    """Перейти к текстовому вводу дней (альтернатива toggle)."""
+    await state.update_data(days_input=True)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.global_notify_enter_days, reply_markup=get_cancel_keyboard()
+    )
+    await callback.answer()
+
+
+@router.message(SettingsStates.global_days)
+async def process_global_days_input(message: Message, state: FSMContext) -> None:
+    """Обработать текстовый ввод дней (из gdays_input). Сохранить и показать глобальный экран."""
+    data = await state.get_data()
+    if not data.get("days_input"):
+        # не в режиме ввода — игнорируем или просим кнопки
+        await message.answer("Используйте кнопки на экране выбора дней.")
+        return
+
+    text = (message.text or "").strip().lower()
+    session = data.get("session")
+    if not session:
+        await message.answer(Texts.error_generic)
+        await state.clear()
+        return
+
+    try:
+        if text in ("", "0", "выкл", "off", "нет", "[]"):
+            days_list: list[int] = []
+        else:
+            days_list = sorted(
+                {int(x.strip()) for x in (message.text or "").split(",") if x.strip()}
+            )
+            if not days_list or any(d < 1 for d in days_list):
+                raise ValueError
+    except Exception:
+        await message.answer(Texts.global_notify_invalid_days)
+        return
+
+    gd_str = "[]" if not days_list else json.dumps(days_list)
+    user_repo = UserRepository(session)
+    tg_id = message.from_user.id  # type: ignore[union-attr]
+    await user_repo.set_global_days(tg_id, gd_str)
+
+    await state.clear()
+
+    # Показать результат + обновлённый вид
+    user = await user_repo.get(tg_id)
+    nt: time = user.notify_time if user else time(10, 0)
+    gd2_str: str = user.global_days if user else gd_str
+    try:
+        gd2: list[int] = json.loads(gd2_str) if gd2_str else []
+        gd2 = sorted({int(x) for x in gd2 if isinstance(x, (int, str))})
+    except Exception:
+        gd2 = days_list
+
+    time_str = f"{nt.hour:02d}:{nt.minute:02d}"
+    days_str = ", ".join(str(d) for d in gd2) if gd2 else "выключено"
+    view_text = Texts.global_notify_current.format(time=time_str, days=days_str)
+    keyboard = get_global_notify_keyboard(time_str, gd2)
+
+    await message.answer(Texts.global_notify_days_saved)
+    await message.answer(view_text, reply_markup=keyboard)
 
 
 @router.callback_query(F.data == "settings_wallets")
