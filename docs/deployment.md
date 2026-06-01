@@ -1,22 +1,30 @@
 # Развёртывание wrbot (Docker)
 
-Этот документ описывает запуск бота в production с помощью Docker (M5, TASK-0022).
+Полная инструкция по запуску бота 24/7 с помощью Docker (M5, TASK-0022 + TASK-0023).
 
-## Быстрый старт (SQLite)
+## Требования
+- Docker и Docker Compose v2+
+- Токен бота от @BotFather
+- (Опционально) сервер PostgreSQL для production
+
+## Быстрый старт (SQLite — для теста/небольших объёмов)
 
 ```bash
-# 1. Скопируйте и заполните переменные окружения
+# 1. Подготовьте окружение
 cp .env.example .env
-# Отредактируйте .env — обязательно укажите bot_token
+# Обязательно заполните bot_token (и database_url если нужно)
 
 # 2. Запустите
 docker compose up -d --build
 
-# 3. Посмотреть логи
+# 3. Проверьте
+docker compose ps
 docker compose logs -f bot
 ```
 
-## С PostgreSQL (рекомендуется для production)
+Бот будет автоматически применять миграции при каждом старте контейнера.
+
+## Production: PostgreSQL
 
 ```bash
 docker compose --profile postgres up -d --build
@@ -26,45 +34,54 @@ docker compose --profile postgres up -d --build
 
 ```env
 DATABASE_URL=postgresql+asyncpg://user:pass@postgres:5432/wrbot
+POSTGRES_DB=wrbot
+POSTGRES_USER=wrbot
+POSTGRES_PASSWORD=strong-password-here
 ```
 
 ## Основные файлы
 
-- `Dockerfile` — сборка образа с uv (воспроизводимые зависимости из `uv.lock`)
-- `docker/entrypoint.sh` — автоматически выполняет `alembic upgrade head` перед запуском бота
-- `docker-compose.yml` — основная конфигурация (restart: unless-stopped, volume для данных)
+- `Dockerfile` — Python 3.11-slim + uv (воспроизводимая установка из `uv.lock`), non-root пользователь.
+- `docker/entrypoint.sh` — запускает `alembic upgrade head`, затем `python -m wrbot`.
+- `docker-compose.yml` — `restart: unless-stopped`, volume `./data`, `env_file: .env`, healthcheck, опциональный профиль `postgres`.
 
-## Проверка здоровья
+## Полный цикл деплоя
 
-```bash
-docker compose ps          # статус контейнера
-docker compose logs bot    # последние логи
-```
+1. Настройте `.env` (никогда не коммитьте!).
+2. `docker compose up -d --build`
+3. Проверьте логи и статус.
+4. При обновлении кода: `git pull && docker compose up -d --build`
+5. Миграции применяются автоматически (идемпотентно).
 
-Контейнер имеет простой healthcheck. Для production рекомендуется добавить мониторинг (Prometheus, Grafana, или простой HTTP health endpoint в будущем).
+## Переход с SQLite на PostgreSQL
 
-## Обновление
+1. Остановите бота.
+2. Выгрузите данные (если нужно).
+3. Измените `DATABASE_URL` в `.env`.
+4. `docker compose --profile postgres up -d --build`
+5. Проверьте, что данные перенесены (или начните с чистой БД).
 
-```bash
-docker compose pull
-docker compose up -d --build
-```
-
-Миграции применяются автоматически при каждом старте контейнера (идемпотентно).
-
-## Важные замечания
-
-- **Секреты**: Никогда не коммитьте `.env`. Используйте `env_file` в compose.
-- **Данные**: SQLite хранится в `./data/` на хосте (том).
-- **Логи**: По умолчанию внутри контейнера. Для persistence раскомментируйте volume в compose.
-- **Ресурсы**: Для небольшого количества пользователей достаточно 512MB RAM.
-
-## Откат
+## Мониторинг и здоровье
 
 ```bash
-docker compose down
-# или с удалением данных (осторожно!)
-docker compose down -v
+docker compose ps
+docker compose logs --tail=100 bot
+docker compose logs -f bot
 ```
 
-После отката можно поднять заново — миграции восстановят структуру БД.
+В compose настроен базовый healthcheck. Для серьёзного мониторинга добавьте Prometheus + Grafana или внешний uptime checker.
+
+## Откат и очистка
+
+```bash
+docker compose down          # остановить
+docker compose down -v       # остановить + удалить volumes (данные!)
+```
+
+## Полезные советы
+
+- Секреты хранятся только в `.env` (монтируется через `env_file`).
+- Логи внутри контейнера. Для постоянного хранения раскомментируйте volume в compose.
+- Ресурсы: для 1–50 пользователей обычно хватает 512–1024 МБ RAM.
+
+Более детальные инструкции и troubleshooting — в этом же файле (обновляйте по мере необходимости).

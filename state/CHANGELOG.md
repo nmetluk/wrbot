@@ -10,7 +10,8 @@
 ### Done (M5 start)
 - **TASK-0020 (executor, SESSION-2026-06-01-34):** ✅ детерминированный CI — `.github/workflows/ci.yml` переведён на `uv sync --frozen --extra dev` + все гейты через `uv run`. Обновлены инструкции в `executor-guide.md` + `CONTRIBUTING.md`. Полностью воспроизведено локально (Python 3.11.15 + ruff 0.15.15 / mypy 2.1.0 / pytest 9.0.3 из lock; 145 тестов зелёно). CI будет зелёным на GitHub. След: TASK-0021.
 - **TASK-0021 (executor, SESSION-2026-06-01-35):** ✅ устойчивость 24/7 и обработка ошибок — глобальный `@error_router.error()`, graceful shutdown по SIGTERM/SIGINT (с остановкой polling + scheduler), дружелюбная обработка FK RESTRICT при удалении кошелька с активными charges (в handlers), улучшенные сообщения на старте. +3 теста. Все AC пройдены, CI 148 passed зелёный. След: TASK-0022.
-- **TASK-0022 (executor, SESSION-2026-06-01-36):** В работе — Docker деплой 24/7. Созданы `Dockerfile` (uv + lock, 3.11-slim, non-root), `docker/entrypoint.sh` (alembic upgrade head), `docker-compose.yml` (restart, volume data/, postgres profile), `.dockerignore`, `docs/deployment.md`. Образ собирается успешно. CI полностью зелёный.
+- **TASK-0022 (executor, SESSION-2026-06-01-36):** ✅ Docker деплой 24/7. `Dockerfile` (uv+lock), entrypoint с миграциями, compose (postgres profile). Образ собирается, CI зелёный.
+- **TASK-0023 (executor, SESSION-2026-06-01-37):** В работе — документация + «Помощь». Расширен help_text (команды, создание объектов, напоминания, «Оплачено/Отложить»). Обновлены README и docs/deployment.md. CI зелёный.
 
 ### Planned
 - **Декомпозиция M5 (архитектор, SESSION-2026-06-01-33):** в `inbox/` — **TASK-0020** (детерминизм

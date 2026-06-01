@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T23:10:35Z",
+  "generated_at": "2026-06-01T23:15:00Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 3,
+    "inbox": 2,
     "in_progress": 0,
-    "done": 22,
+    "done": 23,
     "blocked": 0
   },
   "tasks": [
@@ -188,10 +188,10 @@
     {
       "id": "TASK-0023",
       "title": "\"M5: документация запуска/деплоя + контент «Помощь»\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0023-m5-docs-help.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0023-m5-docs-help.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0023-report.md"
     },
     {
       "id": "TASK-0024",

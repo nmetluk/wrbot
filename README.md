@@ -70,22 +70,56 @@
 Для запуска бота требуется Python 3.11+ и токен Telegram-бота от [@BotFather](https://t.me/BotFather).
 
 ```bash
-# Клонирование и установка зависимостей
+# Клонирование
 git clone https://github.com/nmetluk/wrbot.git
 cd wrbot
+
+# (Рекомендуется) Установка через uv (быстрее и воспроизводимее)
+# uv sync --extra dev
+# или классически:
 python -m venv venv
-source venv/bin/activate  # на Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -e ".[dev]"
 
-# Создание .env файла с токеном
+# Создание .env
 cp .env.example .env
-# Отредактируйте .env и вставьте ваш bot_token
+# Обязательно укажите bot_token и (опционально) database_url
+
+# Применить миграции (один раз или после обновлений)
+alembic upgrade head
 
 # Запуск бота
 python -m wrbot
 ```
 
-После запуска бот будет отвечать на команду `/start` в Telegram. Логи пишутся в `logs/wrbot.log`.
+После запуска бот ответит на `/start`. Логи — в `logs/wrbot.log`.
+
+**Важно:** при каждом запуске (или в Docker entrypoint) автоматически применяются миграции через `alembic upgrade head` (см. `src/wrbot/__main__.py`).
+
+### Развёртывание 24/7 (Docker)
+
+Для production рекомендуется использовать Docker.
+
+```bash
+# 1. Настройте .env (bot_token обязателен)
+cp .env.example .env
+
+# 2. Запустите (SQLite по умолчанию)
+docker compose up -d --build
+
+# С PostgreSQL:
+# docker compose --profile postgres up -d --build
+```
+
+Подробная инструкция: [`docs/deployment.md`](docs/deployment.md)
+
+Включает:
+- Автоматические миграции при старте контейнера
+- `restart: unless-stopped`
+- Volume для данных SQLite
+- Опциональный профиль PostgreSQL
+
+Логи: `docker compose logs -f bot`
 
 ### Первичная публикация (один раз)
 Репозиторий уже инициализирован и закоммичен локально. Чтобы опубликовать каркас в GitHub:

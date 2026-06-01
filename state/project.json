@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-02T03:05:00Z",
-  "current_phase": "M5: Стабилизация и деплой (TASK-0022 ready for verification)",
+  "updated_at": "2026-06-02T03:20:00Z",
+  "current_phase": "M5: Стабилизация и деплой (TASK-0023 in progress)",
   "current_milestone": "M5",
-  "active_task": "TASK-0022",
-  "last_session": "SESSION-2026-06-01-36",
+  "active_task": "TASK-0023",
+  "last_session": "SESSION-2026-06-01-37",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "В работе TASK-0022 (Docker деплой 24/7). Далее 0023-0024. После M5 — финальный аудит."
+  "next_step": "В работе TASK-0023 (документация + «Помощь»). Далее 0024. После M5 — финальный аудит."
 }
