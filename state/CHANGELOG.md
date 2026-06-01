@@ -7,6 +7,12 @@
 
 ## [Unreleased]
 
+### Planned
+- **Декомпозиция M3 (архитектор, SESSION-2026-06-01-17):** в `inbox/` поставлены
+  **TASK-0010** (домен дат `calculate_next_date` с клампом + `ChargeRepository` с `mark_paid`),
+  **TASK-0011** (пошаговое создание списания, FSM, FR-3/FR-4/FR-11) и
+  **TASK-0012** («Мои списания» + действия, FR-5/FR-6/FR-7). Зависимости 0010→0011→0012.
+
 ### Audited (accepted)
 - **M2 — повторный аудит, ПРИНЯТО (архитектор, SESSION-2026-06-01-16):** прогон начисто
   без BOT_TOKEN — `ruff format --check src tests`/`ruff check`/`mypy src`/`pytest` (96)/
