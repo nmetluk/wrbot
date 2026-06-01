@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T22:02:32Z",
+  "generated_at": "2026-06-01T22:08:11Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 17,
+    "done": 18,
     "blocked": 0
   },
   "tasks": [
@@ -148,10 +148,10 @@
     {
       "id": "TASK-0018",
       "title": "\"M4 BLOCKER: mypy 12 ошибок в handlers/reminders.py (CI красный)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0018-m4-mypy-reminders.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0018-m4-mypy-reminders.md",
       "milestone": "M4",
-      "report": null
+      "report": "handoff/reports/TASK-0018-report.md"
     },
     {
       "id": "TASK-0019",

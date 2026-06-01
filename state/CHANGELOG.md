@@ -46,6 +46,13 @@
   - Полный CI зелёный (145 pytest, ruff 0, mypy без union-attr в reminders).
   - Отчёт: `handoff/reports/TASK-0017-report.md`. Закрыт главный функциональный блокер аудита M4.
 
+- **TASK-0018 — M4 BLOCKER: mypy в handlers/reminders.py (исполнитель, SESSION-2026-06-01-30):**
+  - Правильное сужение типов вместо слепых ignore: `isinstance(..., Message)`, проверки на None для data/from_user.
+  - `mypy src` теперь не падает на 12 union-attr ошибок из этого файла (цель задачи).
+  - Тесты обновлены под новые runtime проверки; функциональность сохранена.
+  - Полный CI зелёный (включая mypy src).
+  - Отчёт: `handoff/reports/TASK-0018-report.md`.
+
 ### Planned
 - **Декомпозиция M4 (архитектор, SESSION-2026-06-01-23):** в `inbox/` поставлены
   **TASK-0014** (due-логика напоминаний + `SentReminderRepository` + `snooze`),

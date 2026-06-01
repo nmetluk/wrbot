@@ -12,7 +12,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, User
+from aiogram.types import CallbackQuery, Message, User
+from unittest.mock import MagicMock
 
 from wrbot.bot.handlers import reminders as reminders_handler
 from wrbot.bot.states import NewChargeStates
@@ -43,7 +44,9 @@ def _make_callback(data: str) -> CallbackQuery:
     cb = AsyncMock(spec=CallbackQuery)
     cb.data = data
     cb.from_user = user
-    cb.message = AsyncMock()
+    # Proper Message mock so that isinstance(..., Message) passes in the handler
+    msg = MagicMock(spec=Message)
+    cb.message = msg
     cb.message.edit_text = AsyncMock()
     cb.answer = AsyncMock()
     return cb
