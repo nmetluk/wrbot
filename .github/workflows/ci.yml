@@ -15,45 +15,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      - name: Install Python 3.11
+        run: uv python install 3.11
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - name: Sync dependencies from uv.lock (deterministic, exact versions)
+        run: uv sync --frozen --extra dev
 
       - name: Ruff format check
-        run: ruff format --check src tests
+        run: uv run ruff format --check src tests
 
       - name: Ruff linter
-        run: ruff check src tests
+        run: uv run ruff check src tests
 
       - name: MyPy type check
-        run: mypy src
+        run: uv run mypy src
 
       - name: Pytest
-        run: pytest
+        run: uv run pytest
 
       - name: Alembic migrations
-        run: |
-          pip install -e .
-          BOT_TOKEN=test alembic upgrade head
+        run: BOT_TOKEN=test uv run alembic upgrade head
 
       - name: Validate handoff/state
-        run: python scripts/validate.py
+        run: uv run python scripts/validate.py
 
       - name: Lint automation scripts
         run: |
-          ruff check scripts
-          python -m py_compile scripts/*.py
+          uv run ruff check scripts
+          uv run python -m py_compile scripts/*.py

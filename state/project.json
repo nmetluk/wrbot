@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T23:15:00Z",
-  "current_phase": "M5: Стабилизация и деплой (задачи поставлены)",
+  "updated_at": "2026-06-02T01:15:00Z",
+  "current_phase": "M5: Стабилизация и деплой (TASK-0020 done)",
   "current_milestone": "M5",
   "active_task": null,
-  "last_session": "SESSION-2026-06-01-33",
+  "last_session": "SESSION-2026-06-01-34",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "M5 декомпозирован (SESSION-2026-06-01-33): TASK-0020 (детерминизм CI), 0021 (устойчивость/ошибки), 0022 (деплой Docker), 0023 (доки+Помощь), 0024 (edge-тесты) в inbox. Исполнитель: /take-task → TASK-0020 → 0021 → 0022 → 0023 → 0024. После M5 — финальный комплексный аудит перед релизом. РЕШЕНО: UI смены часового пояса включён в v1 (TASK-0025)."
+  "next_step": "TASK-0020 завершена (детерминизм CI). Следующий /take-task → TASK-0021 (resilience). Далее 0022-0024. После M5 — финальный аудит. tz-UI в v1 (TASK-0025)."
 }

@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T22:21:54Z",
+  "generated_at": "2026-06-01T22:50:26Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 6,
+    "inbox": 5,
     "in_progress": 0,
-    "done": 19,
+    "done": 20,
     "blocked": 0
   },
   "tasks": [
@@ -164,14 +164,14 @@
     {
       "id": "TASK-0020",
       "title": "Детерминированный CI — honoring uv.lock (фикс дрейфа версий инструментов)",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0020-ci-deterministic-toolchain.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0020-ci-deterministic-toolchain.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0020-report.md"
     },
     {
       "id": "TASK-0021",
-      "title": "M5: устойчивость 24/7 и обработка ошибок",
+      "title": "\"M5: устойчивость 24/7 и обработка ошибок\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0021-m5-resilience-errors.md",
       "milestone": "M5",
@@ -179,7 +179,7 @@
     },
     {
       "id": "TASK-0022",
-      "title": "M5: развёртывание 24/7 (Docker, compose, миграции при старте)",
+      "title": "\"M5: развёртывание 24/7 (Docker, compose, миграции при старте)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0022-m5-deploy.md",
       "milestone": "M5",
@@ -187,7 +187,7 @@
     },
     {
       "id": "TASK-0023",
-      "title": "M5: документация запуска/деплоя + контент «Помощь»",
+      "title": "\"M5: документация запуска/деплоя + контент «Помощь»\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0023-m5-docs-help.md",
       "milestone": "M5",
@@ -195,7 +195,7 @@
     },
     {
       "id": "TASK-0024",
-      "title": "M5: edge/устойчивость-тесты и финальная полировка перед аудитом",
+      "title": "\"M5: edge/устойчивость-тесты и финальная полировка перед аудитом\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0024-m5-edge-tests.md",
       "milestone": "M5",
@@ -203,7 +203,7 @@
     },
     {
       "id": "TASK-0025",
-      "title": "M5: выбор часового пояса в Настройках (корректное время для не-МСК)",
+      "title": "\"M5: выбор часового пояса в Настройках (корректное время для не-МСК)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0025-m5-timezone-ui.md",
       "milestone": "M5",

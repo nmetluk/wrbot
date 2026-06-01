@@ -30,17 +30,19 @@
 5. Запушено в `origin/main`.
 
 ### Обязательный прогон CI начисто (НЕ заявляй «зелёно» без него)
-Прогони **ровно те же команды, что и `.github/workflows/ci.yml`**, в чистом окружении
-**без `BOT_TOKEN`**, и приведи их фактический вывод в отчёте:
+Прогони **ровно те же команды, что и `.github/workflows/ci.yml`** (через `uv run`, после `uv sync --frozen --extra dev`), в чистом окружении
+(для alembic требуется `BOT_TOKEN=test`, как в CI), и приведи их фактический вывод в отчёте:
 
 ```
-ruff format --check src tests
-ruff check src tests
-mypy src
-pytest
-alembic upgrade head      # без BOT_TOKEN
-python scripts/validate.py
+uv run ruff format --check src tests
+uv run ruff check src tests
+uv run mypy src
+uv run pytest
+BOT_TOKEN=test uv run alembic upgrade head
+uv run python scripts/validate.py
 ```
+
+(Опционально: `uv sync --frozen --extra dev` для обновления окружения из lock.)
 
 Урок M2 (TASK-0005): отчёт заявил «всё зелёное», но `mypy` не прогонялся, а `ruff check
 src tests` был красным (64 ошибки mypy + E501). **«Зелёно» = каждая из этих команд

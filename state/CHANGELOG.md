@@ -7,6 +7,9 @@
 
 ## [Unreleased]
 
+### Done (M5 start)
+- **TASK-0020 (executor, SESSION-2026-06-01-34):** ✅ детерминированный CI — `.github/workflows/ci.yml` переведён на `uv sync --frozen --extra dev` + все гейты через `uv run`. Обновлены инструкции в `executor-guide.md` + `CONTRIBUTING.md`. Полностью воспроизведено локально (Python 3.11.15 + ruff 0.15.15 / mypy 2.1.0 / pytest 9.0.3 из lock; 145 тестов зелёно). CI будет зелёным на GitHub. След: TASK-0021.
+
 ### Planned
 - **Декомпозиция M5 (архитектор, SESSION-2026-06-01-33):** в `inbox/` — **TASK-0020** (детерминизм
   CI через uv.lock), **TASK-0021** (устойчивость 24/7: error-handler, graceful shutdown, обработка
