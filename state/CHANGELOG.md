@@ -23,6 +23,12 @@
   - Тесты + полный CI (138 pytest, ruff/mypy 0 на новых файлах).
   - Отчёт: `handoff/reports/TASK-0016-report.md`. **M4 завершён → аудит.**
 
+- **TASK-0013 — Router-тест для charge_* (исполнитель, SESSION-2026-06-01-27):**
+  - Добавлены 6 introspection-тестов в `test_callback_routing.py` (new_charge, list_charges, charge_item_*, paid, edit, delete/confirm).
+  - Закрыто минорное замечание AUDIT-M3 (покрытие роутера для charges, как было для wallets/categories).
+  - Только тесты; полный CI зелёный (144 pytest).
+  - Отчёт: `handoff/reports/TASK-0013-report.md`. Inbox пуст.
+
 ### Planned
 - **Декомпозиция M4 (архитектор, SESSION-2026-06-01-23):** в `inbox/` поставлены
   **TASK-0014** (due-логика напоминаний + `SentReminderRepository` + `snooze`),
