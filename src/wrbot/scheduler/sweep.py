@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, cast
 from wrbot.bot.keyboards import get_reminder_actions_keyboard
 from wrbot.bot.texts import Texts
 from wrbot.repositories.sent_reminders import SentReminderRepository
-from wrbot.services.reminders import get_due_reminders_today
+from wrbot.services.reminders import get_due_reminders_today, select_users_to_notify_at
 
 if TYPE_CHECKING:
     from aiogram import Bot
@@ -40,14 +40,31 @@ async def run_sweep(bot: Bot, session_factory: async_sessionmaker[AsyncSession])
     async with session_factory() as session:
         sent_repo = SentReminderRepository(session)
 
+        # Ключевой фикс TASK-0017: сначала определяем, кому *сейчас* пора по их notify_time/tz
         try:
-            due_items = await get_due_reminders_today(session, today, sent_repo)
+            users_to_notify = await select_users_to_notify_at(session, now_utc)
+        except Exception:
+            logger.exception("Failed to select users to notify in sweep")
+            return
+
+        if not users_to_notify:
+            logger.debug("Sweep at %s: no users with matching notify_time in their tz", now_utc)
+            return
+
+        user_tg_ids = [u.tg_id for u in users_to_notify]
+
+        try:
+            due_items = await get_due_reminders_today(
+                session, today, sent_repo, user_tg_ids=user_tg_ids
+            )
         except Exception:
             logger.exception("Failed to compute due reminders in sweep")
             return
 
         if not due_items:
-            logger.debug("Sweep at %s: no due reminders", now_utc)
+            logger.debug(
+                "Sweep at %s: no due reminders for users with matching notify_time", now_utc
+            )
             return
 
         sent_count = 0

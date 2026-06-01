@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T21:15:09Z",
+  "generated_at": "2026-06-01T22:02:32Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 3,
+    "inbox": 2,
     "in_progress": 0,
-    "done": 16,
+    "done": 17,
     "blocked": 0
   },
   "tasks": [
@@ -139,15 +139,15 @@
     },
     {
       "id": "TASK-0017",
-      "title": "M4 BLOCKER: свип должен слать в notify_time пользователя (а не в полночь UTC)",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0017-m4-sweep-notify-time.md",
+      "title": "\"M4 BLOCKER: свип должен слать в notify_time пользователя (а не в полночь UTC)\"",
+      "status": "done",
+      "file": "handoff/done/TASK-0017-m4-sweep-notify-time.md",
       "milestone": "M4",
-      "report": null
+      "report": "handoff/reports/TASK-0017-report.md"
     },
     {
       "id": "TASK-0018",
-      "title": "M4 BLOCKER: mypy 12 ошибок в handlers/reminders.py (CI красный)",
+      "title": "\"M4 BLOCKER: mypy 12 ошибок в handlers/reminders.py (CI красный)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0018-m4-mypy-reminders.md",
       "milestone": "M4",
@@ -155,7 +155,7 @@
     },
     {
       "id": "TASK-0019",
-      "title": "Переносимый идемпотентный record() в SentReminderRepository (SQLite+PostgreSQL)",
+      "title": "\"Переносимый идемпотентный record() в SentReminderRepository (SQLite+PostgreSQL)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0019-sent-reminders-portable-upsert.md",
       "milestone": "M4",

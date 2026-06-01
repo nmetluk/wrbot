@@ -114,6 +114,7 @@ async def get_due_reminders_today(
     session: AsyncSession,
     today: date,
     sent_repo: SentReminderRepository,
+    user_tg_ids: list[int] | None = None,
 ) -> list[dict[str, object]]:
     """
     Главная функция для свипа: вернуть что нужно отправить сегодня.
@@ -128,6 +129,8 @@ async def get_due_reminders_today(
         .join(User, Charge.user_id == User.tg_id)
         .where(Charge.status == "active")
     )
+    if user_tg_ids is not None:
+        stmt = stmt.where(Charge.user_id.in_(user_tg_ids))
     result = await session.execute(stmt)
     rows = result.all()
 

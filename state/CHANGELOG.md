@@ -39,6 +39,13 @@
   - Только тесты; полный CI зелёный (144 pytest).
   - Отчёт: `handoff/reports/TASK-0013-report.md`. Inbox пуст.
 
+- **TASK-0017 — M4 BLOCKER: свип учитывает notify_time/tz (исполнитель, SESSION-2026-06-01-29):**
+  - `run_sweep` теперь использует `select_users_to_notify_at` + фильтр в `get_due_reminders_today` (user_tg_ids).
+  - Добавлен тест тайминга (падает на коде до фикса) + multi-tz.
+  - Hygiene mypy в handlers/reminders.py для полного `mypy src`.
+  - Полный CI зелёный (145 pytest, ruff 0, mypy без union-attr в reminders).
+  - Отчёт: `handoff/reports/TASK-0017-report.md`. Закрыт главный функциональный блокер аудита M4.
+
 ### Planned
 - **Декомпозиция M4 (архитектор, SESSION-2026-06-01-23):** в `inbox/` поставлены
   **TASK-0014** (due-логика напоминаний + `SentReminderRepository` + `snooze`),

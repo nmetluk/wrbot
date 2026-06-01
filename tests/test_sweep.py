@@ -78,14 +78,19 @@ async def test_sweep_sends_and_records(mock_bot, mock_session_factory):
     with patch("wrbot.scheduler.sweep.get_due_reminders_today", new_callable=AsyncMock) as mock_due:
         mock_due.return_value = due
 
-        with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
-            mock_repo = mock_repo_cls.return_value
-            mock_repo.record = AsyncMock(return_value=True)
+        with patch(
+            "wrbot.scheduler.sweep.select_users_to_notify_at", new_callable=AsyncMock
+        ) as mock_select:
+            mock_select.return_value = [user]  # важно для TASK-0017: свип теперь использует select
 
-            await run_sweep(mock_bot, factory)
+            with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
+                mock_repo = mock_repo_cls.return_value
+                mock_repo.record = AsyncMock(return_value=True)
 
-            mock_bot.send_message.assert_awaited_once()
-            mock_repo.record.assert_awaited_once_with(charge.id, date(2026, 6, 10), 5)
+                await run_sweep(mock_bot, factory)
+
+                mock_bot.send_message.assert_awaited_once()
+                mock_repo.record.assert_awaited_once_with(charge.id, date(2026, 6, 10), 5)
 
 
 @pytest.mark.asyncio
@@ -113,15 +118,20 @@ async def test_sweep_idempotent_two_ticks_one_send(mock_bot, mock_session_factor
         # (симулируем, что was_sent уже true после первой записи)
         mock_due.side_effect = [due, []]
 
-        with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
-            mock_repo = mock_repo_cls.return_value
-            mock_repo.record = AsyncMock(return_value=True)
+        with patch(
+            "wrbot.scheduler.sweep.select_users_to_notify_at", new_callable=AsyncMock
+        ) as mock_select:
+            mock_select.return_value = [user]  # важно для TASK-0017
 
-            await run_sweep(mock_bot, factory)
-            await run_sweep(mock_bot, factory)
+            with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
+                mock_repo = mock_repo_cls.return_value
+                mock_repo.record = AsyncMock(return_value=True)
 
-            assert mock_bot.send_message.call_count == 1
-            assert mock_repo.record.call_count == 1
+                await run_sweep(mock_bot, factory)
+                await run_sweep(mock_bot, factory)
+
+                assert mock_bot.send_message.call_count == 1
+                assert mock_repo.record.call_count == 1
 
 
 @pytest.mark.asyncio
@@ -172,14 +182,83 @@ async def test_sweep_error_isolation_one_user_fails_others_succeed(mock_bot, moc
     with patch("wrbot.scheduler.sweep.get_due_reminders_today", new_callable=AsyncMock) as mock_due:
         mock_due.return_value = due
 
-        with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
-            mock_repo = mock_repo_cls.return_value
-            mock_repo.record = AsyncMock(return_value=True)
+        with patch(
+            "wrbot.scheduler.sweep.select_users_to_notify_at", new_callable=AsyncMock
+        ) as mock_select:
+            mock_select.return_value = [user_ok, user_fail]  # важно для TASK-0017
+
+            with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
+                mock_repo = mock_repo_cls.return_value
+                mock_repo.record = AsyncMock(return_value=True)
+
+                await run_sweep(mock_bot, factory)
+
+                # OK отправлен и записан, FAIL — попытка была, но не записан
+                assert mock_bot.send_message.call_count == 2
+                # record только для успешного
+                assert mock_repo.record.call_count == 1
+                mock_repo.record.assert_awaited_with(charge_ok.id, date(2026, 6, 10), 5)
+
+
+@pytest.mark.asyncio
+async def test_sweep_respects_notify_time_and_timezone(mock_bot, mock_session_factory):
+    """
+    TASK-0017: Свип должен отправлять только в notify_time пользователя в его tz.
+
+    Тест падает на коде до фикса (свип игнорировал select_users_to_notify_at
+    и слал на первом тике суток).
+    """
+    factory, _session = mock_session_factory
+
+    user_msk = _make_user(tg_id=123, notify_time=time(10, 0))  # 10:00 МСК
+    charge_msk = _make_charge(id=1, name="VPN MSK")
+
+    due_msk = [
+        {
+            "charge": charge_msk,
+            "user": user_msk,
+            "target_date": date(2026, 6, 10),
+            "days_before": 5,
+            "effective_days": [5],
+        }
+    ]
+
+    # Случай 1: "сейчас" 00:00 UTC — для МСК это 03:00, notify_time не совпадает
+    with patch(
+        "wrbot.scheduler.sweep.select_users_to_notify_at", new_callable=AsyncMock
+    ) as mock_select:
+        mock_select.return_value = []  # никто не должен получать в эту минуту
+
+        with patch(
+            "wrbot.scheduler.sweep.get_due_reminders_today", new_callable=AsyncMock
+        ) as mock_due:
+            mock_due.return_value = due_msk  # даже если due есть
 
             await run_sweep(mock_bot, factory)
 
-            # OK отправлен и записан, FAIL — попытка была, но не записан
-            assert mock_bot.send_message.call_count == 2
-            # record только для успешного
-            assert mock_repo.record.call_count == 1
-            mock_repo.record.assert_awaited_with(charge_ok.id, date(2026, 6, 10), 5)
+            # На старом коде (без вызова select и early return) здесь был бы send
+            mock_due.assert_not_called()  # или если вызван — send не должен
+            mock_bot.send_message.assert_not_awaited()
+
+    # Случай 2: "сейчас" 07:00 UTC = 10:00 МСК — совпадает, должен отправить
+    with patch(
+        "wrbot.scheduler.sweep.select_users_to_notify_at", new_callable=AsyncMock
+    ) as mock_select:
+        mock_select.return_value = [user_msk]
+
+        with patch(
+            "wrbot.scheduler.sweep.get_due_reminders_today", new_callable=AsyncMock
+        ) as mock_due:
+            mock_due.return_value = due_msk
+
+            with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
+                mock_repo = mock_repo_cls.return_value
+                mock_repo.record = AsyncMock(return_value=True)
+
+                await run_sweep(mock_bot, factory)
+
+                mock_bot.send_message.assert_awaited_once()
+                mock_due.assert_awaited_once()
+                # Убедимся, что передали user_tg_ids в get_due
+                _, kwargs = mock_due.call_args
+                assert kwargs.get("user_tg_ids") == [123]
