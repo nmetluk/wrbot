@@ -12,6 +12,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 
 from wrbot.bot.handlers import start as start_handler
+from wrbot.bot.middlewares.db import DbSessionMiddleware
 from wrbot.config import get_settings
 from wrbot.db import get_engine, get_session_factory
 from wrbot.logging import setup_logging
@@ -65,12 +66,15 @@ async def main() -> None:
     # Инициализация БД
     logger.info("Initializing database...")
     engine = get_engine(settings.database_url)
-    get_session_factory(engine)
+    session_factory = get_session_factory(engine)
 
     # Инициализация бота
     logger.info("Initializing bot...")
     bot = Bot(token=settings.bot_token, parse_mode=ParseMode.HTML)
     dp = Dispatcher()
+
+    # Регистрация middleware (до хэндлеров!)
+    dp.update.middleware(DbSessionMiddleware(session_factory))
 
     # Регистрация хэндлеров
     dp.include_router(start_handler.router)

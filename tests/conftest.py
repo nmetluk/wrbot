@@ -91,3 +91,7 @@ async def db_session(
         yield session
         # Rollback после теста
         await session.rollback()
+
+
+# Алиас для совместимости с именем в тестах репозиториев
+async_session = db_session

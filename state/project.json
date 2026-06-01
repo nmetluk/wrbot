@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T07:00:00Z",
+  "updated_at": "2026-06-01T08:00:00Z",
   "current_phase": "M2: Справочники (кошельки и категории)",
   "current_milestone": "M2",
-  "active_task": null,
-  "last_session": "SESSION-2026-06-01-07",
+  "active_task": "TASK-0005",
+  "last_session": "SESSION-2026-06-01-08",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -27,5 +27,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "M2 декомпозирован (SESSION-2026-06-01-07): TASK-0004 (репозитории+DI сессии) и TASK-0005 (бот-UI справочников) в inbox. Исполнитель: /take-task → TASK-0004, затем TASK-0005. После обоих — аудит M2."
+  "next_step": "TASK-0004 выполнена. Следующий шаг: исполнитель берёт TASK-0005 (бот-UI справочников). После TASK-0005 — аудит M2."
 }

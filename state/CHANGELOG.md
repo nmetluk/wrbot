@@ -7,6 +7,17 @@
 
 ## [Unreleased]
 
+### Added
+- **TASK-0004 — слой данных справочников (исполнитель, SESSION-2026-06-01-08):**
+  - DbSessionMiddleware: DI AsyncSession в хэндлеры, commit/rollback
+  - UserRepository.get_or_create(tg_id) с дефолтами
+  - WalletRepository: create, list_by_user, get, rename, delete (изоляция user_id)
+  - CategoryRepository: аналогичный CRUD
+  - services/reference.py: валидация имени, проверка лимитов
+  - config.py: max_wallets, max_categories = 20
+  - 30 новых тестов: CRUD, изоляция tg_id, лимиты, валидация
+  - ruff, mypy, pytest (41 passed), validate — зелёные
+
 ### Planned
 - **Декомпозиция M2 (архитектор, SESSION-2026-06-01-07):** в `inbox/` поставлены
   **TASK-0004** (репозитории users/wallets/categories с изоляцией tg_id, лимиты, валидация,

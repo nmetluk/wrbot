@@ -52,6 +52,10 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     log_file: str = "logs/wrbot.log"
 
+    # Лимиты справочников (M2)
+    max_wallets: int = 20
+    max_categories: int = 20
+
     # Project paths
     base_dir: Path = Path(__file__).parent.parent.parent
     src_dir: Path = Path(__file__).parent.parent

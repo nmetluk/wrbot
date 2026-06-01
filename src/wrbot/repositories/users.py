@@ -1,9 +1,70 @@
 """
 User repository.
 
-Доступ к данным пользователей. Изоляция по tg_id (FR-13).
+Доступ к данным пользователей с изоляцией по tg_id (FR-13).
 """
 
-# TODO: M2 - реализовать CRUD операции с пользователями:
-# - get_or_create(tg_id): получить или создать пользователя
-# - update_notify_time(), update_tz(), update_global_days()
+import logging
+from datetime import time
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from wrbot.db.models import User
+
+logger = logging.getLogger(__name__)
+
+
+class UserRepository:
+    """Репозиторий для работы с пользователями."""
+
+    def __init__(self, session: AsyncSession) -> None:
+        """
+        Инициализация репозитория.
+
+        Args:
+            session: Сессия БД SQLAlchemy
+        """
+        self._session = session
+
+    async def get_or_create(
+        self,
+        tg_id: int,
+        *,
+        notify_time: time = time(10, 0),
+        tz: str = "Europe/Moscow",
+        global_days: str = "[5,3,1]",
+    ) -> User:
+        """
+        Получить существующего пользователя или создать нового.
+
+        Идемпотентен: при повторном вызове с тем же tg_id возвращает существующего.
+
+        Args:
+            tg_id: Telegram ID пользователя
+            notify_time: Время уведомлений (дефолт 10:00)
+            tz: Часовой пояс (дефолт Europe/Moscow)
+            global_days: Дни напоминаний как JSON (дефолт [5,3,1])
+
+        Returns:
+            User: существующий или вновь созданный пользователь
+        """
+        # Сначала пробуем получить существующего
+        result = await self._session.execute(select(User).where(User.tg_id == tg_id))
+        user = result.scalar_one_or_none()
+
+        if user is not None:
+            logger.debug("User found: tg_id=%s", tg_id)
+            return user
+
+        # Создаём нового
+        user = User(
+            tg_id=tg_id,
+            notify_time=notify_time,
+            tz=tz,
+            global_days=global_days,
+        )
+        self._session.add(user)
+        await self._session.flush()
+        logger.info("Created user: tg_id=%s", tg_id)
+        return user
