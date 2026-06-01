@@ -299,34 +299,80 @@ async def confirm_create_charge(
 ) -> None:
     data = await state.get_data()
     user_id = data["user_id"]
+    editing_id = data.get("editing_charge_id")
 
     charge_repo = ChargeRepository(session)
     user_repo = UserRepository(session)
     await user_repo.get_or_create(user_id)
 
     try:
-        charge = await charge_repo.create(
-            user_id=user_id,
-            name=data["name"],
-            amount=Decimal(data["amount"]),
-            wallet_id=data["wallet_id"],
-            category_id=data.get("category_id"),
-            next_date=date.fromisoformat(data["next_date"]),
-            period=data["period"],
-        )
-        # TODO: сохранить notify настройки в будущем (M4)
-        await callback.message.edit_text(  # type: ignore[union-attr]
-            Texts.new_charge_created.format(name=charge.name, next_date=charge.next_date),
-            reply_markup=None,
-        )
+        if editing_id:
+            charge = await charge_repo.update(
+                user_id,
+                editing_id,
+                name=data["name"],
+                amount=Decimal(data["amount"]),
+                wallet_id=data["wallet_id"],
+                category_id=data.get("category_id"),
+                next_date=date.fromisoformat(data["next_date"]),
+                period=data["period"],
+            )
+            await callback.message.edit_text(  # type: ignore[union-attr]
+                Texts.charge_edit_saved,
+                reply_markup=None,
+            )
+        else:
+            charge = await charge_repo.create(
+                user_id=user_id,
+                name=data["name"],
+                amount=Decimal(data["amount"]),
+                wallet_id=data["wallet_id"],
+                category_id=data.get("category_id"),
+                next_date=date.fromisoformat(data["next_date"]),
+                period=data["period"],
+            )
+            await callback.message.edit_text(  # type: ignore[union-attr]
+                Texts.new_charge_created.format(name=charge.name, next_date=charge.next_date),
+                reply_markup=None,
+            )
     except (InvalidAmount, LimitExceeded) as e:
         await callback.message.edit_text(str(e), reply_markup=None)  # type: ignore[union-attr]
     except Exception:
-        logger.exception("Failed to create charge")
+        logger.exception("Failed to save charge")
         await callback.message.edit_text(Texts.error_generic, reply_markup=None)  # type: ignore[union-attr]
     finally:
         await state.clear()
         await callback.answer()
+
+
+@router.callback_query(F.data.startswith("charge_edit_"))
+async def start_edit_charge(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    """Start editing a charge by loading data into NewChargeStates FSM."""
+    charge_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
+    charge_repo = ChargeRepository(session)
+    charge = await charge_repo.get(callback.from_user.id, charge_id)
+    if not charge:
+        await callback.answer(Texts.error_not_found)
+        return
+
+    await state.update_data(
+        editing_charge_id=charge_id,
+        user_id=callback.from_user.id,
+        name=charge.name,
+        amount=str(charge.amount),
+        wallet_id=charge.wallet_id,
+        category_id=charge.category_id,
+        next_date=charge.next_date.isoformat() if charge.next_date else None,
+        period=charge.period,
+    )
+    await state.set_state(NewChargeStates.name)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.charge_edit_started + "\n\n" + Texts.new_charge_enter_name,
+        reply_markup=None,
+    )
+    await callback.answer()
 
 
 # Поддержка отмены в любом состоянии charge flow

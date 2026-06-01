@@ -268,6 +268,42 @@ def get_charge_confirm_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+# M3 - Клавиатуры для списка и действий над списаниями (TASK-0012)
+
+
+def get_my_charges_keyboard(charges: list[dict[str, Any]]) -> InlineKeyboardMarkup:
+    """Список активных списаний с кнопками на карточку."""
+    builder = InlineKeyboardBuilder()
+    for ch in charges:
+        text = f"{ch['name']} — {ch.get('amount', '?')} ₽ — {ch.get('next_date', '?')}"
+        builder.add(
+            InlineKeyboardButton(
+                text=text,
+                callback_data=f"charge_item_{ch['id']}",
+            )
+        )
+    builder.adjust(1)
+    builder.row(InlineKeyboardButton(text="❌ Закрыть", callback_data="cancel"))
+    return builder.as_markup()
+
+
+def get_charge_card_actions_keyboard(charge_id: int) -> InlineKeyboardMarkup:
+    """Карточка списания с действиями."""
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"charge_edit_{charge_id}"),
+        InlineKeyboardButton(text="🗑 Удалить", callback_data=f"charge_delete_{charge_id}"),
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="✅ Отметить оплаченным",
+            callback_data=f"charge_paid_{charge_id}",
+        ),
+    )
+    builder.row(InlineKeyboardButton(text="◀️ Назад к списку", callback_data="list_charges"))
+    return builder.as_markup()
+
+
 def get_cancel_keyboard() -> InlineKeyboardMarkup:
     """Клавиатура с кнопкой "Отмена" для пошаговых диалогов."""
     return InlineKeyboardMarkup(

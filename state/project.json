@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T19:03:21Z",
+  "updated_at": "2026-06-01T19:09:54Z",
   "current_phase": "M3: Списания (задачи поставлены)",
   "current_milestone": "M3",
-  "active_task": "TASK-0012",
-  "last_session": "SESSION-2026-06-01-19",
+  "active_task": null,
+  "last_session": "SESSION-2026-06-01-20",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0011 (FSM создания списания) закрыта. Осталась TASK-0012 (список+действия) + TASK-0009 (pre-commit low). После M3 — аудит."
+  "next_step": "M3 завершён (0010+0011+0012). Остался TASK-0009 (pre-commit low). После — аудит M3."
 }

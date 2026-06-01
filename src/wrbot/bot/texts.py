@@ -115,3 +115,29 @@ class Texts:
     new_charge_confirm = "✅ Создать"
     new_charge_created = "✅ Списание «{name}» создано! Следующее — {next_date}."
     new_charge_cancelled = "❌ Создание списания отменено."
+
+    # M3 - Список и действия над списаниями (TASK-0012)
+    my_charges_empty = (
+        "📋 *Мои списания*\n\n"
+        "У вас пока нет активных списаний.\n\n"
+        "Нажмите «➕ Новое списание», чтобы создать первое."
+    )
+    my_charges_title = "📋 *Мои списания*\n\nБлижайшие платежи:"
+    my_charges_item = "• {name} — {amount} ₽ ({wallet}) — {next_date}"
+    my_charges_card = (
+        "📋 *{name}*\n\n"
+        "Сумма: {amount} ₽\n"
+        "Кошелёк: {wallet}\n"
+        "Категория: {category}\n"
+        "Следующая дата: {next_date}\n"
+        "Период: {period}\n"
+        "Уведомления: {notify}\n\n"
+        "Выберите действие:"
+    )
+    charge_paid_periodic = "✅ Отмечено оплаченным. Следующее списание: {next_date}"
+    charge_paid_once = "✅ Одноразовое списание закрыто."
+    charge_deleted = "🗑 Списание удалено."
+    charge_edit_started = (
+        "✏️ Редактирование списания. Введите новые данные (или используйте текущие шаги)."
+    )
+    charge_edit_saved = "✅ Списание обновлено."

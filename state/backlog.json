@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T19:03:10Z",
+  "generated_at": "2026-06-01T19:09:45Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 10,
+    "done": 11,
     "blocked": 0
   },
   "tasks": [
@@ -100,10 +100,10 @@
     {
       "id": "TASK-0012",
       "title": "\"M3: «Мои списания» + действия (FR-5/FR-6/FR-7)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0012-m3-charge-list-actions.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0012-m3-charge-list-actions.md",
       "milestone": "M3",
-      "report": null
+      "report": "handoff/reports/TASK-0012-report.md"
     }
   ]
 }

@@ -43,10 +43,8 @@ async def help_callback(callback: CallbackQuery) -> None:
 # Заглушка удалена, чтобы не конфликтовать.
 
 
-@router.callback_query(F.data == "list_charges")
-async def list_charges_stub(callback: CallbackQuery) -> None:
-    """Заглушка для «Мои списания» (M3)."""
-    await callback.answer(Texts.my_charges_stub, show_alert=True)
+# Обработчик "list_charges" теперь в charges_list_handler (TASK-0012)
+# Заглушка удалена.
 
 
 @router.message(Command("cancel"))
