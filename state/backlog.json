@@ -3,7 +3,7 @@
   "generated_at": "2026-06-01T22:21:54Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 5,
+    "inbox": 6,
     "in_progress": 0,
     "done": 19,
     "blocked": 0
@@ -198,6 +198,14 @@
       "title": "M5: edge/устойчивость-тесты и финальная полировка перед аудитом",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0024-m5-edge-tests.md",
+      "milestone": "M5",
+      "report": null
+    },
+    {
+      "id": "TASK-0025",
+      "title": "M5: выбор часового пояса в Настройках (корректное время для не-МСК)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0025-m5-timezone-ui.md",
       "milestone": "M5",
       "report": null
     }
