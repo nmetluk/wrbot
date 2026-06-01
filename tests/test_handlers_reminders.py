@@ -13,7 +13,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, User
-from unittest.mock import MagicMock
 
 from wrbot.bot.handlers import reminders as reminders_handler
 from wrbot.bot.states import NewChargeStates

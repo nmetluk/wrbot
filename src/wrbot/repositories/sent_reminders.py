@@ -7,8 +7,8 @@ SentReminder repository.
 import logging
 from datetime import UTC, date, datetime
 
-from sqlalchemy import select
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+from sqlalchemy import insert, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.db.models import SentReminder
@@ -37,37 +37,35 @@ class SentReminderRepository:
         """
         Зафиксировать отправку напоминания (идемпотентно).
 
+        Полностью диалект-независимая реализация (SQLite + PostgreSQL).
+        Использует try/INSERT + перехват IntegrityError по UNIQUE constraint uq_reminder.
+        (Эквивалентно ON CONFLICT DO NOTHING на поддерживаемых диалектах.)
+
         Возвращает True если запись была добавлена (первая отправка),
         False если уже была (дубликат/повтор после рестарта).
         """
-        # Используем INSERT OR IGNORE для SQLite (идемпотентность)
-        stmt = (
-            sqlite_insert(SentReminder)
-            .values(
-                charge_id=charge_id,
-                target_date=target_date,
-                days_before=days_before,
-                sent_at=datetime.now(UTC),
+        try:
+            await self._session.execute(
+                insert(SentReminder).values(
+                    charge_id=charge_id,
+                    target_date=target_date,
+                    days_before=days_before,
+                    sent_at=datetime.now(UTC),
+                )
             )
-            .prefix_with("OR IGNORE")
-        )
-
-        result = await self._session.execute(stmt)
-        inserted = result.rowcount > 0  # type: ignore[attr-defined]
-
-        if inserted:
             logger.info(
                 "Recorded sent reminder: charge_id=%s, target=%s, days_before=%s",
                 charge_id,
                 target_date,
                 days_before,
             )
-        else:
+            return True
+        except IntegrityError:
+            # Duplicate key (already recorded) — this is the expected idempotent case.
             logger.debug(
                 "Duplicate sent reminder (idempotent): charge_id=%s, target=%s, days_before=%s",
                 charge_id,
                 target_date,
                 days_before,
             )
-
-        return bool(inserted)
+            return False

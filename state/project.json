@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T22:05:00Z",
-  "current_phase": "M4: пост-аудит (блокеры в работе)",
+  "updated_at": "2026-06-01T22:25:00Z",
+  "current_phase": "M4: пост-аудит (все блокеры закрыты)",
   "current_milestone": "M4",
-  "active_task": "TASK-0019",
-  "last_session": "SESSION-2026-06-01-30",
+  "active_task": "",
+  "last_session": "SESSION-2026-06-01-31",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0018 закрыт (правильное сужение типов в reminders.py). Остался TASK-0019 (переносимость record). Затем повторный аудит M4."
+  "next_step": "TASK-0019 закрыт. Все находки AUDIT-M4 закрыты. Следующий шаг — повторный аудит M4 (отдельная сессия)."
 }

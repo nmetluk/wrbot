@@ -53,6 +53,13 @@
   - Полный CI зелёный (включая mypy src).
   - Отчёт: `handoff/reports/TASK-0018-report.md`.
 
+- **TASK-0019 — M4: переносимый record() в SentReminderRepository (исполнитель, SESSION-2026-06-01-31):**
+  - `record()` переписан на диалект-независимый INSERT + catch `IntegrityError` (убран `dialects.sqlite` + OR IGNORE).
+  - Полностью соответствует ADR-0003 (путь на PostgreSQL).
+  - Идемпотентность сохранена и протестирована.
+  - Полный CI зелёный.
+  - Отчёт: `handoff/reports/TASK-0019-report.md`. **Все блокеры M4 из аудита закрыты.**
+
 ### Planned
 - **Декомпозиция M4 (архитектор, SESSION-2026-06-01-23):** в `inbox/` поставлены
   **TASK-0014** (due-логика напоминаний + `SentReminderRepository` + `snooze`),
