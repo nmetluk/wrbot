@@ -1,0 +1,53 @@
+# docker-compose.yml for wrbot (M5 TASK-0022)
+# Usage:
+#   docker compose up -d                    # SQLite (default)
+#   docker compose --profile postgres up -d # With PostgreSQL
+
+services:
+  bot:
+    build: .
+    image: wrbot:latest
+    container_name: wrbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override if needed (useful for postgres profile)
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./data/wrbot.sqlite3}
+    volumes:
+      - ./data:/app/data
+      # Optional: persist logs outside container
+      # - ./logs:/app/logs
+    # Simple healthcheck (process alive). For production consider a /health endpoint.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; print('healthy'); sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+
+  # Optional PostgreSQL (use with --profile postgres)
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wrbot}
+      POSTGRES_USER: ${POSTGRES_USER:-wrbot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wrbot}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wrbot} -d ${POSTGRES_DB:-wrbot}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

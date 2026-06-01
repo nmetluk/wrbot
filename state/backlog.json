@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T22:59:55Z",
+  "generated_at": "2026-06-01T23:10:35Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 4,
+    "inbox": 3,
     "in_progress": 0,
-    "done": 21,
+    "done": 22,
     "blocked": 0
   },
   "tasks": [
@@ -180,10 +180,10 @@
     {
       "id": "TASK-0022",
       "title": "\"M5: развёртывание 24/7 (Docker, compose, миграции при старте)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0022-m5-deploy.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0022-m5-deploy.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0022-report.md"
     },
     {
       "id": "TASK-0023",
