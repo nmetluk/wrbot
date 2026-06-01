@@ -56,6 +56,9 @@ class Settings(BaseSettings):
     max_wallets: int = 20
     max_categories: int = 20
 
+    # Лимиты списаний (M3)
+    max_charges: int = 50
+
     # Project paths
     base_dir: Path = Path(__file__).parent.parent.parent
     src_dir: Path = Path(__file__).parent.parent

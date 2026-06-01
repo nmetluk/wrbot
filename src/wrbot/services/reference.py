@@ -5,6 +5,7 @@
 """
 
 import logging
+from decimal import Decimal
 from typing import NewType
 
 from wrbot.config import get_settings
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 # Типы для доменных ошибок
 WalletName = NewType("WalletName", str)
 CategoryName = NewType("CategoryName", str)
+ChargeAmount = NewType("ChargeAmount", "Decimal")
 
 
 class ReferenceError(Exception):
@@ -90,3 +92,51 @@ def check_category_limit(current_count: int) -> None:
     settings = get_settings()
     if current_count >= settings.max_categories:
         raise LimitExceeded(f"Превышен лимит категорий (максимум {settings.max_categories})")
+
+
+class InvalidAmount(ReferenceError):
+    """Недопустимая сумма списания."""
+
+
+def validate_amount(raw: str | Decimal | float | int) -> Decimal:
+    """
+    Валидировать и нормализовать сумму списания.
+
+    - Принимает str, Decimal, float, int
+    - Округляет до 2 знаков после запятой (Decimal)
+    - Проверяет > 0
+
+    Args:
+        raw: Сумма от пользователя
+
+    Returns:
+        Нормализованная сумма как Decimal
+
+    Raises:
+        InvalidAmount: если сумма <= 0 или не парсится
+    """
+    try:
+        amount = raw if isinstance(raw, Decimal) else Decimal(str(raw))
+        amount = amount.quantize(Decimal("0.01"))
+    except Exception:
+        raise InvalidAmount("Сумма должна быть числом") from None
+
+    if amount <= 0:
+        raise InvalidAmount("Сумма должна быть больше нуля")
+
+    return amount
+
+
+def check_charge_limit(current_count: int) -> None:
+    """
+    Проверить лимит активных списаний.
+
+    Args:
+        current_count: Текущее число активных списаний пользователя
+
+    Raises:
+        LimitExceeded: если лимит превышен
+    """
+    settings = get_settings()
+    if current_count >= settings.max_charges:
+        raise LimitExceeded(f"Превышен лимит списаний (максимум {settings.max_charges})")

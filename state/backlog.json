@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T15:13:13Z",
+  "generated_at": "2026-06-01T18:57:10Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 4,
+    "inbox": 3,
     "in_progress": 0,
-    "done": 8,
+    "done": 9,
     "blocked": 0
   },
   "tasks": [
@@ -83,15 +83,15 @@
     },
     {
       "id": "TASK-0010",
-      "title": "M3: доменная логика дат + ChargeRepository (сдвиг/оплачено)",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0010-m3-charges-domain.md",
+      "title": "\"M3: доменная логика дат + ChargeRepository (сдвиг/оплачено)\"",
+      "status": "done",
+      "file": "handoff/done/TASK-0010-m3-charges-domain.md",
       "milestone": "M3",
-      "report": null
+      "report": "handoff/reports/TASK-0010-report.md"
     },
     {
       "id": "TASK-0011",
-      "title": "M3: пошаговое создание списания (FSM, FR-3/FR-4)",
+      "title": "\"M3: пошаговое создание списания (FSM, FR-3/FR-4)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0011-m3-charge-create.md",
       "milestone": "M3",
@@ -99,7 +99,7 @@
     },
     {
       "id": "TASK-0012",
-      "title": "M3: «Мои списания» + действия (FR-5/FR-6/FR-7)",
+      "title": "\"M3: «Мои списания» + действия (FR-5/FR-6/FR-7)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0012-m3-charge-list-actions.md",
       "milestone": "M3",

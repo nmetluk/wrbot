@@ -53,6 +53,16 @@
   - Обновлены 2 существующих теста (details теперь вызываются с новым форматом data).
   - Полный CI зелёный (pytest 96 passed, mypy 0, ruff check src/tests чист, alembic/validate OK). format имеет 1 пре-экзистентный.
 
+### Fixed
+- **TASK-0010 (M3 foundation) — домен дат + ChargeRepository (исполнитель, SESSION-2026-06-01-18):**
+  - Реализован `calculate_next_date` с правильным клампом конца месяца (monthly/quarterly/yearly + once)
+  - Создан `ChargeRepository` с полным CRUD + `mark_paid` (сдвиг для периодических, done+paid_at для once)
+  - Валидация суммы (Decimal 2 знака >0), периода, лимита `max_charges` в конфиге
+  - Новые сервисы: `services/charges.py`, расширен `reference.py`
+  - 20 новых тестов (даты + репозиторий) через реальные миграции
+  - Полный CI зелёный (116 pytest, mypy 0, ruff clean)
+  - M2 полностью принят (AUDIT-M2-r2)
+
 ### Audited (rejected)
 - **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
   - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)
