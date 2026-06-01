@@ -33,7 +33,9 @@ async def cmd_help(message: Message) -> None:
 @router.callback_query(F.data == "help")
 async def help_callback(callback: CallbackQuery) -> None:
     """Обработчик кнопки «❔ Помощь» — показывает справку."""
-    await callback.message.edit_text(Texts.help_text, reply_markup=get_main_menu_keyboard())
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.help_text, reply_markup=get_main_menu_keyboard()
+    )
     await callback.answer()
 
 

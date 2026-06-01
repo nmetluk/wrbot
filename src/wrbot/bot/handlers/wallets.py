@@ -1,10 +1,16 @@
 """Wallets handlers — CRUD operations."""
 
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING, Any, cast
 
 from aiogram import F, Router
-from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+
+if TYPE_CHECKING:
+    from aiogram.fsm.context import FSMContext
+    from aiogram.types import CallbackQuery, Message
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.bot.keyboards import (
     get_cancel_keyboard,
@@ -25,39 +31,42 @@ router = Router(name="wallets")
 @router.callback_query(F.data.startswith("wallet_"))
 async def wallet_details(callback: CallbackQuery) -> None:
     """Показать детали кошелька с действиями."""
-    wallet_id = int(callback.data.split("_")[1])
+    wallet_id = int(callback.data.split("_")[1])  # type: ignore[union-attr]
     keyboard = get_wallet_actions_keyboard(wallet_id)
-    await callback.message.edit_reply_markup(reply_markup=keyboard)
+    await callback.message.edit_reply_markup(reply_markup=keyboard)  # type: ignore[union-attr]
     await callback.answer()
 
 
 @router.callback_query(F.data == "wallet_add")
-async def wallet_add_start(callback: CallbackQuery, state: FSMContext, **data: dict) -> None:
+async def wallet_add_start(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
     """Начать добавление кошелька."""
-    session = data["session"]
+    session: AsyncSession = cast("AsyncSession", data["session"])
     await state.update_data(session=session, wallet_id=None)
     await state.set_state(WalletStates.name)
-    await callback.message.edit_text(Texts.wallet_enter_name, reply_markup=get_cancel_keyboard())
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.wallet_enter_name, reply_markup=get_cancel_keyboard()
+    )
     await callback.answer()
 
 
 @router.callback_query(F.data.startswith("wallet_rename_"))
 async def wallet_rename_start(
-    callback: CallbackQuery, state: FSMContext, **handler_data: dict
+    callback: CallbackQuery, state: FSMContext, **handler_data: Any
 ) -> None:
     """Начать переименование кошелька."""
-    wallet_id = int(callback.data.split("_")[2])
-    session = handler_data["session"]
+    wallet_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
+    session: AsyncSession = cast("AsyncSession", handler_data["session"])
     await state.update_data(session=session, wallet_id=wallet_id)
 
     await state.set_state(WalletStates.name)
 
     # Получаем текущее название
     repo = WalletRepository(session)
-    wallet = await repo.get(callback.from_user.id, wallet_id)
+    tg_id = callback.from_user.id
+    wallet = await repo.get(tg_id, wallet_id)
     wallet_name = wallet.name if wallet else "?"
 
-    await callback.message.edit_text(
+    await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.wallet_enter_new_name.format(name=wallet_name), reply_markup=get_cancel_keyboard()
     )
     await callback.answer()
@@ -65,19 +74,20 @@ async def wallet_rename_start(
 
 @router.callback_query(F.data.startswith("wallet_delete_"))
 async def wallet_delete_confirm(
-    callback: CallbackQuery, state: FSMContext, **handler_data: dict
+    callback: CallbackQuery, state: FSMContext, **handler_data: Any
 ) -> None:
     """Показать подтверждение удаления кошелька."""
-    wallet_id = int(callback.data.split("_")[2])
-    session = handler_data["session"]
+    wallet_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
+    session: AsyncSession = cast("AsyncSession", handler_data["session"])
 
     repo = WalletRepository(session)
-    wallet = await repo.get(callback.from_user.id, wallet_id)
+    tg_id = callback.from_user.id
+    wallet = await repo.get(tg_id, wallet_id)
 
     if wallet:
         await state.update_data(wallet_id=wallet_id)
         keyboard = get_confirm_delete_keyboard("wallet", wallet_id)
-        await callback.message.edit_text(
+        await callback.message.edit_text(  # type: ignore[union-attr]
             Texts.wallet_confirm_delete.format(name=wallet.name), reply_markup=keyboard
         )
 
@@ -101,7 +111,7 @@ async def wallet_delete(callback: CallbackQuery, state: FSMContext) -> None:
     deleted = await repo.delete(tg_id, wallet_id)
 
     if deleted:
-        await callback.message.edit_text(Texts.wallet_deleted.format(name="?"))
+        await callback.message.edit_text(Texts.wallet_deleted.format(name="?"))  # type: ignore[union-attr]
 
         # Показать обновлённый список
         wallets = await repo.list_by_user(tg_id)
@@ -110,7 +120,7 @@ async def wallet_delete(callback: CallbackQuery, state: FSMContext) -> None:
 
         lines = [Texts.wallet_list_item.format(name=w["name"]) for w in wallet_data]
         text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
-        await callback.message.edit_text(text, reply_markup=keyboard)
+        await callback.message.edit_text(text, reply_markup=keyboard)  # type: ignore[union-attr]
     else:
         await callback.answer(Texts.error_not_found, show_alert=True)
 
@@ -130,7 +140,7 @@ async def wallet_name_handler(message: Message, state: FSMContext) -> None:
         return
 
     wallet_repo = WalletRepository(session)
-    tg_id = message.from_user.id
+    tg_id = message.from_user.id  # type: ignore[union-attr]
 
     try:
         if wallet_id is None:
@@ -139,7 +149,7 @@ async def wallet_name_handler(message: Message, state: FSMContext) -> None:
             await message.answer(Texts.wallet_added.format(name=wallet.name))
         else:
             # Переименование существующего
-            wallet = await wallet_repo.rename(tg_id, wallet_id, message.text or "")
+            wallet = await wallet_repo.rename(tg_id, wallet_id, message.text or "")  # type: ignore[assignment]
             if wallet:
                 await message.answer(Texts.wallet_renamed.format(name=wallet.name))
             else:

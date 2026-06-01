@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T01:47:48Z",
+  "generated_at": "2026-06-01T14:50:12Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 3,
+    "inbox": 2,
     "in_progress": 0,
-    "done": 5,
+    "done": 6,
     "blocked": 0
   },
   "tasks": [
@@ -52,10 +52,10 @@
     {
       "id": "TASK-0006",
       "title": "Исправить mypy ошибки типизации",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0006-fix-mypy-errors.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0006-fix-mypy-errors.md",
       "milestone": "M2",
-      "report": null
+      "report": "handoff/reports/TASK-0006-report.md"
     },
     {
       "id": "TASK-0007",
@@ -67,7 +67,7 @@
     },
     {
       "id": "TASK-0008",
-      "title": "M2 critical: порядок callback-фильтров ломает CRUD (add/rename/delete)",
+      "title": "\"M2 critical: порядок callback-фильтров ломает CRUD (add/rename/delete)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0008-m2-callback-routing.md",
       "milestone": "M2",

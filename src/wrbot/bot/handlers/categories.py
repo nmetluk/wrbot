@@ -1,10 +1,16 @@
 """Categories handlers — CRUD operations."""
 
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING, Any, cast
 
 from aiogram import F, Router
-from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+
+if TYPE_CHECKING:
+    from aiogram.fsm.context import FSMContext
+    from aiogram.types import CallbackQuery, Message
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.bot.keyboards import (
     get_cancel_keyboard,
@@ -25,39 +31,42 @@ router = Router(name="categories")
 @router.callback_query(F.data.startswith("category_"))
 async def category_details(callback: CallbackQuery) -> None:
     """Показать детали категории с действиями."""
-    category_id = int(callback.data.split("_")[1])
+    category_id = int(callback.data.split("_")[1])  # type: ignore[union-attr]
     keyboard = get_category_actions_keyboard(category_id)
-    await callback.message.edit_reply_markup(reply_markup=keyboard)
+    await callback.message.edit_reply_markup(reply_markup=keyboard)  # type: ignore[union-attr]
     await callback.answer()
 
 
 @router.callback_query(F.data == "category_add")
-async def category_add_start(callback: CallbackQuery, state: FSMContext, **data: dict) -> None:
+async def category_add_start(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
     """Начать добавление категории."""
-    session = data["session"]
+    session: AsyncSession = cast("AsyncSession", data["session"])
     await state.update_data(session=session, category_id=None)
     await state.set_state(CategoryStates.name)
-    await callback.message.edit_text(Texts.category_enter_name, reply_markup=get_cancel_keyboard())
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.category_enter_name, reply_markup=get_cancel_keyboard()
+    )
     await callback.answer()
 
 
 @router.callback_query(F.data.startswith("category_rename_"))
 async def category_rename_start(
-    callback: CallbackQuery, state: FSMContext, **handler_data: dict
+    callback: CallbackQuery, state: FSMContext, **handler_data: Any
 ) -> None:
     """Начать переименование категории."""
-    category_id = int(callback.data.split("_")[2])
-    session = handler_data["session"]
+    category_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
+    session: AsyncSession = cast("AsyncSession", handler_data["session"])
     await state.update_data(session=session, category_id=category_id)
 
     await state.set_state(CategoryStates.name)
 
     # Получаем текущее название
     repo = CategoryRepository(session)
-    category = await repo.get(callback.from_user.id, category_id)
+    tg_id = callback.from_user.id
+    category = await repo.get(tg_id, category_id)
     category_name = category.name if category else "?"
 
-    await callback.message.edit_text(
+    await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.category_enter_new_name.format(name=category_name), reply_markup=get_cancel_keyboard()
     )
     await callback.answer()
@@ -65,19 +74,20 @@ async def category_rename_start(
 
 @router.callback_query(F.data.startswith("category_delete_"))
 async def category_delete_confirm(
-    callback: CallbackQuery, state: FSMContext, **handler_data: dict
+    callback: CallbackQuery, state: FSMContext, **handler_data: Any
 ) -> None:
     """Показать подтверждение удаления категории."""
-    category_id = int(callback.data.split("_")[2])
-    session = handler_data["session"]
+    category_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
+    session: AsyncSession = cast("AsyncSession", handler_data["session"])
 
     repo = CategoryRepository(session)
-    category = await repo.get(callback.from_user.id, category_id)
+    tg_id = callback.from_user.id
+    category = await repo.get(tg_id, category_id)
 
     if category:
         await state.update_data(category_id=category_id)
         keyboard = get_confirm_delete_keyboard("category", category_id)
-        await callback.message.edit_text(
+        await callback.message.edit_text(  # type: ignore[union-attr]
             Texts.category_confirm_delete.format(name=category.name), reply_markup=keyboard
         )
 
@@ -101,7 +111,7 @@ async def category_delete(callback: CallbackQuery, state: FSMContext) -> None:
     deleted = await repo.delete(tg_id, category_id)
 
     if deleted:
-        await callback.message.edit_text(Texts.category_deleted.format(name="?"))
+        await callback.message.edit_text(Texts.category_deleted.format(name="?"))  # type: ignore[union-attr]
 
         # Показать обновлённый список
         categories = await repo.list_by_user(tg_id)
@@ -110,7 +120,7 @@ async def category_delete(callback: CallbackQuery, state: FSMContext) -> None:
 
         lines = [Texts.category_list_item.format(name=c["name"]) for c in category_data]
         text = "🏷️ *Категории*\n\n" + "\n".join(lines)
-        await callback.message.edit_text(text, reply_markup=keyboard)
+        await callback.message.edit_text(text, reply_markup=keyboard)  # type: ignore[union-attr]
     else:
         await callback.answer(Texts.error_not_found, show_alert=True)
 
@@ -130,7 +140,7 @@ async def category_name_handler(message: Message, state: FSMContext) -> None:
         return
 
     category_repo = CategoryRepository(session)
-    tg_id = message.from_user.id
+    tg_id = message.from_user.id  # type: ignore[union-attr]
 
     try:
         if category_id is None:
@@ -139,7 +149,7 @@ async def category_name_handler(message: Message, state: FSMContext) -> None:
             await message.answer(Texts.category_added.format(name=category.name))
         else:
             # Переименование существующей
-            category = await category_repo.rename(tg_id, category_id, message.text or "")
+            category = await category_repo.rename(tg_id, category_id, message.text or "")  # type: ignore[assignment]
             if category:
                 await message.answer(Texts.category_renamed.format(name=category.name))
             else:

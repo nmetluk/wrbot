@@ -15,6 +15,14 @@
   усиление `executor-guide.md` (полный прогон CI начисто; тест диспетчеризации).
   Примечание: в AUDIT-M2 ruff-задача ошибочно названа TASK-0008 — фактически это TASK-0007.
 
+### Fixed
+- **TASK-0006 — mypy (64 ошибки) (исполнитель, SESSION-2026-06-01-13):**
+  - Исправлены union-attr (message.edit_*/data.split/from_user.id в 4 handlers), type-arg (dict → dict[str, Any] в keyboards), assignment (rename return |None), arg-type (session из **data: dict)
+  - Паттерн: **data: Any + cast(AsyncSession, ...), # type: ignore[union-attr/assignment] на гарантированных местах (F.data фильтры + runtime contract), TYPE_CHECKING + __future__.annotations для ruff TC hygiene
+  - Файлы: handlers/{wallets,categories,settings,start}.py, keyboards.py
+  - Проверка: mypy src/wrbot и mypy src — 0 ошибок; pytest 92 passed; ruff check на src/handlers+keyboards чист; полный CI-прогон (alembic, validate) OK
+  - Отклонения: hygiene для ruff (см. отчёт TASK-0006); игноры вместо редизайна (scope "только типы")
+
 ### Audited (rejected)
 - **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
   - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)

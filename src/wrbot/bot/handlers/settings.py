@@ -1,11 +1,17 @@
 """Settings menu handler."""
 
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING, Any, cast
 
 from aiogram import F, Router
 from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+
+if TYPE_CHECKING:
+    from aiogram.fsm.context import FSMContext
+    from aiogram.types import CallbackQuery, Message
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.bot.keyboards import (
     get_categories_keyboard,
@@ -25,7 +31,9 @@ router = Router(name="settings")
 @router.callback_query(F.data == "settings")
 async def settings_menu(callback: CallbackQuery) -> None:
     """Показать меню настроек."""
-    await callback.message.edit_text(Texts.settings_menu, reply_markup=get_settings_menu_keyboard())
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.settings_menu, reply_markup=get_settings_menu_keyboard()
+    )
     await callback.answer()
 
 
@@ -34,7 +42,9 @@ async def main_menu(callback: CallbackQuery) -> None:
     """Вернуться в главное меню."""
     from wrbot.bot.keyboards import get_main_menu_keyboard
 
-    await callback.message.edit_text(Texts.start_greeting, reply_markup=get_main_menu_keyboard())
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.start_greeting, reply_markup=get_main_menu_keyboard()
+    )
     await callback.answer()
 
 
@@ -45,9 +55,9 @@ async def global_settings_stub(callback: CallbackQuery) -> None:
 
 
 @router.callback_query(F.data == "settings_wallets")
-async def wallets_list(callback: CallbackQuery, state: FSMContext, **data: dict) -> None:
+async def wallets_list(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
     """Показать список кошельков."""
-    session = data["session"]
+    session: AsyncSession = cast("AsyncSession", data["session"])
     user_repo = UserRepository(session)
     wallet_repo = WalletRepository(session)
 
@@ -67,15 +77,17 @@ async def wallets_list(callback: CallbackQuery, state: FSMContext, **data: dict)
         text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
         keyboard = get_wallets_keyboard(wallet_data)
 
-    await callback.message.edit_text(text, reply_markup=keyboard)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        text, reply_markup=keyboard
+    )
     await callback.answer()
     await state.clear()
 
 
 @router.callback_query(F.data == "settings_categories")
-async def categories_list(callback: CallbackQuery, state: FSMContext, **data: dict) -> None:
+async def categories_list(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
     """Показать список категорий."""
-    session = data["session"]
+    session: AsyncSession = cast("AsyncSession", data["session"])
     user_repo = UserRepository(session)
     category_repo = CategoryRepository(session)
 
@@ -95,7 +107,9 @@ async def categories_list(callback: CallbackQuery, state: FSMContext, **data: di
         text = "🏷️ *Категории*\n\n" + "\n".join(lines)
         keyboard = get_categories_keyboard(category_data)
 
-    await callback.message.edit_text(text, reply_markup=keyboard)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        text, reply_markup=keyboard
+    )
     await callback.answer()
     await state.clear()
 
@@ -104,7 +118,7 @@ async def categories_list(callback: CallbackQuery, state: FSMContext, **data: di
 async def cancel_action(callback: CallbackQuery, state: FSMContext) -> None:
     """Отменить текущее действие."""
     await state.clear()
-    await callback.message.edit_text(Texts.action_cancelled)
+    await callback.message.edit_text(Texts.action_cancelled)  # type: ignore[union-attr]
     await callback.answer()
 
 

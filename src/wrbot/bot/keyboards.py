@@ -4,6 +4,8 @@ Inline keyboards for bot UI.
 Все клавиатуры собираются здесь — единое место для UI-логики.
 """
 
+from typing import Any
+
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -55,7 +57,7 @@ def get_settings_menu_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_wallets_keyboard(wallets: list[dict]) -> InlineKeyboardMarkup:
+def get_wallets_keyboard(wallets: list[dict[str, Any]]) -> InlineKeyboardMarkup:
     """
     Клавиатура списка кошельков.
 
@@ -109,7 +111,7 @@ def get_wallet_actions_keyboard(wallet_id: int) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_categories_keyboard(categories: list[dict]) -> InlineKeyboardMarkup:
+def get_categories_keyboard(categories: list[dict[str, Any]]) -> InlineKeyboardMarkup:
     """
     Клавиатура списка категорий.
 
