@@ -82,9 +82,10 @@ async def test_wallets_list_empty(mock_state, mock_session):
     callback.answer = AsyncMock()
     callback.from_user = tg_user
 
-    with patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls, patch(
-        "wrbot.bot.handlers.settings.WalletRepository"
-    ) as wallet_repo_cls:
+    with (
+        patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls,
+        patch("wrbot.bot.handlers.settings.WalletRepository") as wallet_repo_cls,
+    ):
         mock_user = MagicMock()
         mock_user.tg_id = 12345
 
@@ -118,9 +119,10 @@ async def test_wallets_list_with_items(mock_state, mock_session):
     callback.answer = AsyncMock()
     callback.from_user = tg_user
 
-    with patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls, patch(
-        "wrbot.bot.handlers.settings.WalletRepository"
-    ) as wallet_repo_cls:
+    with (
+        patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls,
+        patch("wrbot.bot.handlers.settings.WalletRepository") as wallet_repo_cls,
+    ):
         mock_user = MagicMock()
         mock_user.tg_id = 12345
 
@@ -161,9 +163,10 @@ async def test_categories_list_empty(mock_state, mock_session):
     callback.answer = AsyncMock()
     callback.from_user = tg_user
 
-    with patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls, patch(
-        "wrbot.bot.handlers.settings.CategoryRepository"
-    ) as category_repo_cls:
+    with (
+        patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls,
+        patch("wrbot.bot.handlers.settings.CategoryRepository") as category_repo_cls,
+    ):
         mock_user = MagicMock()
         mock_user.tg_id = 12345
 
@@ -197,9 +200,10 @@ async def test_categories_list_with_items(mock_state, mock_session):
     callback.answer = AsyncMock()
     callback.from_user = tg_user
 
-    with patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls, patch(
-        "wrbot.bot.handlers.settings.CategoryRepository"
-    ) as category_repo_cls:
+    with (
+        patch("wrbot.bot.handlers.settings.UserRepository") as user_repo_cls,
+        patch("wrbot.bot.handlers.settings.CategoryRepository") as category_repo_cls,
+    ):
         mock_user = MagicMock()
         mock_user.tg_id = 12345
 

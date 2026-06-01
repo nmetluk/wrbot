@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T15:13:07Z",
-  "current_phase": "M2: Исправление по аудиту (TASK-0006 mypy, TASK-0007 ruff, TASK-0008 routing)",
-  "current_milestone": "M2",
+  "updated_at": "2026-06-01T16:00:00Z",
+  "current_phase": "M2 принят (AUDIT-M2-r2) → старт M3 (списания)",
+  "current_milestone": "M3",
   "active_task": null,
-  "last_session": "SESSION-2026-06-01-15",
+  "last_session": "SESSION-2026-06-01-16",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "M2 critical TASK-0008 (callback routing) closed. All M2 audit items (0006 mypy, 0007 ruff, 0008 routing) done. Next: повторный аудит M2 (SESSION-2026-06-01-12 instruction)."
+  "next_step": "M2 ПРИНЯТ повторным аудитом (AUDIT-M2-2026-06-01-r2, SESSION-2026-06-01-16): CI зелёный начисто, баг роутинга устранён. Заведена TASK-0009 (low, pre-commit/формат-долг). Следующий шаг: архитектор декомпозирует M3 (списания: FR-3, FR-5, FR-6, FR-7)."
 }

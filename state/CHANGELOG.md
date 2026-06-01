@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Audited (accepted)
+- **M2 — повторный аудит, ПРИНЯТО (архитектор, SESSION-2026-06-01-16):** прогон начисто
+  без BOT_TOKEN — `ruff format --check src tests`/`ruff check`/`mypy src`/`pytest` (96)/
+  `alembic` все зелёные. TASK-0006 (mypy 0), TASK-0007 (ruff), TASK-0008 (роутинг + тест
+  через роутер) закрыты. Остаточный формат-долг `tests/test_handlers_settings.py` устранён
+  механическим `ruff format`. Заведена TASK-0009 (low: pre-commit + чистка формат-долга).
+  Отчёт: `handoff/reports/AUDIT-M2-2026-06-01-r2.md`. **Старт M3.**
+
 ### Reviewed
 - **Ревью M2 архитектором (SESSION-2026-06-01-12):** независимо подтвердил вердикт аудита
   (M2 не принят, mypy/ruff красные). Дополнительно нашёл **критический баг маршрутизации

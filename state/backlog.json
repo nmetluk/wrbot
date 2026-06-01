@@ -3,7 +3,7 @@
   "generated_at": "2026-06-01T15:13:13Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 1,
     "in_progress": 0,
     "done": 8,
     "blocked": 0
@@ -72,6 +72,14 @@
       "file": "handoff/done/TASK-0008-m2-callback-routing.md",
       "milestone": "M2",
       "report": "handoff/reports/TASK-0008-report.md"
+    },
+    {
+      "id": "TASK-0009",
+      "title": "Pre-commit hooks и устранение формат-долга (анти-дрейф)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0009-precommit-format-debt.md",
+      "milestone": "M2",
+      "report": null
     }
   ]
 }
