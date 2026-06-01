@@ -161,3 +161,23 @@ class ChargeRepository:
 
         await self._session.flush()
         return charge
+
+    async def snooze(self, user_id: int, charge_id: int, until: date) -> Charge | None:
+        """
+        Отложить напоминания по списанию до указанной даты (snoozed_until).
+
+        НЕ меняет next_date (дата платежа остаётся). По ADR-0005.
+        """
+        charge = await self.get(user_id, charge_id)
+        if not charge:
+            return None
+
+        charge.snoozed_until = until
+        await self._session.flush()
+        logger.info(
+            "Snoozed charge: user_id=%s, charge_id=%s, until=%s",
+            user_id,
+            charge_id,
+            until,
+        )
+        return charge

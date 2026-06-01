@@ -107,6 +107,15 @@
   - Полный CI (включая whole-repo clean) зелёный без изменений логики
   - M3 полностью готов (0009 был последним)
 
+### Fixed
+- **TASK-0014 (M4 foundation) — due-логика + SentReminderRepository + snooze (исполнитель, SESSION-2026-06-01-24):**
+  - Полная реализация эффективных дней, due-расчёта (с snooze repeat), выбора пользователей по tz/notify_time
+  - SentReminderRepository (was_sent + record — идемпотентно)
+  - ChargeRepository.snooze (не меняет next_date)
+  - 8 новых тестов (логика + DB идемпотентность)
+  - Полный CI зелёный (124 pytest, mypy 0, ruff clean)
+  - Фундамент для M4 (по ADR-0005)
+
 ### Audited (rejected)
 - **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
   - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)
