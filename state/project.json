@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T05:00:00Z",
-  "current_phase": "M2: Исправление по аудиту (TASK-0006, TASK-0007)",
+  "updated_at": "2026-06-01T11:30:00Z",
+  "current_phase": "M2: Исправление по аудиту (TASK-0006 mypy, TASK-0007 ruff, TASK-0008 routing)",
   "current_milestone": "M2",
   "active_task": "TASK-0006",
-  "last_session": "SESSION-2026-06-01-11",
+  "last_session": "SESSION-2026-06-01-12",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -27,5 +27,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Аудит M2 НЕ ПРИНЯТ (mypy 64 errors, ruff 5 errors). Исполнителю: взять TASK-0006 (high) и TASK-0007, исправить, затем перепроверка гейтов."
+  "next_step": "Аудит M2 НЕ ПРИНЯТ (mypy 64, ruff 5). Ревью архитектора (SESSION-2026-06-01-12) добавил TASK-0008 (critical): баг маршрутизации callback'ов ломает CRUD (mypy/тестами не ловится). Исполнителю: TASK-0006 (mypy), TASK-0007 (ruff), TASK-0008 (routing) → затем повторный аудит M2."
 }

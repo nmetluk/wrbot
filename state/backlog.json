@@ -3,7 +3,7 @@
   "generated_at": "2026-06-01T01:47:48Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 3,
     "in_progress": 0,
     "done": 5,
     "blocked": 0
@@ -62,6 +62,14 @@
       "title": "Исправить ruff ошибки форматирования",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0007-fix-ruff-errors.md",
+      "milestone": "M2",
+      "report": null
+    },
+    {
+      "id": "TASK-0008",
+      "title": "M2 critical: порядок callback-фильтров ломает CRUD (add/rename/delete)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0008-m2-callback-routing.md",
       "milestone": "M2",
       "report": null
     }
