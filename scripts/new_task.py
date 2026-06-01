@@ -3,6 +3,7 @@
 Пример:
   python scripts/new_task.py --title "Скелет проекта" --slug project-skeleton --milestone M1
 """
+
 from __future__ import annotations
 
 import argparse

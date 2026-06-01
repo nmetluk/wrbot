@@ -34,6 +34,7 @@ target_metadata = Base.metadata
 db_url = config.get_main_option("sqlalchemy.url")
 if not db_url:
     from wrbot.config import settings
+
     db_url = settings.database_url
     config.set_main_option("sqlalchemy.url", db_url)
 
@@ -100,6 +101,7 @@ def run_migrations_online() -> None:
             # Используем синхронное ожидание через concurrent.futures
             while not result.done():
                 import time
+
                 time.sleep(0.01)
             # Проверяем на исключения
             if result.exception():

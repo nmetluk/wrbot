@@ -4,6 +4,7 @@
 Пример:
   python scripts/complete_task.py TASK-0001 --session SESSION-2026-05-31-02 --status done
 """
+
 from __future__ import annotations
 
 import argparse
@@ -48,8 +49,10 @@ def main() -> int:
 
     update_state.main()
     print(f"Задача {args.task_id} → {target_dir.name}/")
-    print("Не забудь: заполнить отчёт, обновить state/project.json и CHANGELOG.md, "
-          "создать лог сессии, закоммитить и запушить.")
+    print(
+        "Не забудь: заполнить отчёт, обновить state/project.json и CHANGELOG.md, "
+        "создать лог сессии, закоммитить и запушить."
+    )
     return 0
 
 

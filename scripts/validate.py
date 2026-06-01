@@ -7,6 +7,7 @@
   4. project.json валиден и содержит обязательные поля.
 Возвращает ненулевой код при любой ошибке.
 """
+
 from __future__ import annotations
 
 import json

@@ -4,6 +4,7 @@
 если все указанные задачи уже в done/). Перенос через git mv (если есть git).
 Печатает содержимое задачи, чтобы исполнитель сразу видел контекст.
 """
+
 from __future__ import annotations
 
 import shutil
@@ -58,8 +59,10 @@ def main() -> int:
     print(f"Взята задача: {dest.relative_to(lib.ROOT)}\n{'=' * 60}")
     print(dest.read_text(encoding="utf-8"))
     print("=" * 60)
-    print("Дальше: выполни задачу, затем python scripts/complete_task.py "
-          f"{lib.task_id_from_name(dest.name)} --session SESSION-... --status done")
+    print(
+        "Дальше: выполни задачу, затем python scripts/complete_task.py "
+        f"{lib.task_id_from_name(dest.name)} --session SESSION-... --status done"
+    )
     return 0
 
 

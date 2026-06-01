@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T19:09:45Z",
+  "generated_at": "2026-06-01T19:12:54Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 11,
+    "done": 12,
     "blocked": 0
   },
   "tasks": [
@@ -76,10 +76,10 @@
     {
       "id": "TASK-0009",
       "title": "Pre-commit hooks и устранение формат-долга (анти-дрейф)",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0009-precommit-format-debt.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0009-precommit-format-debt.md",
       "milestone": "M2",
-      "report": null
+      "report": "handoff/reports/TASK-0009-report.md"
     },
     {
       "id": "TASK-0010",

@@ -3,6 +3,7 @@
 Кроссплатформенно (pathlib, без bash-специфики). Python 3.9+.
 Источник правды по состоянию задач — каталоги handoff/.
 """
+
 from __future__ import annotations
 
 import json
@@ -48,9 +49,7 @@ def read_json(path: Path) -> dict:
 
 
 def write_json(path: Path, data: dict) -> None:
-    path.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def parse_frontmatter(path: Path) -> dict:
@@ -96,9 +95,7 @@ def next_task_number() -> int:
 
 
 def git(*args: str, check: bool = True) -> subprocess.CompletedProcess:
-    return subprocess.run(
-        ["git", *args], cwd=ROOT, text=True, capture_output=True, check=check
-    )
+    return subprocess.run(["git", *args], cwd=ROOT, text=True, capture_output=True, check=check)
 
 
 def in_git_repo() -> bool:

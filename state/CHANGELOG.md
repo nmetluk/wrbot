@@ -83,6 +83,15 @@
   - Регистрация, убрана заглушка
   - CI зелёный
 
+### Fixed
+- **TASK-0009 (pre-commit + формат-долг) (исполнитель, SESSION-2026-06-01-21):**
+  - Создан `.pre-commit-config.yaml` (ruff-format, ruff --fix, trailing-whitespace, end-of-file-fixer)
+  - `ruff format .` + `ruff check . --fix` — приведён к чистому состоянию **весь репозиторий** (scripts/, alembic/, tests/, docs/ и т.д.; 8 файлов отформатировано)
+  - `ruff format --check .` и `ruff check .` — 0 проблем
+  - Обновлены `CONTRIBUTING.md` и `executor-guide.md` (инструкция `pre-commit install`)
+  - Полный CI (включая whole-repo clean) зелёный без изменений логики
+  - M3 полностью готов (0009 был последним)
+
 ### Audited (rejected)
 - **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
   - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)

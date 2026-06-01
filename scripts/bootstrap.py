@@ -5,6 +5,7 @@ push в main. Требует настроенных учётных данных 
 
   python scripts/bootstrap.py --remote https://github.com/nmetluk/wrbot.git
 """
+
 from __future__ import annotations
 
 import argparse
