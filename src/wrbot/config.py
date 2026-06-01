@@ -3,8 +3,12 @@ Configuration management.
 
 Загрузка настроек из переменных окружения и .env файла.
 Все секреты хранятся в окружении, не хардкодятся (NFR-6).
+
+Импорт пакета НЕ требует секретов — настройки загружаются лениво
+при первом вызове get_settings().
 """
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
@@ -66,15 +70,15 @@ class Settings(BaseSettings):
         return self
 
 
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
     """
-    Получить экземпляр настроек (singleton).
+    Получить экземпляр настроек (singleton с ленивой загрузкой).
+
+    Настройки загружаются при первом вызове, subsequent calls return cached instance.
+    Если BOT_TOKEN не задан, Pydantic выбросит ValidationError при первом вызове.
 
     Returns:
         Settings с загруженными значениями из окружения
     """
     return Settings()
-
-
-# Глобальный экземпляр настроек
-settings = get_settings()

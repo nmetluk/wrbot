@@ -9,7 +9,7 @@ def test_import_wrbot() -> None:
     from wrbot.bot.handlers import start  # noqa: F401
     from wrbot.bot.keyboards import get_main_menu_keyboard  # noqa: F401
     from wrbot.bot.texts import Texts  # noqa: F401
-    from wrbot.config import settings  # noqa: F401
+    from wrbot.config import get_settings  # noqa: F401
     from wrbot.db.models import (  # noqa: F401
         Base,
         Category,

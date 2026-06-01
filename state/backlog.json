@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-05-31T23:37:28Z",
+  "generated_at": "2026-05-31T23:48:51Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 2,
+    "done": 3,
     "blocked": 0
   },
   "tasks": [
@@ -28,10 +28,10 @@
     {
       "id": "TASK-0003",
       "title": "Развязать импорт пакета и секреты; зелёный CI без BOT_TOKEN",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0003-decouple-config-env.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0003-decouple-config-env.md",
       "milestone": "M1",
-      "report": null
+      "report": "handoff/reports/TASK-0003-report.md"
     }
   ]
 }

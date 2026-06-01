@@ -2,12 +2,11 @@
 wrbot — Telegram бот для напоминаний о регулярных списаниях.
 
 Бот помогает отслеживать recurring charges (подписки, кредиты, ЖКХ)
-и присылает напоминания за N дней до списания.
+и присылать напоминания за N дней до списания.
 """
 
 __version__ = "0.1.0"
 
-from wrbot.config import settings
 from wrbot.logging import setup_logging
 
-__all__ = ["__version__", "settings", "setup_logging"]
+__all__ = ["__version__", "setup_logging"]

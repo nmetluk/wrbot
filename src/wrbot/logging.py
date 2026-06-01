@@ -9,7 +9,7 @@ import logging.config
 from pathlib import Path
 from typing import Literal
 
-from wrbot.config import settings
+from wrbot.config import get_settings
 
 
 def setup_logging(
@@ -23,6 +23,7 @@ def setup_logging(
         level: Уровень логирования (по умолчанию из настроек)
         log_file: Путь к файлу логов (по умолчанию из настроек)
     """
+    settings = get_settings()
     if level is None:
         level = settings.log_level
     if log_file is None:

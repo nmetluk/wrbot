@@ -12,7 +12,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 
 from wrbot.bot.handlers import start as start_handler
-from wrbot.config import settings
+from wrbot.config import get_settings
 from wrbot.db import get_engine, get_session_factory
 from wrbot.logging import setup_logging
 from wrbot.scheduler.app import setup_scheduler
@@ -25,6 +25,7 @@ async def run_migrations() -> None:
     from alembic import command
     from alembic.config import Config
 
+    settings = get_settings()
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("sqlalchemy.url", settings.database_url)
 
@@ -50,6 +51,9 @@ async def setup_bot_commands(bot: Bot) -> None:
 
 async def main() -> None:
     """Главная функция запуска бота."""
+    # Получаем настройки (теперь лениво)
+    settings = get_settings()
+
     # Настройка логирования
     setup_logging()
     logger.info("Starting wrbot...")
