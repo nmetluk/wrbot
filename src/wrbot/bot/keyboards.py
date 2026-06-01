@@ -188,6 +188,86 @@ def get_confirm_delete_keyboard(entity_type: str, entity_id: int) -> InlineKeybo
     return builder.as_markup()
 
 
+# M3 - Клавиатуры для создания списания (TASK-0011)
+
+
+def get_charge_wallets_keyboard(wallets: list[dict[str, Any]]) -> InlineKeyboardMarkup:
+    """Выбор кошелька при создании списания + кнопка добавить новый."""
+    builder = InlineKeyboardBuilder()
+    for w in wallets:
+        builder.add(
+            InlineKeyboardButton(
+                text=f"👛 {w['name']}",
+                callback_data=f"charge_wallet_{w['id']}",
+            )
+        )
+    builder.adjust(2)
+    builder.row(
+        InlineKeyboardButton(text="➕ Добавить новый кошелёк", callback_data="charge_add_wallet")
+    )
+    builder.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
+    return builder.as_markup()
+
+
+def get_charge_categories_keyboard(categories: list[dict[str, Any]]) -> InlineKeyboardMarkup:
+    """Выбор категории или пропуск."""
+    builder = InlineKeyboardBuilder()
+    for c in categories:
+        builder.add(
+            InlineKeyboardButton(
+                text=f"🏷️ {c['name']}",
+                callback_data=f"charge_category_{c['id']}",
+            )
+        )
+    builder.adjust(2)
+    builder.row(
+        InlineKeyboardButton(text="⏭ Пропустить категорию", callback_data="charge_skip_category")
+    )
+    builder.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
+    return builder.as_markup()
+
+
+def get_charge_period_keyboard() -> InlineKeyboardMarkup:
+    """Выбор периодичности."""
+    builder = InlineKeyboardBuilder()
+    periods = [
+        ("Одноразово", "once"),
+        ("Ежемесячно", "monthly"),
+        ("Ежеквартально", "quarterly"),
+        ("Ежегодно", "yearly"),
+    ]
+    for label, value in periods:
+        builder.add(InlineKeyboardButton(text=label, callback_data=f"charge_period_{value}"))
+    builder.adjust(2)
+    builder.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
+    return builder.as_markup()
+
+
+def get_charge_notify_keyboard() -> InlineKeyboardMarkup:
+    """Выбор типа уведомлений."""
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="🌍 Глобальные (по настройкам)",
+            callback_data="charge_notify_global",
+        )
+    )
+    builder.row(InlineKeyboardButton(text="✏️ Свои дни", callback_data="charge_notify_custom"))
+    builder.row(InlineKeyboardButton(text="🚫 Отключить", callback_data="charge_notify_disable"))
+    builder.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
+    return builder.as_markup()
+
+
+def get_charge_confirm_keyboard() -> InlineKeyboardMarkup:
+    """Подтверждение создания."""
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="✅ Создать списание", callback_data="charge_confirm_create"),
+        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"),
+    )
+    return builder.as_markup()
+
+
 def get_cancel_keyboard() -> InlineKeyboardMarkup:
     """Клавиатура с кнопкой "Отмена" для пошаговых диалогов."""
     return InlineKeyboardMarkup(

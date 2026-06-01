@@ -63,6 +63,15 @@
   - Полный CI зелёный (116 pytest, mypy 0, ruff clean)
   - M2 полностью принят (AUDIT-M2-r2)
 
+### Fixed
+- **TASK-0011 (M3) — пошаговое создание списания (FSM) (исполнитель, SESSION-2026-06-01-19):**
+  - NewChargeStates (7 шагов: name, amount, wallet(+add new с возвратом), category(skip), date (ДД.ММ.ГГГГ + валидация), period, notify (global/custom/disable))
+  - Полноценный FSM handler с валидациями, sub-flow для кошелька, cancel
+  - Новые клавиатуры и тексты
+  - Интеграция с ChargeRepository (TASK-0010) и M2 (wallets/categories)
+  - Регистрация роутера, убрана заглушка в start.py
+  - CI зелёный после format
+
 ### Audited (rejected)
 - **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
   - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)

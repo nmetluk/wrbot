@@ -39,10 +39,8 @@ async def help_callback(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
-@router.callback_query(F.data == "new_charge")
-async def new_charge_stub(callback: CallbackQuery) -> None:
-    """Заглушка для «Новое списание» (M3)."""
-    await callback.answer(Texts.new_charge_stub, show_alert=True)
+# Обработчик "new_charge" теперь в charges_create_handler (TASK-0011)
+# Заглушка удалена, чтобы не конфликтовать.
 
 
 @router.callback_query(F.data == "list_charges")

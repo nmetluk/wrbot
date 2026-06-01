@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T18:57:10Z",
+  "generated_at": "2026-06-01T19:03:10Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 3,
+    "inbox": 2,
     "in_progress": 0,
-    "done": 9,
+    "done": 10,
     "blocked": 0
   },
   "tasks": [
@@ -92,10 +92,10 @@
     {
       "id": "TASK-0011",
       "title": "\"M3: пошаговое создание списания (FSM, FR-3/FR-4)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0011-m3-charge-create.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0011-m3-charge-create.md",
       "milestone": "M3",
-      "report": null
+      "report": "handoff/reports/TASK-0011-report.md"
     },
     {
       "id": "TASK-0012",

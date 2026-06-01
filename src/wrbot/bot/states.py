@@ -34,14 +34,17 @@ class ConfirmDeleteStates(StatesGroup):
     confirm = State()  # Ожидание подтверждения
 
 
-# TODO: M3 - добавить состояния для создания списания:
-# class NewChargeStates(StatesGroup):
-#     name = State()
-#     amount = State()
-#     wallet = State()
-#     category = State()
-#     next_date = State()
-#     period = State()
+# M3 - состояния для создания списания (TASK-0011)
+class NewChargeStates(StatesGroup):
+    """Состояния пошагового создания списания."""
+
+    name = State()  # 1. Название
+    amount = State()  # 2. Сумма
+    wallet = State()  # 3. Кошелёк (выбор + возможность добавить новый)
+    category = State()  # 4. Категория (или пропустить)
+    next_date = State()  # 5. Дата следующего списания (ДД.ММ.ГГГГ)
+    period = State()  # 6. Периодичность
+    notify = State()  # 7. Уведомления (глобальные / свои дни / отключить)
 
 
 # TODO: M3 - добавить состояния для настроек:

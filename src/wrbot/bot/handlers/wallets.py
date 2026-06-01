@@ -147,6 +147,11 @@ async def wallet_name_handler(message: Message, state: FSMContext) -> None:
             # Добавление нового кошелька
             wallet = await wallet_repo.create(tg_id, message.text or "")
             await message.answer(Texts.wallet_added.format(name=wallet.name))
+
+            if state_data.get("return_to") == "charge_wallet":
+                await message.answer(Texts.new_charge_wallet_added_return)
+                await state.clear()
+                return
         else:
             # Переименование существующего
             wallet = await wallet_repo.rename(tg_id, wallet_id, message.text or "")  # type: ignore[assignment]

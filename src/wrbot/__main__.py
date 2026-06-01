@@ -12,6 +12,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 
 from wrbot.bot.handlers import categories as categories_handler
+from wrbot.bot.handlers import charges_create as charges_create_handler
 from wrbot.bot.handlers import settings as settings_handler
 from wrbot.bot.handlers import start as start_handler
 from wrbot.bot.handlers import wallets as wallets_handler
@@ -84,6 +85,7 @@ async def main() -> None:
     dp.include_router(settings_handler.router)
     dp.include_router(wallets_handler.router)
     dp.include_router(categories_handler.router)
+    dp.include_router(charges_create_handler.router)
 
     # Настройка команд в меню
     await setup_bot_commands(bot)
