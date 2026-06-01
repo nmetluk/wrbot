@@ -3,7 +3,7 @@
   "generated_at": "2026-06-01T22:21:54Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 1,
     "in_progress": 0,
     "done": 19,
     "blocked": 0
@@ -160,6 +160,14 @@
       "file": "handoff/done/TASK-0019-sent-reminders-portable-upsert.md",
       "milestone": "M4",
       "report": "handoff/reports/TASK-0019-report.md"
+    },
+    {
+      "id": "TASK-0020",
+      "title": "Детерминированный CI — honoring uv.lock (фикс дрейфа версий инструментов)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0020-ci-deterministic-toolchain.md",
+      "milestone": "M5",
+      "report": null
     }
   ]
 }

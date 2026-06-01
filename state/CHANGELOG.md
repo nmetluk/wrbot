@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Audited (accepted)
+- **M4 — повторный аудит, ПРИНЯТО (архитектор-аудитор, SESSION-2026-06-01-32):** прогон начисто —
+  `ruff format/check .`, `mypy src` (0), `pytest` (145), `alembic` зелёные. Блокеры закрыты:
+  тайминг свипа (0017, тест notify_time/tz), mypy (0018), переносимый `record()` (0019), F811 убран.
+  Аудитор удалил 3 мёртвых `# type: ignore` в `reminders.py` (под mypy 2.1.0, механически).
+  Новая находка: CI не использует `uv.lock` (pip+`>=`) → дрейф версий инструментов → **TASK-0020** (medium).
+  Отчёт: `handoff/reports/AUDIT-M4-2026-06-01-r2.md`. **Старт M5.**
+
 ### Audited (rejected)
 - **M4 — аудит майлстоуна, НЕ ПРИНЯТО (архитектор-аудитор, SESSION-2026-06-01-28):**
   - **BLOCKER (функц.):** свип не учитывает `notify_time`/tz (`select_users_to_notify_at` не

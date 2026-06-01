@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T22:25:00Z",
-  "current_phase": "M4: пост-аудит (все блокеры закрыты)",
-  "current_milestone": "M4",
-  "active_task": "",
-  "last_session": "SESSION-2026-06-01-31",
+  "updated_at": "2026-06-01T22:45:00Z",
+  "current_phase": "M4 ПРИНЯТ (AUDIT-M4-r2) → старт M5 (стабилизация и деплой)",
+  "current_milestone": "M5",
+  "active_task": null,
+  "last_session": "SESSION-2026-06-01-32",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0019 закрыт. Все находки AUDIT-M4 закрыты. Следующий шаг — повторный аудит M4 (отдельная сессия)."
+  "next_step": "M4 ПРИНЯТ повторным аудитом (AUDIT-M4-2026-06-01-r2, SESSION-2026-06-01-32): свип шлёт в notify_time, идемпотентность/snooze/переносимость record — ок, CI зелёный (mypy 0 после удаления мёртвых ignore). Заведена TASK-0020 (medium, детерминизм CI). Следующий шаг: архитектор декомпозирует M5 (стабилизация, обработка ошибок, деплой 24/7)."
 }

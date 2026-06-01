@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 router = Router(name="reminders")
 
 
-@router.callback_query(F.data.startswith("remind_paid_"))  # type: ignore[untyped-decorator]
+@router.callback_query(F.data.startswith("remind_paid_"))
 async def remind_mark_paid(
     callback: CallbackQuery, state: FSMContext, session: AsyncSession
 ) -> None:
@@ -63,7 +63,7 @@ async def remind_mark_paid(
     await callback.answer()
 
 
-@router.callback_query(F.data.startswith("remind_snooze_"))  # type: ignore[untyped-decorator]
+@router.callback_query(F.data.startswith("remind_snooze_"))
 async def remind_snooze(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
     """Snooze this charge's reminders until tomorrow (next_date is NOT changed, per ADR-0005)."""
     if callback.data is None:
@@ -90,7 +90,7 @@ async def remind_snooze(callback: CallbackQuery, state: FSMContext, session: Asy
     await callback.answer()
 
 
-@router.callback_query(F.data.startswith("remind_edit_"))  # type: ignore[untyped-decorator]
+@router.callback_query(F.data.startswith("remind_edit_"))
 async def remind_edit_charge(
     callback: CallbackQuery, state: FSMContext, session: AsyncSession
 ) -> None:
