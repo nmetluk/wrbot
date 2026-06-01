@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+### Fixed
+- **TASK-0015 — M4 текст+кнопки уведомлений (исполнитель, SESSION-2026-06-01-25):**
+  - Реализован формат `reminder_notification` + confirmation-тексты, клавиатура `get_reminder_actions_keyboard` с `remind_paid_<id>`/`remind_snooze_<id>`/`remind_edit_<id>`.
+  - 3 хэндлера в новом `handlers/reminders.py` (specific filters, reuse edit FSM, snooze без смены next_date).
+  - Регистрация в `__main__.py`.
+  - Тесты: render (real example), handlers (autospec paid/snooze/edit), router-introspection (как в 0008).
+  - Полный CI зелёный (134 pytest, 0 от нашего кода в mypy, ruff, alembic, validate).
+  - Отчёт: `handoff/reports/TASK-0015-report.md`. Следующий: 0016 (свип).
+
 ### Planned
 - **Декомпозиция M4 (архитектор, SESSION-2026-06-01-23):** в `inbox/` поставлены
   **TASK-0014** (due-логика напоминаний + `SentReminderRepository` + `snooze`),

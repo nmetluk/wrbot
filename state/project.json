@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T20:44:44Z",
+  "updated_at": "2026-06-01T20:55:00Z",
   "current_phase": "M4: Уведомления (задачи поставлены)",
   "current_milestone": "M4",
   "active_task": "TASK-0015",
-  "last_session": "SESSION-2026-06-01-24",
+  "last_session": "SESSION-2026-06-01-25",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0014 (due-логика + sent_reminders + snooze) закрыта. Следующие: 0015 (текст+кнопки) → 0016 (свип). После M4 — строгий аудит."
+  "next_step": "TASK-0015 закрыта. Следующая: 0016 (свип-планировщик + отправка). После M4 — строгий аудит (NFR, рестарт, идемпотентность)."
 }

@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T20:44:30Z",
+  "generated_at": "2026-06-01T20:54:55Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 3,
+    "inbox": 2,
     "in_progress": 0,
-    "done": 13,
+    "done": 14,
     "blocked": 0
   },
   "tasks": [
@@ -124,10 +124,10 @@
     {
       "id": "TASK-0015",
       "title": "\"M4: текст уведомления + кнопки Оплачено/Отложить/Редактировать (FR-12)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0015-m4-reminder-message.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0015-m4-reminder-message.md",
       "milestone": "M4",
-      "report": null
+      "report": "handoff/reports/TASK-0015-report.md"
     },
     {
       "id": "TASK-0016",

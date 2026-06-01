@@ -29,6 +29,12 @@ from wrbot.bot.texts import Texts
         # Ошибки
         (Texts.error_name_too_long, {"max": 100}),
         (Texts.error_limit_exceeded, {"max": 10}),
+        # M4 reminders (TASK-0015)
+        (
+            Texts.reminder_notification,
+            {"name": "Тест", "amount": "1500.00", "wallet": "Тинькофф", "next_date": "2026-06-15"},
+        ),
+        (Texts.reminder_paid_periodic, {"next_date": "2026-07-15"}),
     ],
 )
 def test_text_template_renders(template, kwargs):
@@ -58,7 +64,22 @@ def test_category_renamed_render_real_example():
 
     assert result == "✅ Категория переименована в «Продукты»."
     assert "Продукты" in result
-    assert "переименована" in result
+
+
+def test_reminder_notification_render_real_example():
+    """Реальный рендер текста уведомления (TASK-0015, переиспользуется в свипе 0016)."""
+    result = Texts.reminder_notification.format(
+        name="Оплата VPN",
+        amount="299.00",
+        wallet="Сбер",
+        next_date="2026-06-10",
+    )
+
+    assert "🔔 *Напоминание о списании*" in result
+    assert "Оплата VPN" in result
+    assert "299.00 ₽" in result
+    assert "Сбер" in result
+    assert "2026-06-10" in result
 
 
 def test_error_limit_exceeded_render_real_example():

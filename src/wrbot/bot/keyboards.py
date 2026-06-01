@@ -309,3 +309,25 @@ def get_cancel_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton(text="❌ Отмена", callback_data="cancel")]]
     )
+
+
+# M4 - Клавиатура для кнопок в уведомлении-напоминании (TASK-0015)
+# Используется при отправке (TASK-0016), но определена здесь для централизации UI.
+
+
+def get_reminder_actions_keyboard(charge_id: int) -> InlineKeyboardMarkup:
+    """Клавиатура действий из push-уведомления: Оплачено / Отложить / Редактировать.
+
+    Callbacks специфичны (remind_*) — защищает роутинг (урок TASK-0008).
+    """
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="✅ Оплачено", callback_data=f"remind_paid_{charge_id}"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="⏰ Отложить", callback_data=f"remind_snooze_{charge_id}"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"remind_edit_{charge_id}"),
+    )
+    return builder.as_markup()

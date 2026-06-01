@@ -14,6 +14,7 @@ from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 from wrbot.bot.handlers import categories as categories_handler
 from wrbot.bot.handlers import charges_create as charges_create_handler
 from wrbot.bot.handlers import charges_list as charges_list_handler
+from wrbot.bot.handlers import reminders as reminders_handler
 from wrbot.bot.handlers import settings as settings_handler
 from wrbot.bot.handlers import start as start_handler
 from wrbot.bot.handlers import wallets as wallets_handler
@@ -88,6 +89,7 @@ async def main() -> None:
     dp.include_router(categories_handler.router)
     dp.include_router(charges_create_handler.router)
     dp.include_router(charges_list_handler.router)
+    dp.include_router(reminders_handler.router)
 
     # Настройка команд в меню
     await setup_bot_commands(bot)
