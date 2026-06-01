@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Audited (accepted)
+- **M3 — аудит майлстоуна, ПРИНЯТО (архитектор-аудитор, SESSION-2026-06-01-22):** прогон начисто —
+  `ruff format --check .`/`ruff check .`/`mypy src`/`alembic` зелёные, `pytest` 116 passed (на 3.11;
+  в 3.10 `charges.py` не собирается из-за `datetime.UTC` — артефакт, проверено через shim).
+  Домен дат (`calculate_next_date` клампы) и `mark_paid` (сдвиг/soft-close) проверены независимо;
+  callback-роутинг `charge_*` специфичен, заглушки `start.py` убраны. Критичных находок нет.
+  Минор: нет router-теста для charges → **TASK-0013** (low). Отчёт: `handoff/reports/AUDIT-M3-2026-06-01.md`. **Старт M4.**
+
 ### Planned
 - **Декомпозиция M3 (архитектор, SESSION-2026-06-01-17):** в `inbox/` поставлены
   **TASK-0010** (домен дат `calculate_next_date` с клампом + `ChargeRepository` с `mark_paid`),
