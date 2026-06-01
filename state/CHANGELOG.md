@@ -7,6 +7,12 @@
 
 ## [Unreleased]
 
+### Reviewed
+- **Приёмка TASK-0003 (архитектор, SESSION-2026-06-01-05):** проверено начисто без
+  BOT_TOKEN — `import wrbot`, `pytest` (11 passed), `alembic upgrade head`, ruff/mypy/validate
+  зелёные. Блокер устранён в корне (ленивые `get_settings()` + `@lru_cache`), гарантии
+  TASK-0002 без регрессий. **TASK-0003 принят.** M1 готов к независимому переаудиту.
+
 ### Fixed
 - **TASK-0003 — развязать импорт пакета от секретов (исполнитель, SESSION-2026-05-31-04, SESSION-2026-06-01-04):**
   - Убран глобальный `settings` из config.py, добавлен `@lru_cache` к `get_settings()`
