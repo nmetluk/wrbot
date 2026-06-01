@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T23:15:00Z",
+  "generated_at": "2026-06-01T23:22:57Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 23,
+    "done": 24,
     "blocked": 0
   },
   "tasks": [
@@ -196,10 +196,10 @@
     {
       "id": "TASK-0024",
       "title": "\"M5: edge/устойчивость-тесты и финальная полировка перед аудитом\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0024-m5-edge-tests.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0024-m5-edge-tests.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0024-report.md"
     },
     {
       "id": "TASK-0025",
