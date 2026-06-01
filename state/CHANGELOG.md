@@ -7,6 +7,12 @@
 
 ## [Unreleased]
 
+### Planned
+- **Декомпозиция M2 (архитектор, SESSION-2026-06-01-07):** в `inbox/` поставлены
+  **TASK-0004** (репозитории users/wallets/categories с изоляцией tg_id, лимиты, валидация,
+  middleware DI `AsyncSession`) и **TASK-0005** (бот-UI: Настройки → Кошельки/Категории,
+  CRUD через inline+FSM). Декомпозиция по слоям; лимиты вынесены в конфиг (закрыт открытый вопрос).
+
 ### Reviewed
 - **Приёмка TASK-0003 (архитектор, SESSION-2026-06-01-05):** проверено начисто без
   BOT_TOKEN — `import wrbot`, `pytest` (11 passed), `alembic upgrade head`, ruff/mypy/validate

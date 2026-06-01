@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T00:23:06Z",
+  "generated_at": "2026-06-01T00:39:55Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 2,
     "in_progress": 0,
     "done": 3,
     "blocked": 0
@@ -32,6 +32,22 @@
       "file": "handoff/done/TASK-0003-decouple-config-env.md",
       "milestone": "M1",
       "report": "handoff/reports/TASK-0003-report.md"
+    },
+    {
+      "id": "TASK-0004",
+      "title": "Справочники: репозитории кошельков/категорий + DI сессии в хэндлеры",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0004-m2-reference-data.md",
+      "milestone": "M2",
+      "report": null
+    },
+    {
+      "id": "TASK-0005",
+      "title": "Справочники: бот-UI (Настройки → Кошельки/Категории), CRUD",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0005-m2-reference-ui.md",
+      "milestone": "M2",
+      "report": null
     }
   ]
 }
