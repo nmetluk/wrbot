@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T01:41:02Z",
+  "generated_at": "2026-06-01T01:47:48Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 2,
     "in_progress": 0,
     "done": 5,
     "blocked": 0
@@ -48,6 +48,22 @@
       "file": "handoff/done/TASK-0005-m2-reference-ui.md",
       "milestone": "M2",
       "report": "handoff/reports/TASK-0005-report.md"
+    },
+    {
+      "id": "TASK-0006",
+      "title": "Исправить mypy ошибки типизации",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0006-fix-mypy-errors.md",
+      "milestone": "M2",
+      "report": null
+    },
+    {
+      "id": "TASK-0007",
+      "title": "Исправить ruff ошибки форматирования",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0007-fix-ruff-errors.md",
+      "milestone": "M2",
+      "report": null
     }
   ]
 }

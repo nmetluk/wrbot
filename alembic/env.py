@@ -5,16 +5,15 @@ Alembic environment configuration.
 Поддерживает как async (sqlite+aiosqlite), так и sync (sqlite) URL.
 """
 
+# Добавляем src в PYTHONPATH для импорта wrbot при запуске миграций
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from sqlalchemy import create_engine, pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config, create_async_engine
-
-# Добавляем src в PYTHONPATH для импорта wrbot при запуске миграций
-import sys
-from pathlib import Path
+from sqlalchemy.ext.asyncio import async_engine_from_config
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -80,7 +79,6 @@ def run_migrations_online() -> None:
     В этом режиме создаётся Engine (async или sync) и вызываются миграции.
     """
     import asyncio
-    import concurrent.futures
 
     if is_async:
         # Async режим (sqlite+aiosqlite, postgresql+asyncpg)

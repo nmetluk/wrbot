@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T10:15:00Z",
-  "current_phase": "M2: Справочники (кошельки и категории)",
+  "updated_at": "2026-06-01T05:00:00Z",
+  "current_phase": "M2: Исправление по аудиту (TASK-0006, TASK-0007)",
   "current_milestone": "M2",
-  "active_task": null,
-  "last_session": "SESSION-2026-06-01-10",
+  "active_task": "TASK-0006",
+  "last_session": "SESSION-2026-06-01-11",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -27,5 +27,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0005 выполнена. M2 готов. Следующий шаг: аудит M2 (отдельная сессия через /audit)."
+  "next_step": "Аудит M2 НЕ ПРИНЯТ (mypy 64 errors, ruff 5 errors). Исполнителю: взять TASK-0006 (high) и TASK-0007, исправить, затем перепроверка гейтов."
 }

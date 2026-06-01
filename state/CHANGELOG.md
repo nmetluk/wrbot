@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+### Audited (rejected)
+- **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
+  - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)
+  - Критично: mypy — 64 ошибки (union-attr, type-arg, assignment, arg-type) → TASK-0006 (high)
+  - Major: ruff — 5 ошибок (line too long, trailing whitespace) → TASK-0007 (medium)
+  - Ок: validate.py ✅, pytest 92 passed ✅, alembic upgrade head ✅, секреты изолированы ✅
+  - Архитектура: слои соблюдены, DI через middleware, FR-13 изоляция по tg_id ✅
+  - Следующий шаг: закрыть TASK-0006 + TASK-0007, перепроверка аудита
+
 ### Added
 - **TASK-0005 — бот-UI справочников (исполнитель, SESSION-2026-06-01-10):**
   - Handlers: settings.py (меню настроек), wallets.py (CRUD кошельков), categories.py (CRUD категорий)
