@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T14:50:12Z",
+  "generated_at": "2026-06-01T14:55:43Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 6,
+    "done": 7,
     "blocked": 0
   },
   "tasks": [
@@ -60,10 +60,10 @@
     {
       "id": "TASK-0007",
       "title": "Исправить ruff ошибки форматирования",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0007-fix-ruff-errors.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0007-fix-ruff-errors.md",
       "milestone": "M2",
-      "report": null
+      "report": "handoff/reports/TASK-0007-report.md"
     },
     {
       "id": "TASK-0008",

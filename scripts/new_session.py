@@ -3,6 +3,7 @@
 Пример:
   python scripts/new_session.py --role executor
 """
+
 from __future__ import annotations
 
 import argparse
@@ -25,10 +26,13 @@ def main() -> int:
     sid = next_session_id()
     dest = lib.SESSIONS / f"{sid}.md"
     tpl = (lib.TEMPLATES / "session-log.template.md").read_text(encoding="utf-8")
-    role_ru = {"architect": "архитектор", "executor": "исполнитель", "auditor": "аудитор"}[args.role]
-    content = (
-        tpl.replace("SESSION-YYYY-MM-DD-NN", sid)
-        .replace("архитектор | исполнитель | аудитор", role_ru)
+    role_ru = {
+        "architect": "архитектор",
+        "executor": "исполнитель",
+        "auditor": "аудитор",
+    }[args.role]
+    content = tpl.replace("SESSION-YYYY-MM-DD-NN", sid).replace(
+        "архитектор | исполнитель | аудитор", role_ru
     )
     dest.write_text(content, encoding="utf-8")
     print(sid)

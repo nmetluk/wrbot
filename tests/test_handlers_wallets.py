@@ -333,7 +333,10 @@ async def test_wallet_name_handler_limit_exceeded(mock_state, mock_session):
         await wallets_handler.wallet_name_handler(message, mock_state)
 
         # Проверка, что было отправлено сообщение об ошибке лимита
-        assert any("лимит" in str(call.args[0]) or "Превышен" in str(call.args[0]) for call in message.answer.call_args_list)
+        assert any(
+            "лимит" in str(call.args[0]) or "Превышен" in str(call.args[0])
+            for call in message.answer.call_args_list
+        )
         mock_state.clear.assert_called_once()
 
 

@@ -23,6 +23,14 @@
   - Проверка: mypy src/wrbot и mypy src — 0 ошибок; pytest 92 passed; ruff check на src/handlers+keyboards чист; полный CI-прогон (alembic, validate) OK
   - Отклонения: hygiene для ruff (см. отчёт TASK-0006); игноры вместо редизайна (scope "только типы")
 
+### Fixed
+- **TASK-0007 — ruff (5 ошибок форматирования) (исполнитель, SESSION-2026-06-01-14):**
+  - Исправлены ровно 5 ошибок из аудита: W291 trailing ws в alembic миграции, E501 line too long в scripts/new_session.py:28, tests/test_handlers_{categories,wallets}.py (длинные assert)
+  - Фиксы: trim ws, разбивка длинных строк (dict + assert'ы) на несколько строк (как рекомендовано в задаче)
+  - Также применён `ruff format` точечно на 4 файла задачи (минимальный scope)
+  - Проверка: `uv run ruff check .` → All checks passed (0 ошибок); `ruff check src tests` + scripts clean; `ruff format --check` на файлах задачи → чисто; полный CI-прогон (mypy 0, pytest 92, alembic, validate) OK. Остальные "would reformat" — пре-экзистентный долг (не в scope 5 ошибок)
+  - Отклонения: не запускал массовый `ruff format .` (избегал изменения 9+ файлов вне перечня ошибок в задаче); использовал manual break + scoped format
+
 ### Audited (rejected)
 - **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
   - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)
