@@ -7,6 +7,16 @@
 
 ## [Unreleased]
 
+### Audited (rejected)
+- **M4 — аудит майлстоуна, НЕ ПРИНЯТО (архитектор-аудитор, SESSION-2026-06-01-28):**
+  - **BLOCKER (функц.):** свип не учитывает `notify_time`/tz (`select_users_to_notify_at` не
+    подключён) → уведомления уходят в ≈полночь UTC, не в выбранное время. Нарушает §3.4/NFR-2. → TASK-0017.
+  - **BLOCKER (CI):** `mypy src` — 12 ошибок в `handlers/reminders.py` (union-attr); отчёты гоняли
+    mypy по своим файлам, не по `src`. → TASK-0018.
+  - **major:** `SentReminderRepository.record` — SQLite-only `INSERT OR IGNORE`, ломается на PostgreSQL (ADR-0003). → TASK-0019.
+  - Положительно: due-логика/snooze корректны; идемпотентность на SQLite; TASK-0013 закрыт.
+  - `ruff`/`alembic`/`pytest` (144) зелёные. Отчёт: `handoff/reports/AUDIT-M4-2026-06-01.md`.
+
 ### Fixed
 - **TASK-0015 — M4 текст+кнопки уведомлений (исполнитель, SESSION-2026-06-01-25):**
   - Реализован формат `reminder_notification` + confirmation-тексты, клавиатура `get_reminder_actions_keyboard` с `remind_paid_<id>`/`remind_snooze_<id>`/`remind_edit_<id>`.

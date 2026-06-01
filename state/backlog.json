@@ -3,7 +3,7 @@
   "generated_at": "2026-06-01T21:15:09Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 3,
     "in_progress": 0,
     "done": 16,
     "blocked": 0
@@ -136,6 +136,30 @@
       "file": "handoff/done/TASK-0016-m4-sweep-scheduler.md",
       "milestone": "M4",
       "report": "handoff/reports/TASK-0016-report.md"
+    },
+    {
+      "id": "TASK-0017",
+      "title": "M4 BLOCKER: свип должен слать в notify_time пользователя (а не в полночь UTC)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0017-m4-sweep-notify-time.md",
+      "milestone": "M4",
+      "report": null
+    },
+    {
+      "id": "TASK-0018",
+      "title": "M4 BLOCKER: mypy 12 ошибок в handlers/reminders.py (CI красный)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0018-m4-mypy-reminders.md",
+      "milestone": "M4",
+      "report": null
+    },
+    {
+      "id": "TASK-0019",
+      "title": "Переносимый идемпотентный record() в SentReminderRepository (SQLite+PostgreSQL)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0019-sent-reminders-portable-upsert.md",
+      "milestone": "M4",
+      "report": null
     }
   ]
 }

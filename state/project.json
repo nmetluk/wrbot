@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T21:15:00Z",
-  "current_phase": "M4 завершён (долг 0013 закрыт)",
+  "updated_at": "2026-06-01T22:00:00Z",
+  "current_phase": "M4: НЕ принят аудитом (переоткрыт) — тайминг свипа + mypy",
   "current_milestone": "M4",
-  "active_task": "",
-  "last_session": "SESSION-2026-06-01-27",
+  "active_task": "TASK-0017",
+  "last_session": "SESSION-2026-06-01-28",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Все задачи из inbox закрыты. Следующий шаг — строгий аудит M4 (отдельная сессия)."
+  "next_step": "Аудит M4 НЕ ПРИНЯТ (AUDIT-M4-2026-06-01, SESSION-2026-06-01-28): (1) свип игнорирует notify_time → шлёт в полночь UTC, не в 10:00 (TASK-0017, blocker); (2) mypy 12 ошибок в handlers/reminders.py (TASK-0018, blocker); (3) record() SQLite-only (TASK-0019, major). Исполнитель: TASK-0017 → 0018 → 0019, затем повторный аудит M4."
 }
