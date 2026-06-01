@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-01T05:00:00Z",
-  "current_phase": "M1: Скелет проекта (TASK-0003 принят архитектором, готов к переаудиту)",
-  "current_milestone": "M1",
+  "updated_at": "2026-06-01T06:00:00Z",
+  "current_phase": "M2: Справочники (кошельки и категории)",
+  "current_milestone": "M2",
   "active_task": null,
-  "last_session": "SESSION-2026-06-01-05",
+  "last_session": "SESSION-2026-06-01-06",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -27,5 +27,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0003 принят архитектором (SESSION-2026-06-01-05): CI зелёный начисто без BOT_TOKEN (проверено). Следующий шаг: независимый переаудит M1 отдельной сессией (/audit). При зелёном аудите → закрытие M1, старт M2 (CRUD кошельков/категорий)."
+  "next_step": "M1 принят по AUDIT-M1-2026-06-01. Старт M2: архитектор создаёт задачи для кошельков/категорий (FR-8, FR-9)."
 }
