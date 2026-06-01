@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T22:50:26Z",
+  "generated_at": "2026-06-01T22:59:55Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 5,
+    "inbox": 4,
     "in_progress": 0,
-    "done": 20,
+    "done": 21,
     "blocked": 0
   },
   "tasks": [
@@ -172,10 +172,10 @@
     {
       "id": "TASK-0021",
       "title": "\"M5: устойчивость 24/7 и обработка ошибок\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0021-m5-resilience-errors.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0021-m5-resilience-errors.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0021-report.md"
     },
     {
       "id": "TASK-0022",

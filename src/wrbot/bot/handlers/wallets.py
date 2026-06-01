@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from aiogram.types import CallbackQuery, Message
     from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy.exc import IntegrityError
+
 from wrbot.bot.keyboards import (
     get_cancel_keyboard,
     get_confirm_delete_keyboard,
@@ -108,7 +110,14 @@ async def wallet_delete(callback: CallbackQuery, state: FSMContext) -> None:
     repo = WalletRepository(session)
     tg_id = callback.from_user.id
 
-    deleted = await repo.delete(tg_id, wallet_id)
+    try:
+        deleted = await repo.delete(tg_id, wallet_id)
+    except IntegrityError:
+        # FK RESTRICT: есть активные списания на кошельке (TASK-0021)
+        logger.info("Attempt to delete wallet with active charges blocked: wallet_id=%s", wallet_id)
+        await callback.answer(Texts.error_wallet_has_charges.format(name=""), show_alert=True)
+        await state.clear()
+        return
 
     if deleted:
         await callback.message.edit_text(Texts.wallet_deleted.format(name="?"))  # type: ignore[union-attr]

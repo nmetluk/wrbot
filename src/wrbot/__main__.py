@@ -6,6 +6,7 @@ Entry point: wrbot startup.
 
 import asyncio
 import logging
+import signal
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
@@ -14,6 +15,7 @@ from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 from wrbot.bot.handlers import categories as categories_handler
 from wrbot.bot.handlers import charges_create as charges_create_handler
 from wrbot.bot.handlers import charges_list as charges_list_handler
+from wrbot.bot.handlers import errors as errors_handler
 from wrbot.bot.handlers import reminders as reminders_handler
 from wrbot.bot.handlers import settings as settings_handler
 from wrbot.bot.handlers import start as start_handler
@@ -40,7 +42,11 @@ async def run_migrations() -> None:
         command.upgrade(alembic_cfg, "head")
         logger.info("Migrations upgraded to head")
     except Exception as e:
-        logger.error("Migration failed: %s", e)
+        logger.error(
+            "CRITICAL: Database migrations failed. "
+            "Check DATABASE_URL, DB server and alembic setup. Error: %s",
+            e,
+        )
         raise
 
 
@@ -91,6 +97,9 @@ async def main() -> None:
     dp.include_router(charges_list_handler.router)
     dp.include_router(reminders_handler.router)
 
+    # Глобальный обработчик ошибок (TASK-0021) — регистрируем после основных роутеров
+    dp.include_router(errors_handler.errors_router)
+
     # Настройка команд в меню
     await setup_bot_commands(bot)
 
@@ -100,15 +109,46 @@ async def main() -> None:
     register_sweep_job(scheduler, bot, session_factory)
     scheduler.start()
 
-    # Запуск long polling
-    logger.info("Starting polling...")
+    # Graceful shutdown по сигналам (SIGINT/SIGTERM) — критично для 24/7 в Docker / systemd (NFR-1)
+    shutdown_event = asyncio.Event()
+
+    def _request_shutdown() -> None:
+        logger.info("Shutdown signal received (SIGINT/SIGTERM). Stopping gracefully...")
+        shutdown_event.set()
+
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, _request_shutdown)
+
+    # Запуск long polling (handle_signals=False — управляем сами)
+    logger.info("Starting polling (graceful shutdown enabled)...")
     try:
-        await dp.start_polling(bot)
+        polling_task = asyncio.create_task(dp.start_polling(bot, handle_signals=False))
+
+        # Ждём либо нормальное завершение polling, либо сигнал
+        await asyncio.wait(
+            [
+                asyncio.create_task(shutdown_event.wait()),
+                polling_task,
+            ],
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+
+        if not polling_task.done():
+            logger.info("Stopping polling due to shutdown signal...")
+            await dp.stop_polling()
+            # Дождёмся завершения задачи polling
+            try:
+                await asyncio.wait_for(polling_task, timeout=10)
+            except TimeoutError:
+                logger.warning("Polling stop timed out")
     finally:
-        logger.info("Shutting down...")
-        scheduler.shutdown()
+        logger.info("Shutting down resources...")
+        if scheduler and scheduler.running:
+            scheduler.shutdown(wait=False)
         await bot.session.close()
         await engine.dispose()
+        logger.info("Shutdown complete.")
 
 
 def main_sync() -> None:

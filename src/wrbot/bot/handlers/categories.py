@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from aiogram.types import CallbackQuery, Message
     from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy.exc import IntegrityError
+
 from wrbot.bot.keyboards import (
     get_cancel_keyboard,
     get_categories_keyboard,
@@ -108,7 +110,14 @@ async def category_delete(callback: CallbackQuery, state: FSMContext) -> None:
     repo = CategoryRepository(session)
     tg_id = callback.from_user.id
 
-    deleted = await repo.delete(tg_id, category_id)
+    try:
+        deleted = await repo.delete(tg_id, category_id)
+    except IntegrityError:
+        # На случай будущих ограничений (SET NULL обычно не падает)
+        logger.info("Integrity error on category delete (unexpected): category_id=%s", category_id)
+        await callback.answer(Texts.error_generic, show_alert=True)
+        await state.clear()
+        return
 
     if deleted:
         await callback.message.edit_text(Texts.category_deleted.format(name="?"))  # type: ignore[union-attr]
