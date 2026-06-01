@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-01T14:55:43Z",
+  "generated_at": "2026-06-01T15:13:13Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 7,
+    "done": 8,
     "blocked": 0
   },
   "tasks": [
@@ -68,10 +68,10 @@
     {
       "id": "TASK-0008",
       "title": "\"M2 critical: порядок callback-фильтров ломает CRUD (add/rename/delete)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0008-m2-callback-routing.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0008-m2-callback-routing.md",
       "milestone": "M2",
-      "report": null
+      "report": "handoff/reports/TASK-0008-report.md"
     }
   ]
 }

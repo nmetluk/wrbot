@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 router = Router(name="wallets")
 
 
-@router.callback_query(F.data.startswith("wallet_"))
+@router.callback_query(F.data.startswith("wallet_item_"))
 async def wallet_details(callback: CallbackQuery) -> None:
     """Показать детали кошелька с действиями."""
-    wallet_id = int(callback.data.split("_")[1])  # type: ignore[union-attr]
+    wallet_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
     keyboard = get_wallet_actions_keyboard(wallet_id)
     await callback.message.edit_reply_markup(reply_markup=keyboard)  # type: ignore[union-attr]
     await callback.answer()

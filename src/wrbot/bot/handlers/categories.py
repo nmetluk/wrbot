@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 router = Router(name="categories")
 
 
-@router.callback_query(F.data.startswith("category_"))
+@router.callback_query(F.data.startswith("category_item_"))
 async def category_details(callback: CallbackQuery) -> None:
     """Показать детали категории с действиями."""
-    category_id = int(callback.data.split("_")[1])  # type: ignore[union-attr]
+    category_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
     keyboard = get_category_actions_keyboard(category_id)
     await callback.message.edit_reply_markup(reply_markup=keyboard)  # type: ignore[union-attr]
     await callback.answer()

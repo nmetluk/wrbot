@@ -75,7 +75,7 @@ def get_wallets_keyboard(wallets: list[dict[str, Any]]) -> InlineKeyboardMarkup:
         builder.add(
             InlineKeyboardButton(
                 text=f"👛 {wallet['name']}",
-                callback_data=f"wallet_{wallet['id']}",
+                callback_data=f"wallet_item_{wallet['id']}",
             )
         )
 
@@ -128,7 +128,7 @@ def get_categories_keyboard(categories: list[dict[str, Any]]) -> InlineKeyboardM
         builder.add(
             InlineKeyboardButton(
                 text=f"🏷️ {category['name']}",
-                callback_data=f"category_{category['id']}",
+                callback_data=f"category_item_{category['id']}",
             )
         )
 

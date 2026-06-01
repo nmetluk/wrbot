@@ -36,7 +36,7 @@ def mock_session():
 async def test_wallet_details_callback():
     """Callback с деталями кошелька."""
     callback = AsyncMock(spec=CallbackQuery)
-    callback.data = "wallet_42"
+    callback.data = "wallet_item_42"
     callback.message = AsyncMock()
     callback.answer = AsyncMock()
 

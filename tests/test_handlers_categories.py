@@ -36,7 +36,7 @@ def mock_session():
 async def test_category_details_callback():
     """Callback с деталями категории."""
     callback = AsyncMock(spec=CallbackQuery)
-    callback.data = "category_42"
+    callback.data = "category_item_42"
     callback.message = AsyncMock()
     callback.answer = AsyncMock()
 

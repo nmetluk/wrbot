@@ -31,6 +31,14 @@
   - Проверка: `uv run ruff check .` → All checks passed (0 ошибок); `ruff check src tests` + scripts clean; `ruff format --check` на файлах задачи → чисто; полный CI-прогон (mypy 0, pytest 92, alembic, validate) OK. Остальные "would reformat" — пре-экзистентный долг (не в scope 5 ошибок)
   - Отклонения: не запускал массовый `ruff format .` (избегал изменения 9+ файлов вне перечня ошибок в задаче); использовал manual break + scoped format
 
+### Fixed
+- **TASK-0008 (critical M2) — callback routing (исполнитель, SESSION-2026-06-01-15):**
+  - Исправлен баг: широкие `F.data.startswith("wallet_")` / `"category_"` (зарегистрированы первыми) перехватывали `*_add`, `*_rename_*`, `*_delete_*`, `*_confirm_*` → crash в details handler.
+  - Решение: item-кнопки в keyboards теперь генерируют `wallet_item_<id>` / `category_item_<id>`; details-фильтры и парсинг id обновлены на `*_item_*` + split[2].
+  - Добавлен `tests/test_callback_routing.py` (4 теста) — инспектируют реальные зарегистрированные фильтры на router objects (то, что использует Dispatcher).
+  - Обновлены 2 существующих теста (details теперь вызываются с новым форматом data).
+  - Полный CI зелёный (pytest 96 passed, mypy 0, ruff check src/tests чист, alembic/validate OK). format имеет 1 пре-экзистентный.
+
 ### Audited (rejected)
 - **M2 — аудит майлстоуна (аудитор, SESSION-2026-06-01-11):**
   - Вердикт: **НЕ ПРИНЯТО** (красный CI: mypy)
