@@ -39,4 +39,4 @@
 - Объём лога малый, ротация позже.
 
 ## Коммиты
-- feat(m6): TASK-0032 — audit_log table + repo + hooks in repos/handlers/error + tests (Task: TASK-0032)
+- ba00bda feat(m6): TASK-0032 — audit_log table + repo + hooks in repos/handlers/error + tests (Task: TASK-0032; pushed)
