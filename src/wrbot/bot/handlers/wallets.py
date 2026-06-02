@@ -16,11 +16,12 @@ from sqlalchemy.exc import IntegrityError
 
 from wrbot.bot.keyboards import (
     get_cancel_keyboard,
+    get_charge_wallets_keyboard,
     get_confirm_delete_keyboard,
     get_wallet_actions_keyboard,
     get_wallets_keyboard,
 )
-from wrbot.bot.states import WalletStates
+from wrbot.bot.states import NewChargeStates, WalletStates
 from wrbot.bot.texts import Texts
 from wrbot.repositories.wallets import WalletRepository
 from wrbot.services.reference import DuplicateName, InvalidName, LimitExceeded, ReferenceError
@@ -159,8 +160,16 @@ async def wallet_name_handler(message: Message, state: FSMContext, session: Asyn
             await message.answer(Texts.wallet_added.format(name=wallet.name))
 
             if state_data.get("return_to") == "charge_wallet":
+                # TASK-0035: возврат в charge wallet flow с kb (не обрываем state.clear)
                 await message.answer(Texts.new_charge_wallet_added_return)
-                await state.clear()
+                await state.set_state(NewChargeStates.wallet)
+                # Показать актуальный список кошельков + kb выбора (с кнопкой добавить, если нужно)
+                fresh_wallets = await wallet_repo.list_by_user(tg_id)
+                kb = get_charge_wallets_keyboard(
+                    [{"id": w.id, "name": w.name} for w in fresh_wallets]
+                )
+                await message.answer(Texts.new_charge_select_wallet, reply_markup=kb)
+                await state.update_data(return_to=None)
                 return
         else:
             # Переименование существующего

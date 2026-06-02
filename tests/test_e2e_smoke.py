@@ -192,7 +192,12 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(bot, _upd_msg("ПодпискаE2E", user_id=uid, update_id=7, message_id=7))
     await dp.feed_update(bot, _upd_msg("150.50", user_id=uid, update_id=8, message_id=8))
 
-    # wallet choice (we know id from previous, first wallet ~ id=1)
+    # TASK-0035: после суммы клавиатура показана сразу handler'ом amount (без pending show_wallet msg).
+    # Harness не всегда вызывает bot.send для msg.answer(); проверяем косвенно — сразу кормим cb
+    # (без доп. msg) + dedicated new-user/no-wallet сценарии ниже (создают charge после kb/add).
+    # Старый код: amount не слал kb; return flow делал clear — wallet cb после add name не матчился бы.
+
+    # wallet choice (we know id from previous, first wallet ~ id=1; now default "Основная карта")
     await dp.feed_update(bot, _upd_cb("charge_wallet_1", user_id=uid, update_id=9))
 
     await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=uid, update_id=10))
@@ -274,5 +279,107 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         assert any(w.name == "ТолькоB" for w in wb)
         assert not any(w.name == "ТолькоB" for w in wa)
         assert not any("МойКошелёкE2E" in w.name for w in wb)
+
+    # === 7) TASK-0035: новый пользователь через /start получает дефолтный «Основная карта»
+    # и может довести создание списания до конца БЕЗ ручного создания кошелька.
+    fresh_new = 55555
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_msg("/start", user_id=fresh_new, update_id=30))
+    # Проверить, что кошелёк создан
+    async with factory() as check:
+        ws = await WalletRepository(check).list_by_user(fresh_new)
+        assert len(ws) == 1
+        assert ws[0].name == "Основная карта"
+        default_wid = ws[0].id
+    # Полный flow создания списания, используя дефолтный кошелёк (id из БД)
+    await dp.feed_update(bot, _upd_cb("new_charge", user_id=fresh_new, update_id=31))
+    await dp.feed_update(
+        bot, _upd_msg("ТестДефолтКошелёк", user_id=fresh_new, update_id=32, message_id=32)
+    )
+    await dp.feed_update(bot, _upd_msg("99.99", user_id=fresh_new, update_id=33, message_id=33))
+    # kb уже должен быть (проверка в 1), выбираем дефолт
+    await dp.feed_update(
+        bot, _upd_cb(f"charge_wallet_{default_wid}", user_id=fresh_new, update_id=34)
+    )
+    await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=fresh_new, update_id=35))
+    await dp.feed_update(
+        bot, _upd_msg("25.12.2026", user_id=fresh_new, update_id=36, message_id=36)
+    )
+    await dp.feed_update(bot, _upd_cb("charge_period_once", user_id=fresh_new, update_id=37))
+    await dp.feed_update(bot, _upd_cb("charge_notify_disable", user_id=fresh_new, update_id=38))
+    await dp.feed_update(bot, _upd_cb("charge_confirm_create", user_id=fresh_new, update_id=39))
+    async with factory() as check:
+        from sqlalchemy import select
+
+        from wrbot.db.models import Charge as ChargeModel
+
+        res = await check.execute(
+            select(ChargeModel).where(
+                ChargeModel.user_id == fresh_new, ChargeModel.name == "ТестДефолтКошелёк"
+            )
+        )
+        ch_new = res.scalar_one_or_none()
+        assert ch_new is not None
+        assert ch_new.wallet_id == default_wid
+
+    # === 8) TASK-0035: нет кошельков (удалены) → текст + кнопка «➕ Добавить», подпоток добавления
+    # возвращает к выбору кошелька (с kb), можно выбрать созданный и довести списание до конца.
+    fresh_nowallet = 66666
+    # создаём юзера (дефолт будет), потом удаляем кошелёк
+    async with factory() as s:
+        await UserRepository(s).get_or_create(fresh_nowallet)
+        await s.commit()
+        wrepo = WalletRepository(s)
+        ws0 = await wrepo.list_by_user(fresh_nowallet)
+        for w in ws0:
+            await wrepo.delete(fresh_nowallet, w.id)
+        await s.commit()
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb("new_charge", user_id=fresh_nowallet, update_id=40))
+    await dp.feed_update(
+        bot, _upd_msg("БезКошельков", user_id=fresh_nowallet, update_id=41, message_id=41)
+    )
+    await dp.feed_update(
+        bot, _upd_msg("42.00", user_id=fresh_nowallet, update_id=42, message_id=42)
+    )
+    # amount должен был выслать "нет кошельков" + kb с add (проверяем косвенно: тапаем add-cb,
+    # проходим подпоток, и в конце создаётся charge — на старом коде clear() сломал бы state для wallet-cb)
+    # подпоток: добавить кошелёк из charge flow
+    await dp.feed_update(bot, _upd_cb("charge_add_wallet", user_id=fresh_nowallet, update_id=43))
+    await dp.feed_update(
+        bot, _upd_msg("НовыйИзCharge", user_id=fresh_nowallet, update_id=44, message_id=44)
+    )
+    # после возврата из add (в wallet_name) state восстановлен и kb показан; выбираем созданный
+    # теперь выбираем только что созданный (id узнаем)
+    async with factory() as check:
+        ws = await WalletRepository(check).list_by_user(fresh_nowallet)
+        assert any(w.name == "НовыйИзCharge" for w in ws)
+        added_id = next(w.id for w in ws if w.name == "НовыйИзCharge")
+    await dp.feed_update(
+        bot, _upd_cb(f"charge_wallet_{added_id}", user_id=fresh_nowallet, update_id=45)
+    )
+    await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=fresh_nowallet, update_id=46))
+    await dp.feed_update(
+        bot, _upd_msg("01.01.2027", user_id=fresh_nowallet, update_id=47, message_id=47)
+    )
+    await dp.feed_update(
+        bot, _upd_cb("charge_period_monthly", user_id=fresh_nowallet, update_id=48)
+    )
+    await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=fresh_nowallet, update_id=49))
+    await dp.feed_update(
+        bot, _upd_cb("charge_confirm_create", user_id=fresh_nowallet, update_id=50)
+    )
+    async with factory() as check:
+        from sqlalchemy import select
+
+        from wrbot.db.models import Charge as ChargeModel
+
+        res = await check.execute(
+            select(ChargeModel).where(
+                ChargeModel.user_id == fresh_nowallet, ChargeModel.name == "БезКошельков"
+            )
+        )
+        ch_now = res.scalar_one_or_none()
+        assert ch_now is not None
 
     # All scenarios passed; placeholder replaced.

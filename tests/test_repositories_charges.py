@@ -20,7 +20,7 @@ async def test_create_charge(async_session):
     user_repo = UserRepository(async_session)
     charge_repo = ChargeRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     charge = await charge_repo.create(
         user_id=user.tg_id,
         name="Аренда",
@@ -43,7 +43,7 @@ async def test_create_charge_invalid_amount_raises(async_session):
     user_repo = UserRepository(async_session)
     charge_repo = ChargeRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
 
     with pytest.raises(InvalidAmount):
         await charge_repo.create(
@@ -62,7 +62,7 @@ async def test_list_active_by_user_filters_status(async_session):
     user_repo = UserRepository(async_session)
     charge_repo = ChargeRepository(async_session)
 
-    user = await user_repo.get_or_create(999)
+    user = await user_repo.get_or_create(999, create_default_wallet=False)
 
     c1 = await charge_repo.create(
         user.tg_id, "Active1", Decimal("100"), 1, None, date(2026, 8, 1), "monthly"
@@ -84,7 +84,7 @@ async def test_mark_paid_periodic_shifts_date(async_session):
     user_repo = UserRepository(async_session)
     charge_repo = ChargeRepository(async_session)
 
-    user = await user_repo.get_or_create(777)
+    user = await user_repo.get_or_create(777, create_default_wallet=False)
     charge = await charge_repo.create(
         user.tg_id, "Internet", Decimal("500"), 1, None, date(2026, 1, 31), "monthly"
     )
@@ -101,7 +101,7 @@ async def test_mark_paid_once_closes_it(async_session):
     user_repo = UserRepository(async_session)
     charge_repo = ChargeRepository(async_session)
 
-    user = await user_repo.get_or_create(888)
+    user = await user_repo.get_or_create(888, create_default_wallet=False)
     charge = await charge_repo.create(
         user.tg_id, "One time", Decimal("1000"), 1, None, date(2026, 12, 31), "once"
     )
@@ -118,8 +118,8 @@ async def test_charge_isolation_by_user(async_session):
     user_repo = UserRepository(async_session)
     charge_repo = ChargeRepository(async_session)
 
-    u1 = await user_repo.get_or_create(111)
-    u2 = await user_repo.get_or_create(222)
+    u1 = await user_repo.get_or_create(111, create_default_wallet=False)
+    u2 = await user_repo.get_or_create(222, create_default_wallet=False)
 
     c1 = await charge_repo.create(
         u1.tg_id, "U1", Decimal("10"), 1, None, date(2026, 9, 1), "monthly"
@@ -140,7 +140,7 @@ async def test_charge_limit_raises(async_session, monkeypatch):
     user_repo = UserRepository(async_session)
     charge_repo = ChargeRepository(async_session)
 
-    user = await user_repo.get_or_create(555)
+    user = await user_repo.get_or_create(555, create_default_wallet=False)
 
     await charge_repo.create(
         user.tg_id, "First", Decimal("100"), 1, None, date(2026, 10, 1), "monthly"

@@ -106,7 +106,7 @@ async def process_name(message: Message, state: FSMContext) -> None:
 
 # 2. Сумма
 @router.message(NewChargeStates.amount)
-async def process_amount(message: Message, state: FSMContext) -> None:
+async def process_amount(message: Message, state: FSMContext, session: AsyncSession) -> None:
     try:
         amount = validate_charge_amount(message.text or "")
     except InvalidAmount as e:
@@ -116,23 +116,14 @@ async def process_amount(message: Message, state: FSMContext) -> None:
     await state.update_data(amount=str(amount))
     await state.set_state(NewChargeStates.wallet)
 
-    # Показать выбор кошелька. Реальный список в show_wallet_selection (отдельный handler с session).  # noqa: E501
-    await message.answer("👛 Загружаю список кошельков...")
-
-
-# Вход в состояние wallet: показываем клавиатуру (нужен session)
-@router.message(NewChargeStates.wallet)
-async def show_wallet_selection(message: Message, state: FSMContext, session: AsyncSession) -> None:
+    # Показать выбор кошелька СРАЗУ (TASK-0035 hotfix): грузим и шлём kb в этом же сообщении,
+    # без отдельного @router.message(NewChargeStates.wallet) и без ожидания доп. сообщения от юзера.
     data: dict[str, Any] = await state.get_data()
     user_id: int = data.get("user_id") or 0
-
     wallet_repo = WalletRepository(session)
     wallets = await wallet_repo.list_by_user(user_id)
-
     if not wallets:
         await message.answer(Texts.new_charge_no_wallets)
-        # Можно сразу предложить создать, но по ТЗ — показываем кнопку в клавиатуре ниже
-
     keyboard = get_charge_wallets_keyboard([{"id": w.id, "name": w.name} for w in wallets])
     await message.answer(Texts.new_charge_select_wallet, reply_markup=keyboard)
 
@@ -381,8 +372,3 @@ async def cancel_charge_creation(callback: CallbackQuery, state: FSMContext) -> 
     await state.clear()
     await callback.message.edit_text(Texts.new_charge_cancelled, reply_markup=None)  # type: ignore[union-attr]
     await callback.answer()
-
-
-# Интеграция возврата из создания кошелька
-# Этот код должен быть добавлен в wallets.py в wallet_name_handler после успешного create
-# Для этого мы сделаем отдельный edit в wallets.py (см. ниже)

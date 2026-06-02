@@ -73,9 +73,9 @@ async def test_fsm_lifecycle_wallet_create_persists(test_engine):
     mw = DbSessionMiddleware(factory)
     state = _make_fsm(12345)
 
-    # Предварительно создаём пользователя (FK)
+    # Создаём юзера без дефолтного кошелька (для чистоты wallet-теста)
     async with factory() as s0:
-        await UserRepository(s0).get_or_create(12345)
+        await UserRepository(s0).get_or_create(12345, create_default_wallet=False)
         await s0.commit()
 
     # update 1: старт добавления
@@ -113,7 +113,7 @@ async def test_fsm_lifecycle_category_create_persists(test_engine):
     state = _make_fsm(12345)
 
     async with factory() as s0:
-        await UserRepository(s0).get_or_create(12345)
+        await UserRepository(s0).get_or_create(12345, create_default_wallet=False)
         await s0.commit()
 
     cb = _make_cb("category_add")
@@ -151,7 +151,7 @@ async def test_fsm_lifecycle_settings_notify_time_persists(test_engine):
 
     # Пользователь с дефолтом
     async with factory() as s0:
-        await UserRepository(s0).get_or_create(12345)
+        await UserRepository(s0).get_or_create(12345, create_default_wallet=False)
         await s0.commit()
 
     # update 1: нажали "изменить время"
@@ -188,7 +188,7 @@ async def test_fsm_lifecycle_settings_global_days_persists(test_engine):
     state = _make_fsm(12345)
 
     async with factory() as s0:
-        await UserRepository(s0).get_or_create(12345)
+        await UserRepository(s0).get_or_create(12345, create_default_wallet=False)
         await s0.commit()
 
     # update 1: открыть дни (загружает текущие и кладёт selected_days в state)
@@ -231,7 +231,7 @@ async def test_fsm_lifecycle_uses_fresh_session_per_update(test_engine):
     state = _make_fsm(12345)
 
     async with factory() as s0:
-        await UserRepository(s0).get_or_create(12345)
+        await UserRepository(s0).get_or_create(12345, create_default_wallet=False)
         await s0.commit()
 
     # update1 для времени

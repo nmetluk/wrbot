@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-03T05:45:00Z",
-  "current_phase": "HOTFIX v0.1.1 (2 блокера): создание списания виснет (TASK-0035) + тупик «Мои списания» (TASK-0036). M6 на паузе.",
+  "updated_at": "2026-06-02T22:50:00Z",
+  "current_phase": "HOTFIX v0.1.1 (2 блокера): TASK-0035 done; TASK-0036 (тупик «Мои списания») в очереди. M6 на паузе.",
   "current_milestone": "M5 (hotfix) → M6",
-  "active_task": "TASK-0035",
-  "last_session": "SESSION-2026-06-03-05",
+  "active_task": "TASK-0036",
+  "last_session": "SESSION-2026-06-02-10",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Блокирующие hotfix v0.1.1 (по очереди): TASK-0035 (создание списания виснет на выборе кошелька — даже при наличии кошелька; + дефолтный кошелёк + онбординг), затем TASK-0036 (тупик «Мои списания» — добавить «Новое списание»/«В меню», убрать reply_markup=None-тупики). Оба с e2e-тестами по реальным апдейтам. Затем релиз v0.1.1 и продолжение M6 (TASK-0031→0034). Исполнитель: /take-task → TASK-0035."
+  "next_step": "TASK-0035 (hotfix wallet step + default + onboarding) завершена, v0.1.1 в процессе. Следующий: TASK-0036 (навигация). После обоих — релиз v0.1.1, затем M6. Исполнитель: /take-task → TASK-0036."
 }

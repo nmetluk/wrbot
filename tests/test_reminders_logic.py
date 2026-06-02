@@ -101,7 +101,7 @@ async def test_select_users_to_notify_at(async_session):
     from wrbot.repositories.users import UserRepository
 
     user_repo = UserRepository(async_session)
-    await user_repo.get_or_create(777)  # default tz Moscow, 10:00
+    await user_repo.get_or_create(777, create_default_wallet=False)  # default tz Moscow, 10:00
 
     now = datetime(2026, 8, 15, 7, 0, tzinfo=UTC)  # 10:00 in Moscow (UTC+3)
     users = await select_users_to_notify_at(async_session, now)
@@ -118,7 +118,9 @@ async def test_select_users_to_notify_at_respects_notify_time(async_session):
 
     user_repo = UserRepository(async_session)
     # Пользователь с 09:00 (UTC+3 -> 06:00 UTC)
-    await user_repo.get_or_create(8888, notify_time=time(9, 0), tz="Europe/Moscow")
+    await user_repo.get_or_create(
+        8888, notify_time=time(9, 0), tz="Europe/Moscow", create_default_wallet=False
+    )
 
     # Точное совпадение 09:00 local
     now_match = datetime(2026, 8, 15, 6, 0, tzinfo=UTC)

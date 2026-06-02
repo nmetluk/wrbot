@@ -109,3 +109,44 @@ async def test_set_global_days_updates(async_session):
     await repo.set_global_days(12345, "[]")
     user2 = await repo.get(12345)
     assert user2.global_days == "[]"
+
+
+@pytest.mark.asyncio
+async def test_get_or_create_creates_default_wallet(async_session):
+    """get_or_create создаёт дефолтный «Основная карта» для нового юзера (TASK-0035)."""
+    from wrbot.repositories.wallets import WalletRepository
+
+    repo = UserRepository(async_session)
+    wrepo = WalletRepository(async_session)
+
+    await repo.get_or_create(12345)
+    ws = await wrepo.list_by_user(12345)
+    assert len(ws) == 1
+    assert ws[0].name == "Основная карта"
+    assert ws[0].user_id == 12345
+
+
+@pytest.mark.asyncio
+async def test_get_or_create_does_not_recreate_wallet_after_delete(async_session):
+    """Дефолт не пересоздаётся после удаления (TASK-0035)."""
+    from wrbot.repositories.wallets import WalletRepository
+
+    repo = UserRepository(async_session)
+    wrepo = WalletRepository(async_session)
+
+    await repo.get_or_create(99999)
+    ws = await wrepo.list_by_user(99999)
+    assert len(ws) == 1
+    default_id = ws[0].id
+    assert ws[0].name == "Основная карта"
+
+    # Удаляем
+    deleted = await wrepo.delete(99999, default_id)
+    assert deleted is True
+    ws_after = await wrepo.list_by_user(99999)
+    assert ws_after == []
+
+    # Повторный get_or_create — кошелёк не появляется
+    await repo.get_or_create(99999)
+    ws_final = await wrepo.list_by_user(99999)
+    assert ws_final == []

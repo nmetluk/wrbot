@@ -5,7 +5,7 @@ wrbot — Telegram бот для напоминаний о регулярных 
 и присылать напоминания за N дней до списания.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from wrbot.logging import setup_logging
 

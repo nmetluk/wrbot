@@ -2,24 +2,50 @@
 Start handler and main menu.
 
 Обрабатывает команду /start, показывает главное меню и callbacks главного меню.
+Для новых пользователей (TASK-0035) — онбординг: упоминание созданного дефолтного
+кошелька + подсказка про настройки кошельков/категорий.
 """
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from aiogram import F, Router
 from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
 
 from wrbot.bot.keyboards import get_main_menu_keyboard
 from wrbot.bot.texts import Texts
+from wrbot.repositories.users import UserRepository
+
+if TYPE_CHECKING:
+    from aiogram.fsm.context import FSMContext
+    from aiogram.types import CallbackQuery, Message
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 router = Router(name="start")
 
 
 @router.message(Command("start"))
-async def cmd_start(message: Message) -> None:
-    """Обработчик команды /start — показывает главное меню."""
+async def cmd_start(message: Message, session: AsyncSession) -> None:
+    """Обработчик команды /start — показывает главное меню + онбординг для новых."""
+    user_repo = UserRepository(session)
+    existing = await user_repo.get(message.from_user.id)  # type: ignore[union-attr]
+    await user_repo.get_or_create(message.from_user.id)  # type: ignore[union-attr]  # side-effect: default wallet if new
+
+    is_new = existing is None
+    if is_new:
+        text = (
+            Texts.start_greeting
+            + "\n\n"
+            + Texts.start_new_user_wallet_created
+            + "\n\n"
+            + Texts.start_onboarding_hint
+        )
+    else:
+        text = Texts.start_greeting + "\n\n" + Texts.start_onboarding_hint
+
     await message.answer(
-        Texts.start_greeting,
+        text,
         reply_markup=get_main_menu_keyboard(),
     )
 

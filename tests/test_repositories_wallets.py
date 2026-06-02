@@ -17,7 +17,7 @@ async def test_create_wallet(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     wallet = await wallet_repo.create(user.tg_id, "Наличные")
 
     assert wallet.id is not None
@@ -31,7 +31,7 @@ async def test_create_wallet_trims_name(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     wallet = await wallet_repo.create(user.tg_id, "  Точка  ")
 
     assert wallet.name == "Точка"
@@ -43,7 +43,7 @@ async def test_create_wallet_empty_name_raises(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
 
     with pytest.raises(InvalidName, match="пуст"):
         await wallet_repo.create(user.tg_id, "   ")
@@ -55,7 +55,7 @@ async def test_create_wallet_duplicate_name_raises(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     await wallet_repo.create(user.tg_id, "Карта")
 
     with pytest.raises(DuplicateName, match="Карта"):
@@ -76,7 +76,7 @@ async def test_create_wallet_limit_raises(async_session, monkeypatch):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     await wallet_repo.create(user.tg_id, "w1")
     await wallet_repo.create(user.tg_id, "w2")
 
@@ -90,8 +90,8 @@ async def test_list_by_user(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user1 = await user_repo.get_or_create(11111)
-    user2 = await user_repo.get_or_create(22222)
+    user1 = await user_repo.get_or_create(11111, create_default_wallet=False)
+    user2 = await user_repo.get_or_create(22222, create_default_wallet=False)
 
     await wallet_repo.create(user1.tg_id, "Альфа")
     await wallet_repo.create(user1.tg_id, "Бета")
@@ -110,7 +110,7 @@ async def test_list_sorted_by_name(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     await wallet_repo.create(user.tg_id, "Zulu")
     await wallet_repo.create(user.tg_id, "Alpha")
 
@@ -125,7 +125,7 @@ async def test_get_own_wallet(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     created = await wallet_repo.create(user.tg_id, "Сбербанк")
 
     fetched = await wallet_repo.get(user.tg_id, created.id)
@@ -141,8 +141,8 @@ async def test_get_other_users_wallet_returns_none(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user1 = await user_repo.get_or_create(11111)
-    user2 = await user_repo.get_or_create(22222)
+    user1 = await user_repo.get_or_create(11111, create_default_wallet=False)
+    user2 = await user_repo.get_or_create(22222, create_default_wallet=False)
 
     wallet = await wallet_repo.create(user1.tg_id, "Тинькофф")
 
@@ -157,7 +157,7 @@ async def test_rename_wallet(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     wallet = await wallet_repo.create(user.tg_id, "Старое")
 
     updated = await wallet_repo.rename(user.tg_id, wallet.id, "Новое")
@@ -172,7 +172,7 @@ async def test_rename_duplicate_name_raises(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     await wallet_repo.create(user.tg_id, "Раз")
     w2 = await wallet_repo.create(user.tg_id, "Два")
 
@@ -186,7 +186,7 @@ async def test_delete_wallet(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user = await user_repo.get_or_create(12345)
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
     wallet = await wallet_repo.create(user.tg_id, "ВТБ")
 
     deleted = await wallet_repo.delete(user.tg_id, wallet.id)
@@ -201,8 +201,8 @@ async def test_delete_other_users_wallet_returns_false(async_session):
     user_repo = UserRepository(async_session)
     wallet_repo = WalletRepository(async_session)
 
-    user1 = await user_repo.get_or_create(11111)
-    user2 = await user_repo.get_or_create(22222)
+    user1 = await user_repo.get_or_create(11111, create_default_wallet=False)
+    user2 = await user_repo.get_or_create(22222, create_default_wallet=False)
 
     wallet = await wallet_repo.create(user1.tg_id, "Газпром")
 

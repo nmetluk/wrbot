@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T21:14:18Z",
+  "generated_at": "2026-06-02T22:21:27Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 6,
+    "inbox": 5,
     "in_progress": 0,
-    "done": 30,
+    "done": 31,
     "blocked": 0
   },
   "tasks": [
@@ -251,7 +251,7 @@
     },
     {
       "id": "TASK-0031",
-      "title": "M6: админ-канал и сервис уведомлений + конфиг (фундамент наблюдаемости)",
+      "title": "\"M6: админ-канал и сервис уведомлений + конфиг (фундамент наблюдаемости)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0031-m6-admin-channel.md",
       "milestone": "M6",
@@ -259,7 +259,7 @@
     },
     {
       "id": "TASK-0032",
-      "title": "M6: аудит-лог действий (таблица + запись + дубль критичных в канал)",
+      "title": "\"M6: аудит-лог действий (таблица + запись + дубль критичных в канал)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0032-m6-audit-log.md",
       "milestone": "M6",
@@ -267,7 +267,7 @@
     },
     {
       "id": "TASK-0033",
-      "title": "M6: ежечасный бэкап БД (ротация 36) + heartbeat + краткая сводка в админ-канал",
+      "title": "\"M6: ежечасный бэкап БД (ротация 36) + heartbeat + краткая сводка в админ-канал\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0033-m6-backups-heartbeat.md",
       "milestone": "M6",
@@ -275,7 +275,7 @@
     },
     {
       "id": "TASK-0034",
-      "title": "M6: ежедневный дашборд 21:00 — статистика + графики в админ-канал",
+      "title": "\"M6: ежедневный дашборд 21:00 — статистика + графики в админ-канал\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0034-m6-daily-dashboard.md",
       "milestone": "M6",
@@ -283,15 +283,15 @@
     },
     {
       "id": "TASK-0035",
-      "title": "HOTFIX (blocker): зависание на шаге выбора кошелька при создании списания + дефолтный кошелёк + онбординг",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0035-hotfix-charge-wallet-step.md",
+      "title": "\"HOTFIX (blocker): зависание на шаге выбора кошелька при создании списания + дефолтный кошелёк + онбординг\"",
+      "status": "done",
+      "file": "handoff/done/TASK-0035-hotfix-charge-wallet-step.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0035-report.md"
     },
     {
       "id": "TASK-0036",
-      "title": "HOTFIX (blocker): тупиковые экраны — «Мои списания» без кнопок «Новое списание»/«В меню»",
+      "title": "\"HOTFIX (blocker): тупиковые экраны — «Мои списания» без кнопок «Новое списание»/«В меню»\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0036-hotfix-navigation-deadends.md",
       "milestone": "M5",

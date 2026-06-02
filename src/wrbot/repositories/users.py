@@ -34,17 +34,23 @@ class UserRepository:
         notify_time: time = time(10, 0),
         tz: str = "Europe/Moscow",
         global_days: str = "[5,3,1]",
+        create_default_wallet: bool = True,
     ) -> User:
         """
         Получить существующего пользователя или создать нового.
 
         Идемпотентен: при повторном вызове с тем же tg_id возвращает существующего.
+        При создании нового пользователя (и только тогда) создаёт дефолтный кошелёк
+        «Основная карта» (TASK-0035 hotfix). Не пересоздаёт, если пользователь уже
+        существовал (даже если потом удалил все кошельки).
 
         Args:
             tg_id: Telegram ID пользователя
             notify_time: Время уведомлений (дефолт 10:00)
             tz: Часовой пояс (дефолт Europe/Moscow)
             global_days: Дни напоминаний как JSON (дефолт [5,3,1])
+            create_default_wallet: Создавать ли «Основная карта» при создании пользователя
+                (по умолчанию True для онбординга; в тестах можно False).
 
         Returns:
             User: существующий или вновь созданный пользователь
@@ -67,6 +73,18 @@ class UserRepository:
         self._session.add(user)
         await self._session.flush()
         logger.info("Created user: tg_id=%s", tg_id)
+
+        if create_default_wallet:
+            # Создаём дефолтный кошелёк только для brand-new пользователя (в той же сессии)
+            from .wallets import WalletRepository
+
+            wrepo = WalletRepository(self._session)
+            try:
+                await wrepo.create(tg_id, "Основная карта")
+                logger.info("Created default wallet for new user: tg_id=%s", tg_id)
+            except Exception as exc:  # pragma: no cover - не должно случаться для свежего
+                logger.warning("Failed to create default wallet for tg_id=%s: %s", tg_id, exc)
+
         return user
 
     async def get(self, tg_id: int) -> User | None:
