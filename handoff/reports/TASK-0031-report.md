@@ -38,4 +38,4 @@
 - Обновить state/project.json после complete.
 
 ## Коммиты
-- feat(m6): TASK-0031 — admin channel config + AdminNotifier service + tests (no-op, sanitize, isolation)
+- 7fb88c7 feat(m6): TASK-0031 — admin channel config + AdminNotifier service + tests (no-op, sanitize, isolation)
