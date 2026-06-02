@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Audited (accepted — RELEASE)
+- **Релиз-аудит r3, ПРИНЯТО — v1 готов (архитектор-аудитор, SESSION-2026-06-02-04).** TASK-0027
+  закрыл критический FSM-баг: сессия больше не хранится в FSM, continuation-хэндлеры берут
+  сессию текущего апдейта из middleware. Независимое репро на SQLite: запись теперь сохраняется
+  (notify_time 10:00→09:00 персистится). Гейт зелёный: ruff/mypy 0, **pytest 179** (вкл.
+  `test_fsm_session_lifecycle.py`), alembic, validate. Все FR-1…14 и NFR-1…7 выполнены.
+  Отчёт: `handoff/reports/AUDIT-M5-2026-06-02-r3.md`. Релизные шаги: тег версии + корневой CHANGELOG.
+
 ### Audited (rejected — release r2)
 - **Релиз-аудит r2 (архитектор-аудитор, SESSION-2026-06-02-02): НЕ ПРИНЯТО.** FR-10 (TASK-0026)
   реализован, гейт зелёный (ruff/mypy 0, pytest 174, alembic, validate). **Но найден КРИТИЧЕСКИЙ

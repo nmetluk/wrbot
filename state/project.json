@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-02T20:45:00Z",
-  "current_phase": "M5: TASK-0027 (critical FSM session lifecycle) закрыта. Готов к повторному релиз-аудиту → релиз v1.",
-  "current_milestone": "M5",
+  "updated_at": "2026-06-02T21:30:00Z",
+  "current_phase": "v1 ПРИНЯТ к релизу (AUDIT-M5-r3). M0–M5 завершены.",
+  "current_milestone": "M5 (done)",
   "active_task": null,
-  "last_session": "SESSION-2026-06-02-03",
+  "last_session": "SESSION-2026-06-02-04",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Заполнить TASK-0027-report, отдельная сессия релиз-аудита (проверка интеграционного теста + отсутствие регресса по FSM) → релиз v1. Далее — v2 по roadmap."
+  "next_step": "v1 ПРИНЯТ к релизу (AUDIT-M5-2026-06-02-r3, SESSION-2026-06-02-04): гейт зелёный (179 тестов), критический FSM-баг устранён и покрыт интеграционным тестом, все FR/NFR выполнены. Релизные шаги: тег версии (из pyproject), запись в корневой CHANGELOG, деплой по docs/deployment.md. Затем — планирование v2 (§6 ТЗ)."
 }
