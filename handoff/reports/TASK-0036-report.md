@@ -45,5 +45,5 @@
 - Рекомендация (из заметок предыдущей сессии): после hotfix ревизия e2e на реальные апдейты (уже частично сделано).
 
 ## Коммиты
-- fix(hotfix): TASK-0036 — navigation deadends «Мои списания» + review reply_markup=None (v0.1.1)
-  (Task: TASK-0036)
+- b750d87 fix(hotfix): TASK-0036 — navigation deadends «Мои списания» + review reply_markup=None (v0.1.1)
+  (Task: TASK-0036; pushed)
