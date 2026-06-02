@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-02T23:50:00Z",
-  "current_phase": "v1 ПРИНЯТ к релизу (AUDIT-M5-r3). TASK-0029 (env casing deploy) закрыта. Готов к TASK-0028 QA + тег v0.1.0 + деплой.",
+  "updated_at": "2026-06-03T00:10:00Z",
+  "current_phase": "v1 ПРИНЯТ; TASK-0029 (env) принят архитектором. Остался единственный pre-release gate — TASK-0028 (ручная QA).",
   "current_milestone": "M5 (done)",
-  "active_task": null,
-  "last_session": "SESSION-2026-06-02-06",
+  "active_task": "TASK-0028",
+  "last_session": "SESSION-2026-06-02-07",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0028 (ручная QA в Telegram), git tag v0.1.0, корневой CHANGELOG, боевой деплой по docs/deployment.md. Затем планирование v2 (§6 ТЗ)."
+  "next_step": "TASK-0029 принят (SESSION-2026-06-02-07): env UPPERCASE, Postgres-путь однозначен, гейт зелёный. Остался единственный pre-release gate — TASK-0028 (ручная QA в Telegram). После неё: git tag v0.1.0 + боевой деплой по docs/deployment.md. Затем планирование v2 (§6 ТЗ)."
 }

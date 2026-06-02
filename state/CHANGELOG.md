@@ -25,6 +25,12 @@
   Юнит-тесты (моки) не ловят; интеграционного теста цикла сессии нет (пробел с M2). → **TASK-0027** (critical).
   Отчёт: `handoff/reports/AUDIT-M5-2026-06-02-r2.md`.
 
+### Reviewed
+- **Приёмка TASK-0029 (архитектор, SESSION-2026-06-02-07):** проверено — env унифицированы в
+  UPPERCASE во всех артефактах, bot-сервис compose опирается только на `env_file` (нет двойного
+  `DATABASE_URL`), Postgres-путь однозначен; гейт зелёный (179). **Принято.** До релиза остался
+  единственный gate — TASK-0028 (ручная QA в Telegram), затем тег `v0.1.0`.
+
 ### Done (M5 deploy-readiness)
 - **TASK-0029 (executor, SESSION-2026-06-02-06):** ✅ Deploy-readiness: унификация регистра env-переменных (BOT_TOKEN, DATABASE_URL, DEFAULT_TIMEZONE, LOG_LEVEL).
   Устранена неоднозначность для Postgres-деплоя (compose ${DATABASE_URL} регистрозависим). Изменены .env.example, docker-compose.yml (убран дублирующий environment override), entrypoint.sh, docs/deployment.md, README.md. Практическая проверка: docker compose config/build/up --profile postgres с UPPER .env (логи/разрешение подтвердили); build success; SQLite/Postgres paths работают как ожидалось. Полный CI (179 tests, ruff/mypy/alembic/validate) зелёный. След: TASK-0028 (QA) → тег v0.1.0 → деплой.
