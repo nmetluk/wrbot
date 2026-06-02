@@ -12,8 +12,8 @@ import pytest
 from aiogram.types import CallbackQuery, ErrorEvent, Update, User
 from sqlalchemy.exc import IntegrityError
 
-from wrbot.bot.handlers import errors as errors_handler
 from wrbot.bot.handlers import wallets as wallets_handler
+from wrbot.bot.handlers.errors import make_global_error_handler
 from wrbot.bot.texts import Texts
 
 
@@ -60,8 +60,9 @@ async def test_global_error_handler_logs_and_replies(monkeypatch):
     exc = RuntimeError("boom from handler")
     event = ErrorEvent(update=mock_update, exception=exc, bot=AsyncMock())
 
-    # Вызываем напрямую
-    await errors_handler.global_error_handler(event)
+    # Вызываем напрямую через make (no bot for test)
+    handler = make_global_error_handler(None)
+    await handler(event)
 
     # Проверяем, что попытались ответить (generic ошибка)
     mock_message.answer.assert_called_once_with(Texts.error_generic)
@@ -106,5 +107,6 @@ async def test_error_handler_does_not_crash_on_reply_failure():
     event = ErrorEvent(update=mock_update, exception=ValueError("test"), bot=AsyncMock())
 
     # Не должен рейзить
-    await errors_handler.global_error_handler(event)
+    handler = make_global_error_handler(None)
+    await handler(event)
     # Если дошли сюда — ок

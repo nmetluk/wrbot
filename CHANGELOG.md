@@ -13,6 +13,7 @@
 - Версия 0.1.1 (pyproject, `__init__`); записи в CHANGELOG.
 - **TASK-0036:** навигационные тупики «Мои списания» + ревизия reply_markup=None (кнопки new_charge/main_menu; post-action возвраты с меню).
 - **TASK-0031 (M6 start):** конфиг `ADMIN_CHANNEL_ID`/`ADMIN_TZ`; `AdminNotifier` (send_text/photo/media_group, no-op, error isolation, secret sanitization). Фундамент для observability (0032-0034).
+- **TASK-0032:** audit_log таблица + запись действий (без sensitive), дублирование критичных ошибок в админ-канал.
 
 ## [0.1.0] - 2026-06-03
 

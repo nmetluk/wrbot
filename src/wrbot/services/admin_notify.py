@@ -104,11 +104,10 @@ class AdminNotifier:
         # Санитизируем подписи в media если есть (InputMedia* frozen в pydantic)
         sanitized_media = []
         for m in media:
-            if hasattr(m, "caption") and getattr(m, "caption", None):
+            cap = getattr(m, "caption", None)
+            if cap:
                 if hasattr(m, "model_copy"):
-                    sanitized_media.append(
-                        m.model_copy(update={"caption": _sanitize(m.caption)})
-                    )
+                    sanitized_media.append(m.model_copy(update={"caption": _sanitize(str(cap))}))
                 else:
                     sanitized_media.append(m)
             else:

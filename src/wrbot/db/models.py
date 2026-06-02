@@ -13,6 +13,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
@@ -146,3 +147,31 @@ class SentReminder(Base):
 
     # Relationships
     charge: Mapped["Charge"] = relationship(back_populates="sent_reminders")
+
+
+class AuditLog(Base):
+    """
+    Таблица audit_log — аудит действий (M6, TASK-0032, ADR-0010).
+
+    Без чувствительных данных (сумм, имён, текстов).
+    actor_id без FK (чтобы не терять при удалении user).
+    actor_role: user/admin/system.
+    action: строковый тип (e.g. 'charge.create', 'wallet.delete').
+    """
+
+    __tablename__ = "audit_log"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    actor_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    actor_role: Mapped[str] = mapped_column(String(20), nullable=False)  # user/admin/system
+    action: Mapped[str] = mapped_column(String(50), nullable=False)  # e.g. charge.create
+    entity_type: Mapped[str | None] = mapped_column(String(20), nullable=True)  # charge/wallet/...
+    entity_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=lambda: datetime.now()
+    )
+
+    __table_args__ = (
+        Index("ix_audit_log_created_at", "created_at"),
+        Index("ix_audit_log_actor_id_created_at", "actor_id", "created_at"),
+    )

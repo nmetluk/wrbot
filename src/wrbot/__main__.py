@@ -97,7 +97,11 @@ async def main() -> None:
     dp.include_router(charges_list_handler.router)
     dp.include_router(reminders_handler.router)
 
-    # Глобальный обработчик ошибок (TASK-0021) — регистрируем после основных роутеров
+    # Глобальный обработчик ошибок (TASK-0021) — дублирование критичных в канал (TASK-0032)
+    from wrbot.bot.handlers.errors import make_global_error_handler
+
+    # Call maker: it executes @errors_router.error() which registers the handler closing over bot
+    make_global_error_handler(bot)
     dp.include_router(errors_handler.errors_router)
 
     # Настройка команд в меню

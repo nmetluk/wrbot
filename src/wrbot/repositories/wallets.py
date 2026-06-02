@@ -10,6 +10,12 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.db.models import Wallet
+from wrbot.repositories.audit_log import (
+    ACTION_WALLET_CREATE,
+    ACTION_WALLET_DELETE,
+    ACTION_WALLET_RENAME,
+    AuditLogRepository,
+)
 from wrbot.services.reference import (
     DuplicateName,
     check_wallet_limit,
@@ -67,6 +73,13 @@ class WalletRepository:
         self._session.add(wallet)
         await self._session.flush()
         logger.info("Created wallet: user_id=%s, name=%s", user_id, validated_name)
+        await AuditLogRepository(self._session).record(
+            actor_id=user_id,
+            actor_role="user",
+            action=ACTION_WALLET_CREATE,
+            entity_type="wallet",
+            entity_id=wallet.id,
+        )
         return wallet
 
     async def list_by_user(self, user_id: int) -> list[Wallet]:
@@ -146,6 +159,13 @@ class WalletRepository:
                 wallet_id,
                 validated_name,
             )
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_WALLET_RENAME,
+                entity_type="wallet",
+                entity_id=wallet_id,
+            )
         return wallet
 
     async def delete(self, user_id: int, wallet_id: int) -> bool:
@@ -165,4 +185,11 @@ class WalletRepository:
         deleted: bool = result.rowcount > 0  # type: ignore[attr-defined]
         if deleted:
             logger.info("Deleted wallet: user_id=%s, wallet_id=%s", user_id, wallet_id)
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_WALLET_DELETE,
+                entity_type="wallet",
+                entity_id=wallet_id,
+            )
         return deleted

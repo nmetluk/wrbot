@@ -14,6 +14,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.db.models import Charge
 from wrbot.models import ChargePeriod
+from wrbot.repositories.audit_log import (
+    ACTION_CHARGE_CREATE,
+    ACTION_CHARGE_DELETE,
+    ACTION_CHARGE_EDIT,
+    ACTION_CHARGE_PAID,
+    ACTION_CHARGE_SNOOZE,
+    AuditLogRepository,
+)
 from wrbot.services.charges import validate_charge_amount, validate_period
 from wrbot.services.dates import calculate_next_date
 from wrbot.services.reference import (
@@ -87,6 +95,14 @@ class ChargeRepository:
             validated_amount,
             validated_period,
         )
+        # Audit (TASK-0032)
+        await AuditLogRepository(self._session).record(
+            actor_id=user_id,
+            actor_role="user",
+            action=ACTION_CHARGE_CREATE,
+            entity_type="charge",
+            entity_id=charge.id,
+        )
         return charge
 
     async def list_active_by_user(self, user_id: int) -> list[Charge]:
@@ -113,7 +129,16 @@ class ChargeRepository:
             .values(**values)
             .returning(Charge)
         )
-        return result.scalar_one_or_none()
+        updated = result.scalar_one_or_none()
+        if updated:
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_CHARGE_EDIT,
+                entity_type="charge",
+                entity_id=charge_id,
+            )
+        return updated
 
     async def delete(self, user_id: int, charge_id: int) -> bool:
         """Удалить списание (с проверкой владельца)."""
@@ -123,6 +148,13 @@ class ChargeRepository:
         deleted: bool = result.rowcount > 0  # type: ignore[attr-defined]
         if deleted:
             logger.info("Deleted charge: user_id=%s, charge_id=%s", user_id, charge_id)
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_CHARGE_DELETE,
+                entity_type="charge",
+                entity_id=charge_id,
+            )
         return deleted
 
     async def mark_paid(self, user_id: int, charge_id: int) -> Charge | None:
@@ -160,6 +192,13 @@ class ChargeRepository:
             )
 
         await self._session.flush()
+        await AuditLogRepository(self._session).record(
+            actor_id=user_id,
+            actor_role="user",
+            action=ACTION_CHARGE_PAID,
+            entity_type="charge",
+            entity_id=charge_id,
+        )
         return charge
 
     async def snooze(self, user_id: int, charge_id: int, until: date) -> Charge | None:
@@ -179,5 +218,12 @@ class ChargeRepository:
             user_id,
             charge_id,
             until,
+        )
+        await AuditLogRepository(self._session).record(
+            actor_id=user_id,
+            actor_role="user",
+            action=ACTION_CHARGE_SNOOZE,
+            entity_type="charge",
+            entity_id=charge_id,
         )
         return charge

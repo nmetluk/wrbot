@@ -10,6 +10,12 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.db.models import Category
+from wrbot.repositories.audit_log import (
+    ACTION_CATEGORY_CREATE,
+    ACTION_CATEGORY_DELETE,
+    ACTION_CATEGORY_RENAME,
+    AuditLogRepository,
+)
 from wrbot.services.reference import (
     DuplicateName,
     check_category_limit,
@@ -67,6 +73,13 @@ class CategoryRepository:
         self._session.add(category)
         await self._session.flush()
         logger.info("Created category: user_id=%s, name=%s", user_id, validated_name)
+        await AuditLogRepository(self._session).record(
+            actor_id=user_id,
+            actor_role="user",
+            action=ACTION_CATEGORY_CREATE,
+            entity_type="category",
+            entity_id=category.id,
+        )
         return category
 
     async def list_by_user(self, user_id: int) -> list[Category]:
@@ -146,6 +159,13 @@ class CategoryRepository:
                 category_id,
                 validated_name,
             )
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_CATEGORY_RENAME,
+                entity_type="category",
+                entity_id=category_id,
+            )
         return category
 
     async def delete(self, user_id: int, category_id: int) -> bool:
@@ -165,4 +185,11 @@ class CategoryRepository:
         deleted: bool = result.rowcount > 0  # type: ignore[attr-defined]
         if deleted:
             logger.info("Deleted category: user_id=%s, category_id=%s", user_id, category_id)
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_CATEGORY_DELETE,
+                entity_type="category",
+                entity_id=category_id,
+            )
         return deleted

@@ -11,6 +11,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.db.models import User
+from wrbot.repositories.audit_log import (
+    ACTION_SETTINGS_DAYS,
+    ACTION_SETTINGS_NOTIFY_TIME,
+    ACTION_SETTINGS_TZ,
+    AuditLogRepository,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +115,13 @@ class UserRepository:
         user = result.scalar_one_or_none()
         if user:
             logger.info("TZ updated: tg_id=%s, tz=%s", tg_id, tz)
+            await AuditLogRepository(self._session).record(
+                actor_id=tg_id,
+                actor_role="user",
+                action=ACTION_SETTINGS_TZ,
+                entity_type="user",
+                entity_id=None,
+            )
         return user
 
     async def set_notify_time(self, tg_id: int, notify_time: time) -> User | None:
@@ -128,6 +141,13 @@ class UserRepository:
         user = result.scalar_one_or_none()
         if user:
             logger.info("notify_time updated: tg_id=%s, notify_time=%s", tg_id, notify_time)
+            await AuditLogRepository(self._session).record(
+                actor_id=tg_id,
+                actor_role="user",
+                action=ACTION_SETTINGS_NOTIFY_TIME,
+                entity_type="user",
+                entity_id=None,
+            )
         return user
 
     async def set_global_days(self, tg_id: int, global_days: str) -> User | None:
@@ -147,4 +167,11 @@ class UserRepository:
         user = result.scalar_one_or_none()
         if user:
             logger.info("global_days updated: tg_id=%s, global_days=%s", tg_id, global_days)
+            await AuditLogRepository(self._session).record(
+                actor_id=tg_id,
+                actor_role="user",
+                action=ACTION_SETTINGS_DAYS,
+                entity_type="user",
+                entity_id=None,
+            )
         return user

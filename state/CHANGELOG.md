@@ -25,6 +25,11 @@
   изоляция ошибок, санитизация секретов BOT_TOKEN/DATABASE_URL). Тесты в test_admin_notify.py
   (no-op, mock send с chat_id, err isolation, sanitize). Обновлён test_config. CI 186 зелёный.
   (Task: TASK-0031; отчёт в handoff/reports/TASK-0031-report.md)
+- **TASK-0032 (исполнитель, SESSION-2026-06-02-13).** Audit log: миграция + модель AuditLog,
+  AuditLogRepository.record + константы действий. Логирование мутаций в репозиториях
+  (charges/wallets/categories/users — только тип+id). Критичные ошибки дублируются в канал
+  через AdminNotifier (hook в error handler с bot closure). Тесты. Следовал чек-листу executor-guide.
+  CI 189 зелёный. (Task: TASK-0032; отчёт в handoff/reports/TASK-0032-report.md)
 
 ### Fixed (hotfix v0.1.1)
 - **TASK-0035 (исполнитель, SESSION-2026-06-02-10).** Блокирующий баг исправлен:

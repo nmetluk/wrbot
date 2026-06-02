@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T22:47:54Z",
+  "generated_at": "2026-06-02T23:13:26Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 3,
+    "inbox": 2,
     "in_progress": 0,
-    "done": 33,
+    "done": 34,
     "blocked": 0
   },
   "tasks": [
@@ -260,10 +260,10 @@
     {
       "id": "TASK-0032",
       "title": "\"M6: аудит-лог действий (таблица + запись + дубль критичных в канал)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0032-m6-audit-log.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0032-m6-audit-log.md",
       "milestone": "M6",
-      "report": null
+      "report": "handoff/reports/TASK-0032-report.md"
     },
     {
       "id": "TASK-0033",
