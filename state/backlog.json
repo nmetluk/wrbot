@@ -3,7 +3,7 @@
   "generated_at": "2026-06-02T21:14:18Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 4,
     "in_progress": 0,
     "done": 30,
     "blocked": 0
@@ -248,6 +248,38 @@
       "file": "handoff/done/TASK-0030-e2e-dispatcher.md",
       "milestone": "M5",
       "report": "handoff/reports/TASK-0030-report.md"
+    },
+    {
+      "id": "TASK-0031",
+      "title": "M6: админ-канал и сервис уведомлений + конфиг (фундамент наблюдаемости)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0031-m6-admin-channel.md",
+      "milestone": "M6",
+      "report": null
+    },
+    {
+      "id": "TASK-0032",
+      "title": "M6: аудит-лог действий (таблица + запись + дубль критичных в канал)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0032-m6-audit-log.md",
+      "milestone": "M6",
+      "report": null
+    },
+    {
+      "id": "TASK-0033",
+      "title": "M6: ежечасный бэкап БД (ротация 36) + heartbeat + краткая сводка в админ-канал",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0033-m6-backups-heartbeat.md",
+      "milestone": "M6",
+      "report": null
+    },
+    {
+      "id": "TASK-0034",
+      "title": "M6: ежедневный дашборд 21:00 — статистика + графики в админ-канал",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0034-m6-daily-dashboard.md",
+      "milestone": "M6",
+      "report": null
     }
   ]
 }

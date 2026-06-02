@@ -13,5 +13,9 @@
 | [ADR-0005](ADR-0005-notification-engine.md) | Движок уведомлений: свип по БД + `sent_reminders`, «Отложить» | Accepted |
 | [ADR-0006](ADR-0006-charge-lifecycle-amount.md) | Жизненный цикл списания (мягкое закрытие) и сумма (Decimal) | Accepted |
 | [ADR-0007](ADR-0007-delivery-long-polling.md) | Доставка апдейтов: long polling в v1 | Accepted |
+| [ADR-0008](ADR-0008-admin-observability.md) | Админ-канал и подсистема наблюдаемости (M6) | Accepted |
+| [ADR-0009](ADR-0009-backups.md) | Стратегия бэкапов: ежечасно, ротация 36, VACUUM INTO/pg_dump (M6) | Accepted |
+| [ADR-0010](ADR-0010-audit-log.md) | Аудит-лог действий (таблица + дубль критичных в канал) (M6) | Accepted |
 
 Все ключевые архитектурные вопросы перед M1 закрыты ADR-0003…0007 (SESSION-2026-06-01-01).
+M6 (наблюдаемость/бэкапы/аудит) — ADR-0008…0010 (SESSION-2026-06-03-03).
