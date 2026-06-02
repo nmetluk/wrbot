@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-03T02:10:00Z",
-  "current_phase": "v1 функционально готов. TASK-0028 принят как code-review (live-QA исполнителю недоступна). До тега — TASK-0030 (реальный e2e); живой смоук — за владельцем.",
+  "updated_at": "2026-06-03T03:00:00Z",
+  "current_phase": "v1 готов к релизу. TASK-0030 (реальный e2e через Dispatcher) закрыт. Осталось: тег v0.1.0 + (владелец) живой смоук + деплой.",
   "current_milestone": "M5 (done)",
-  "active_task": "TASK-0030",
-  "last_session": "SESSION-2026-06-03-01",
+  "active_task": null,
+  "last_session": "SESSION-2026-06-02-09",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Ревью TASK-0028 (SESSION-2026-06-03-01): принят только как code-review/CI (исполнитель не может кликать в живом Telegram; QA-MANUAL это фиксирует). Заведена TASK-0030 — реальный e2e через Dispatcher.feed_update (заменить placeholder test_e2e_smoke). Исполнитель: /take-task → TASK-0030. После неё: git tag v0.1.0; живой смоук — за владельцем; деплой по docs/deployment.md. Затем v2 (§6)."
+  "next_step": "TASK-0030 принят (реальный e2e feed_update + persistence в 6+ сценариях). Далее: git tag v0.1.0, обновить корневой CHANGELOG, боевой деплой по docs/deployment.md (живой смоук — за владельцем). Затем v2 (§6 ТЗ)."
 }

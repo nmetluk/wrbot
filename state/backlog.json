@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T20:58:03Z",
+  "generated_at": "2026-06-02T21:14:18Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 29,
+    "done": 30,
     "blocked": 0
   },
   "tasks": [
@@ -226,14 +226,6 @@
       "report": "handoff/reports/TASK-0027-report.md"
     },
     {
-      "id": "TASK-0030",
-      "title": "E2E через aiogram Dispatcher (feed_update) — заменить placeholder, автоматизируемая замена ручной QA",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0030-e2e-dispatcher.md",
-      "milestone": "M5",
-      "report": null
-    },
-    {
       "id": "TASK-0028",
       "title": "\"Ручная QA-проверка в живом Telegram (pre-release gate)\"",
       "status": "done",
@@ -248,6 +240,14 @@
       "file": "handoff/done/TASK-0029-env-var-casing-deploy.md",
       "milestone": "M5",
       "report": "handoff/reports/TASK-0029-report.md"
+    },
+    {
+      "id": "TASK-0030",
+      "title": "\"E2E через aiogram Dispatcher (feed_update) — заменить placeholder, автоматизируемая замена ручной QA\"",
+      "status": "done",
+      "file": "handoff/done/TASK-0030-e2e-dispatcher.md",
+      "milestone": "M5",
+      "report": "handoff/reports/TASK-0030-report.md"
     }
   ]
 }

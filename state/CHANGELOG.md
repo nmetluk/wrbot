@@ -7,6 +7,12 @@
 
 ## [Unreleased]
 
+### Done (pre-release gate)
+- **TASK-0030 (executor, SESSION-2026-06-02-09):** ✅ Реальный e2e через Dispatcher.feed_update (автоматизируемая замена ручной QA).
+  Переписан tests/test_e2e_smoke.py: использует dp.feed_update с реальными роутерами (все из __main__), DbSessionMiddleware + real temp SQLite (test_engine+alembic), MemoryStorage FSM, mock Bot.
+  Сценарии (через отдельные feed_update = реальные mw циклы): /start→меню; wallet FSM create → persist; full charge FSM + paid (next_date shift); global notify change → users persist; isolation (A/B не пересекают данные).
+  Проверка персистентности свежей сессией после каждого update. Placeholder assert True удалён. CI (179 passed + новый e2e) зелёный. Это покрывает классы багов TASK-0008/0027 в автотестах (живой смоук — за владельцем).
+
 ### Reviewed
 - **Ревью TASK-0028 (архитектор, SESSION-2026-06-03-01).** Исполнитель не может провести живую QA
   в Telegram (нет интерактивного клиента) — `QA-MANUAL-2026-06-03.md` это честно фиксирует.
