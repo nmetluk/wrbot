@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T23:13:26Z",
+  "generated_at": "2026-06-02T23:14:30Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 3,
     "in_progress": 0,
     "done": 34,
     "blocked": 0
@@ -296,6 +296,14 @@
       "file": "handoff/done/TASK-0036-hotfix-navigation-deadends.md",
       "milestone": "M5",
       "report": "handoff/reports/TASK-0036-report.md"
+    },
+    {
+      "id": "TASK-0037",
+      "title": "\"UX: убрать дублирующую «Закрыть» в списке; «Отмена» = только для диалогов (с «Действие отменено» + меню)\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0037-ux-close-cancel-semantics.md",
+      "milestone": "M6",
+      "report": null
     }
   ]
 }

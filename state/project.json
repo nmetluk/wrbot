@@ -6,7 +6,7 @@
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
   "updated_at": "2026-06-02T23:50:00Z",
-  "current_phase": "M6 в работе: TASK-0032 (audit-log) завершён; 0033+ в inbox.",
+  "current_phase": "M6 в работе: TASK-0032 (audit-log) завершён; 0033+ в inbox. Добавлена TASK-0037 (low UX).",
   "current_milestone": "M6",
   "active_task": "TASK-0033",
   "last_session": "SESSION-2026-06-02-13",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0032 (audit-log) done. Продолжить M6: /take-task → TASK-0033 (backups) → 0034 (dashboard). После — аудит M6 + v0.2.0."
+  "next_step": "TASK-0032 (audit-log) done. Продолжить M6: /take-task → TASK-0033 (backups) → 0034 (dashboard). TASK-0037 (low UX) в inbox (v0.2.0). После M6 — аудит + v0.2.0."
 }
