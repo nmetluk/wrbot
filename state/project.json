@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-02T07:10:00Z",
-  "current_phase": "M5 / релиз-аудит r2: НЕ принято — критический баг FSM-сессии (тихая потеря данных)",
+  "updated_at": "2026-06-02T20:45:00Z",
+  "current_phase": "M5: TASK-0027 (critical FSM session lifecycle) закрыта. Готов к повторному релиз-аудиту → релиз v1.",
   "current_milestone": "M5",
-  "active_task": "TASK-0027",
-  "last_session": "SESSION-2026-06-02-02",
+  "active_task": null,
+  "last_session": "SESSION-2026-06-02-03",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Релиз-аудит r2 (AUDIT-M5-2026-06-02-r2, SESSION-2026-06-02-02): FR-10 реализован, гейт зелёный (174), НО найден КРИТИЧЕСКИЙ баг — FSM-хэндлеры теряют запись (сессия из FSM, а коммитится свежая сессия middleware). Воспроизведено на SQLite. Заведена TASK-0027 (critical). Исполнитель: /take-task → TASK-0027 (+ интеграционный тест цикла сессии), затем повторный релиз-аудит → релиз v1."
+  "next_step": "Заполнить TASK-0027-report, отдельная сессия релиз-аудита (проверка интеграционного теста + отсутствие регресса по FSM) → релиз v1. Далее — v2 по roadmap."
 }

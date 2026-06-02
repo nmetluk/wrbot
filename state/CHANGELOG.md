@@ -17,6 +17,16 @@
   Юнит-тесты (моки) не ловят; интеграционного теста цикла сессии нет (пробел с M2). → **TASK-0027** (critical).
   Отчёт: `handoff/reports/AUDIT-M5-2026-06-02-r2.md`.
 
+### Done (M5 critical fix)
+- **TASK-0027 (executor, SESSION-2026-06-02-03):** ✅ CRITICAL release blocker: исправлен жизненный цикл сессии в FSM-хэндлерах.
+  Корневая причина тихой потери данных: continuation-хэндлеры (wallets/categories/settings/...) хранили AsyncSession
+  из предыдущего апдейта (`state.update_data(session=...)` + `state_data.get("session")`), а `DbSessionMiddleware`
+  коммитил сессию *текущего* апдейта. Затронуто всё (кошельки, категории, глобальные уведомления, создание списаний).
+  Фикс: убрано хранение сессии в FSM; continuation теперь получают `session: AsyncSession` из middleware текущего
+  апдейта (как уже было в части charges). Обновлены unit-тесты. Добавлен `tests/test_fsm_session_lifecycle.py` —
+  5 интеграционных тестов на реальной SQLite + фабрике + DbSessionMiddleware (две итерации апдейтов для каждого
+  сценария); тесты падают на "до" и проходят на "после". 179 тестов зелёно. CI начисто. След: повторный аудит → релиз.
+
 ### Done (M5 release blocker)
 - **TASK-0026 (executor, SESSION-2026-06-01-40):** ✅ RELEASE BLOCKER FR-10: UI глобальных уведомлений.
   Реализован полный экран «🔔 Глобальные уведомления» (показ текущих время+дни), изменение `notify_time`

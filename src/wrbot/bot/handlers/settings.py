@@ -94,8 +94,8 @@ async def global_notify_menu(callback: CallbackQuery, state: FSMContext, **data:
 @router.callback_query(F.data == "gnotify_time")
 async def gnotify_time_start(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
     """Начать ввод нового времени уведомлений."""
-    session: AsyncSession = cast("AsyncSession", data["session"])
-    await state.update_data(session=session)
+    # session текущего апдейта не сохраняем в FSM (исправление TASK-0027)
+    await state.update_data()
     await state.set_state(SettingsStates.notify_time)
     await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.global_notify_enter_time, reply_markup=get_cancel_keyboard()
@@ -104,7 +104,9 @@ async def gnotify_time_start(callback: CallbackQuery, state: FSMContext, **data:
 
 
 @router.message(SettingsStates.notify_time)
-async def process_notify_time_input(message: Message, state: FSMContext) -> None:
+async def process_notify_time_input(
+    message: Message, state: FSMContext, session: AsyncSession
+) -> None:
     """Обработать ввод времени ЧЧ:ММ, валидация, сохранение, возврат к экрану глобальных."""
     text = (message.text or "").strip()
     try:
@@ -127,8 +129,7 @@ async def process_notify_time_input(message: Message, state: FSMContext) -> None
         await message.answer(Texts.global_notify_invalid_time)
         return
 
-    state_data = await state.get_data()
-    session = state_data.get("session")
+    # session — от middleware ЭТОГО message-апдейта (не из FSM state_data!)
     if not session:
         await message.answer(Texts.error_generic)
         await state.clear()
@@ -178,7 +179,8 @@ async def gnotify_days_start(callback: CallbackQuery, state: FSMContext, **data:
     except Exception:
         selected = [5, 3, 1]
 
-    await state.update_data(session=session, selected_days=selected)
+    # Храним в state ТОЛЬКО selected_days (не session!)
+    await state.update_data(selected_days=selected)
     await state.set_state(SettingsStates.global_days)
 
     days_str = ", ".join(str(d) for d in selected) if selected else "выключено"
@@ -221,11 +223,11 @@ async def process_gday_toggle(callback: CallbackQuery, state: FSMContext) -> Non
 
 
 @router.callback_query(F.data == "gdays_save", SettingsStates.global_days)
-async def gdays_save(callback: CallbackQuery, state: FSMContext) -> None:
+async def gdays_save(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
     """Сохранить выбранные дни (в т.ч. [] = выкл), вернуться к экрану глобальных."""
     data = await state.get_data()
     selected: list[int] = list(data.get("selected_days", []))
-    session = data.get("session")
+    # session — свежая от middleware текущего cb-апдейта
     if not session:
         await callback.answer(Texts.error_generic, show_alert=True)
         await state.clear()
@@ -270,7 +272,9 @@ async def gnotify_days_input_start(callback: CallbackQuery, state: FSMContext) -
 
 
 @router.message(SettingsStates.global_days)
-async def process_global_days_input(message: Message, state: FSMContext) -> None:
+async def process_global_days_input(
+    message: Message, state: FSMContext, session: AsyncSession
+) -> None:
     """Обработать текстовый ввод дней (из gdays_input). Сохранить и показать глобальный экран."""
     data = await state.get_data()
     if not data.get("days_input"):
@@ -279,7 +283,7 @@ async def process_global_days_input(message: Message, state: FSMContext) -> None
         return
 
     text = (message.text or "").strip().lower()
-    session = data.get("session")
+    # session — от middleware ЭТОГО message-апдейта
     if not session:
         await message.answer(Texts.error_generic)
         await state.clear()

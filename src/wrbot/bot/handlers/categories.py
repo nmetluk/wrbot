@@ -42,8 +42,8 @@ async def category_details(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "category_add")
 async def category_add_start(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
     """Начать добавление категории."""
-    session: AsyncSession = cast("AsyncSession", data["session"])
-    await state.update_data(session=session, category_id=None)
+    # session из middleware текущего апдейта (НЕ храним в FSM)
+    await state.update_data(category_id=None)
     await state.set_state(CategoryStates.name)
     await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.category_enter_name, reply_markup=get_cancel_keyboard()
@@ -58,7 +58,8 @@ async def category_rename_start(
     """Начать переименование категории."""
     category_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
     session: AsyncSession = cast("AsyncSession", handler_data["session"])
-    await state.update_data(session=session, category_id=category_id)
+    # НЕ храним session в FSM, только category_id
+    await state.update_data(category_id=category_id)
 
     await state.set_state(CategoryStates.name)
 
@@ -97,11 +98,13 @@ async def category_delete_confirm(
 
 
 @router.callback_query(F.data.startswith("category_confirm_"))
-async def category_delete(callback: CallbackQuery, state: FSMContext) -> None:
+async def category_delete(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
     """Удалить категорию."""
+    # session из middleware текущего апдейта
     state_data = await state.get_data()
     category_id = state_data.get("category_id")
-    session = state_data.get("session")
 
     if not category_id or not session:
         await callback.answer(Texts.error_generic, show_alert=True)
@@ -137,10 +140,10 @@ async def category_delete(callback: CallbackQuery, state: FSMContext) -> None:
 
 
 @router.message(CategoryStates.name)
-async def category_name_handler(message: Message, state: FSMContext) -> None:
+async def category_name_handler(message: Message, state: FSMContext, session: AsyncSession) -> None:
     """Обработать ввод названия категории (добавление или переименование)."""
+    # session — свежая от middleware текущего message-апдейта
     state_data = await state.get_data()
-    session = state_data.get("session")
     category_id = state_data.get("category_id")
 
     if not session:

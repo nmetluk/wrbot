@@ -146,10 +146,9 @@ async def test_category_delete_success(mock_state, mock_session):
 
         mock_state.get_data.return_value = {
             "category_id": 42,
-            "session": mock_session,
         }
 
-        await categories_handler.category_delete(callback, mock_state)
+        await categories_handler.category_delete(callback, mock_state, session=mock_session)
 
         mock_repo.delete.assert_called_once_with(12345, 42)
         mock_state.clear.assert_called_once()
@@ -174,10 +173,9 @@ async def test_category_delete_not_found(mock_state, mock_session):
 
         mock_state.get_data.return_value = {
             "category_id": 42,
-            "session": mock_session,
         }
 
-        await categories_handler.category_delete(callback, mock_state)
+        await categories_handler.category_delete(callback, mock_state, session=mock_session)
 
         callback.answer.assert_called_once()
         mock_state.clear.assert_called_once()
@@ -205,11 +203,10 @@ async def test_category_name_handler_create(mock_state, mock_session):
         mock_repo_class.return_value = mock_repo
 
         mock_state.get_data.return_value = {
-            "session": mock_session,
             "category_id": None,
         }
 
-        await categories_handler.category_name_handler(message, mock_state)
+        await categories_handler.category_name_handler(message, mock_state, session=mock_session)
 
         mock_repo.create.assert_called_once_with(12345, "Новая категория")
         message.answer.assert_called()
@@ -238,11 +235,10 @@ async def test_category_name_handler_rename(mock_state, mock_session):
         mock_repo_class.return_value = mock_repo
 
         mock_state.get_data.return_value = {
-            "session": mock_session,
             "category_id": 42,
         }
 
-        await categories_handler.category_name_handler(message, mock_state)
+        await categories_handler.category_name_handler(message, mock_state, session=mock_session)
 
         mock_repo.rename.assert_called_once_with(12345, 42, "Новое имя")
         message.answer.assert_called()
@@ -265,11 +261,10 @@ async def test_category_name_handler_empty_name(mock_state, mock_session):
         mock_repo_class.return_value = mock_repo
 
         mock_state.get_data.return_value = {
-            "session": mock_session,
             "category_id": None,
         }
 
-        await categories_handler.category_name_handler(message, mock_state)
+        await categories_handler.category_name_handler(message, mock_state, session=mock_session)
 
         # Проверка, что был хотя бы один вызов answer
         message.answer.assert_called()
@@ -295,11 +290,10 @@ async def test_category_name_handler_duplicate_name(mock_state, mock_session):
         mock_repo_class.return_value = mock_repo
 
         mock_state.get_data.return_value = {
-            "session": mock_session,
             "category_id": None,
         }
 
-        await categories_handler.category_name_handler(message, mock_state)
+        await categories_handler.category_name_handler(message, mock_state, session=mock_session)
 
         # Проверка, что было отправлено сообщение об ошибке дубля
         assert any("уже существует" in str(call.args[0]) for call in message.answer.call_args_list)
@@ -325,11 +319,10 @@ async def test_category_name_handler_limit_exceeded(mock_state, mock_session):
         mock_repo_class.return_value = mock_repo
 
         mock_state.get_data.return_value = {
-            "session": mock_session,
             "category_id": None,
         }
 
-        await categories_handler.category_name_handler(message, mock_state)
+        await categories_handler.category_name_handler(message, mock_state, session=mock_session)
 
         # Проверка, что было отправлено сообщение об ошибке лимита
         assert any(
@@ -351,11 +344,10 @@ async def test_category_name_handler_no_session(mock_state):
     message.answer = AsyncMock()
 
     mock_state.get_data.return_value = {
-        "session": None,
         "category_id": None,
     }
 
-    await categories_handler.category_name_handler(message, mock_state)
+    await categories_handler.category_name_handler(message, mock_state, session=None)
 
     message.answer.assert_called_once()
     mock_state.clear.assert_called_once()

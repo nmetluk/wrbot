@@ -42,8 +42,8 @@ async def wallet_details(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "wallet_add")
 async def wallet_add_start(callback: CallbackQuery, state: FSMContext, **data: Any) -> None:
     """Начать добавление кошелька."""
-    session: AsyncSession = cast("AsyncSession", data["session"])
-    await state.update_data(session=session, wallet_id=None)
+    # session берётся из middleware текущего апдейта (не храним в FSM!)
+    await state.update_data(wallet_id=None)
     await state.set_state(WalletStates.name)
     await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.wallet_enter_name, reply_markup=get_cancel_keyboard()
@@ -58,11 +58,12 @@ async def wallet_rename_start(
     """Начать переименование кошелька."""
     wallet_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
     session: AsyncSession = cast("AsyncSession", handler_data["session"])
-    await state.update_data(session=session, wallet_id=wallet_id)
+    # НЕ храним session в FSM — только wallet_id (сессия текущего апдейта в continuation)
+    await state.update_data(wallet_id=wallet_id)
 
     await state.set_state(WalletStates.name)
 
-    # Получаем текущее название
+    # Получаем текущее название (используем сессию ЭТОГО апдейта)
     repo = WalletRepository(session)
     tg_id = callback.from_user.id
     wallet = await repo.get(tg_id, wallet_id)
@@ -97,11 +98,11 @@ async def wallet_delete_confirm(
 
 
 @router.callback_query(F.data.startswith("wallet_confirm_"))
-async def wallet_delete(callback: CallbackQuery, state: FSMContext) -> None:
+async def wallet_delete(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
     """Удалить кошелёк."""
+    # session — из middleware текущего апдейта (не из FSM!)
     state_data = await state.get_data()
     wallet_id = state_data.get("wallet_id")
-    session = state_data.get("session")
 
     if not wallet_id or not session:
         await callback.answer(Texts.error_generic, show_alert=True)
@@ -137,10 +138,10 @@ async def wallet_delete(callback: CallbackQuery, state: FSMContext) -> None:
 
 
 @router.message(WalletStates.name)
-async def wallet_name_handler(message: Message, state: FSMContext) -> None:
+async def wallet_name_handler(message: Message, state: FSMContext, session: AsyncSession) -> None:
     """Обработать ввод названия кошелька (добавление или переименование)."""
+    # session — свежая, от DbSessionMiddleware текущего апдейта (message)
     state_data = await state.get_data()
-    session = state_data.get("session")
     wallet_id = state_data.get("wallet_id")
 
     if not session:

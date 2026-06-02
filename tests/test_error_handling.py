@@ -23,7 +23,7 @@ def mock_state():
     from aiogram.fsm.context import FSMContext
 
     state = AsyncMock(spec=FSMContext)
-    state_data = {"session": AsyncMock(), "wallet_id": 42}
+    state_data = {"wallet_id": 42}  # session теперь приходит как параметр handler'а, не из FSM
     state.get_data.return_value = state_data
     state.update_data.side_effect = lambda **kwargs: state_data.update(kwargs)
     state.clear = AsyncMock()
@@ -82,8 +82,9 @@ async def test_wallet_delete_with_active_charges_returns_friendly_error(
         mock_repo.delete.side_effect = IntegrityError("FOREIGN KEY constraint failed", None, None)
         mock_repo_class.return_value = mock_repo
 
-        # Вызываем обработчик (session приходит через state data в фикстуре)
-        await wallets_handler.wallet_delete(callback, mock_state)
+        # session передаём явно (из middleware текущего апдейта)
+        session_mock = AsyncMock()
+        await wallets_handler.wallet_delete(callback, mock_state, session=session_mock)
 
         # Должны ответить именно нашим специфичным сообщением (а не generic)
         callback.answer.assert_called()

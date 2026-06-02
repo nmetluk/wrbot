@@ -144,9 +144,9 @@ async def test_process_notify_time_valid_saves_and_shows_view(mock_state, mock_s
         repo.get = AsyncMock(return_value=mock_user)
         repo_cls.return_value = repo
 
-        mock_state.get_data = AsyncMock(return_value={"session": mock_session})
+        mock_state.get_data = AsyncMock(return_value={})
 
-        await settings_handler.process_notify_time_input(message, mock_state)
+        await settings_handler.process_notify_time_input(message, mock_state, session=AsyncMock())
 
         repo.set_notify_time.assert_awaited_once()
         args = repo.set_notify_time.call_args[0]
@@ -171,7 +171,7 @@ async def test_process_notify_time_invalid_does_not_save(mock_state, mock_sessio
         repo.set_notify_time = AsyncMock()
         repo_cls.return_value = repo
 
-        await settings_handler.process_notify_time_input(message, mock_state)
+        await settings_handler.process_notify_time_input(message, mock_state, session=AsyncMock())
 
         repo.set_notify_time.assert_not_awaited()
         message.answer.assert_called_once_with(Texts.global_notify_invalid_time)
@@ -242,9 +242,7 @@ async def test_gdays_save_persists_and_returns_to_view(mock_state, mock_session)
     callback.from_user = Mock(spec=User, id=12345)
 
     selected = [1, 10]
-    mock_state.get_data = AsyncMock(
-        return_value={"selected_days": selected, "session": mock_session}
-    )
+    mock_state.get_data = AsyncMock(return_value={"selected_days": selected})
 
     mock_user = MagicMock()
     mock_user.notify_time = time(10, 0)
@@ -256,7 +254,7 @@ async def test_gdays_save_persists_and_returns_to_view(mock_state, mock_session)
         repo.get = AsyncMock(return_value=mock_user)
         repo_cls.return_value = repo
 
-        await settings_handler.gdays_save(callback, mock_state)
+        await settings_handler.gdays_save(callback, mock_state, session=AsyncMock())
 
         repo.set_global_days.assert_awaited_once_with(12345, "[1, 10]")
         mock_state.clear.assert_awaited_once()
@@ -292,9 +290,9 @@ async def test_gdays_input_and_message_save(mock_state, mock_session):
         repo.get = AsyncMock(return_value=mock_user)
         repo_cls.return_value = repo
 
-        mock_state.get_data = AsyncMock(return_value={"session": mock_session, "days_input": True})
+        mock_state.get_data = AsyncMock(return_value={"days_input": True})
 
-        await settings_handler.process_global_days_input(msg, mock_state)
+        await settings_handler.process_global_days_input(msg, mock_state, session=AsyncMock())
 
         repo.set_global_days.assert_awaited_once()
         assert msg.answer.call_count >= 2
