@@ -3,7 +3,7 @@
   "generated_at": "2026-06-02T21:14:18Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 5,
+    "inbox": 6,
     "in_progress": 0,
     "done": 30,
     "blocked": 0
@@ -286,6 +286,14 @@
       "title": "HOTFIX (blocker): зависание на шаге выбора кошелька при создании списания + дефолтный кошелёк + онбординг",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0035-hotfix-charge-wallet-step.md",
+      "milestone": "M5",
+      "report": null
+    },
+    {
+      "id": "TASK-0036",
+      "title": "HOTFIX (blocker): тупиковые экраны — «Мои списания» без кнопок «Новое списание»/«В меню»",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0036-hotfix-navigation-deadends.md",
       "milestone": "M5",
       "report": null
     }
