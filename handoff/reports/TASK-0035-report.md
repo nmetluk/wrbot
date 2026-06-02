@@ -49,5 +49,5 @@
 - Возможно, стоит рассмотреть attach bot к synthetic Message в e2e helpers для прямых ассертов на send из msg handlers (но за рамками этой задачи).
 
 ## Коммиты
-- `git commit -m "fix(hotfix): TASK-0035 — charge wallet selection hang + default wallet + onboarding (v0.1.1)"`
-  (с последующим push; Conventional Commits + Task ref)
+- e6d2002 fix(hotfix): TASK-0035 — charge wallet selection hang + default wallet + onboarding (v0.1.1)
+  (Task: TASK-0035; pushed)
