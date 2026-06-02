@@ -7,6 +7,13 @@
 
 ## [Unreleased]
 
+### Released
+- **v0.1.0 ВЫПУЩЕН (архитектор, SESSION-2026-06-03-02).** TASK-0030 принят: `test_e2e_smoke.py` —
+  реальный `Dispatcher.feed_update` e2e с проверкой персистентности (кошелёк/списание/оплачено/
+  notify_time/дни/изоляция), заглушка удалена; e2e 1 passed, полный гейт зелёный (179, ruff/mypy 0).
+  Все автоматизируемые pre-release гейты закрыты → проставлен аннотированный git-тег **`v0.1.0`**.
+  Остаётся вне кода: живой смоук владельцем (QA-MANUAL) + деплой по docs/deployment.md.
+
 ### Done (pre-release gate)
 - **TASK-0030 (executor, SESSION-2026-06-02-09):** ✅ Реальный e2e через Dispatcher.feed_update (автоматизируемая замена ручной QA).
   Переписан tests/test_e2e_smoke.py: использует dp.feed_update с реальными роутерами (все из __main__), DbSessionMiddleware + real temp SQLite (test_engine+alembic), MemoryStorage FSM, mock Bot.

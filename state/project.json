@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-03T03:00:00Z",
-  "current_phase": "v1 готов к релизу. TASK-0030 (реальный e2e через Dispatcher) закрыт. Осталось: тег v0.1.0 + (владелец) живой смоук + деплой.",
-  "current_milestone": "M5 (done)",
+  "updated_at": "2026-06-03T03:30:00Z",
+  "current_phase": "v1 ВЫПУЩЕН: git-тег v0.1.0. M0–M5 завершены, все гейты (включая реальный e2e) зелёные.",
+  "current_milestone": "v0.1.0 released",
   "active_task": null,
-  "last_session": "SESSION-2026-06-02-09",
+  "last_session": "SESSION-2026-06-03-02",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0030 принят (реальный e2e feed_update + persistence в 6+ сценариях). Далее: git tag v0.1.0, обновить корневой CHANGELOG, боевой деплой по docs/deployment.md (живой смоук — за владельцем). Затем v2 (§6 ТЗ)."
+  "next_step": "Релиз v0.1.0 выпущен (тег запушен, SESSION-2026-06-03-02): TASK-0030 (реальный e2e) принят, гейт зелёный (179). Остаётся (вне кода/за владельцем): живой смоук в Telegram по QA-MANUAL + боевой деплой на удалённом сервере по docs/deployment.md. Затем — планирование v2 (§6 ТЗ): экспорт CSV/PDF, статистика, мультивалюта, семейный режим."
 }
