@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-02T21:30:00Z",
-  "current_phase": "v1 ПРИНЯТ к релизу (AUDIT-M5-r3). M0–M5 завершены.",
+  "updated_at": "2026-06-02T23:50:00Z",
+  "current_phase": "v1 ПРИНЯТ к релизу (AUDIT-M5-r3). TASK-0029 (env casing deploy) закрыта. Готов к TASK-0028 QA + тег v0.1.0 + деплой.",
   "current_milestone": "M5 (done)",
   "active_task": null,
-  "last_session": "SESSION-2026-06-02-05",
+  "last_session": "SESSION-2026-06-02-06",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "v1 ПРИНЯТ к релизу (AUDIT-M5-2026-06-02-r3, SESSION-2026-06-02-04): гейт зелёный (179 тестов), критический FSM-баг устранён и покрыт интеграционным тестом, все FR/NFR выполнены. Релизные шаги: тег версии (из pyproject), запись в корневой CHANGELOG, деплой по docs/deployment.md. Версия зафиксирована как 0.1.0 (CHANGELOG обновлён). Перед боевым деплоем на удалённом сервере: TASK-0029 (унификация регистра env — иначе Postgres-путь неоднозначен) и TASK-0028 (ручная QA в Telegram). Git-тег v0.1.0 — после них. Затем — планирование v2 (§6 ТЗ)."
+  "next_step": "TASK-0028 (ручная QA в Telegram), git tag v0.1.0, корневой CHANGELOG, боевой деплой по docs/deployment.md. Затем планирование v2 (§6 ТЗ)."
 }

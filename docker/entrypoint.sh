@@ -1,7 +1,7 @@
 #!/bin/sh
 # docker/entrypoint.sh
 # Runs database migrations (idempotent) then starts the bot.
-# Designed to work with both SQLite and PostgreSQL via $DATABASE_URL from .env.
+# Designed to work with both SQLite and PostgreSQL via $DATABASE_URL from .env (UPPERCASE convention).
 
 set -e
 

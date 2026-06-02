@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T20:09:28Z",
+  "generated_at": "2026-06-02T20:34:58Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 27,
+    "done": 28,
     "blocked": 0
   },
   "tasks": [
@@ -227,7 +227,7 @@
     },
     {
       "id": "TASK-0028",
-      "title": "Ручная QA-проверка в живом Telegram (pre-release gate)",
+      "title": "\"Ручная QA-проверка в живом Telegram (pre-release gate)\"",
       "status": "inbox",
       "file": "handoff/inbox/TASK-0028-manual-telegram-qa.md",
       "milestone": "M5",
@@ -235,11 +235,11 @@
     },
     {
       "id": "TASK-0029",
-      "title": "Deploy-readiness: унифицировать регистр env-переменных (.env.example vs compose/docs)",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0029-env-var-casing-deploy.md",
+      "title": "\"Deploy-readiness: унифицировать регистр env-переменных (.env.example vs compose/docs)\"",
+      "status": "done",
+      "file": "handoff/done/TASK-0029-env-var-casing-deploy.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0029-report.md"
     }
   ]
 }

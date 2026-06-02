@@ -83,7 +83,7 @@ pip install -e ".[dev]"
 
 # Создание .env
 cp .env.example .env
-# Обязательно укажите bot_token и (опционально) database_url
+# Обязательно укажите BOT_TOKEN и (опционально) DATABASE_URL (UPPERCASE)
 
 # Применить миграции (один раз или после обновлений)
 alembic upgrade head
@@ -101,7 +101,7 @@ python -m wrbot
 Для production рекомендуется использовать Docker.
 
 ```bash
-# 1. Настройте .env (bot_token обязателен)
+# 1. Настройте .env (BOT_TOKEN обязателен; используйте UPPERCASE имена: BOT_TOKEN, DATABASE_URL, ...)
 cp .env.example .env
 
 # 2. Запустите (SQLite по умолчанию)

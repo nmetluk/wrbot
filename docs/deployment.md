@@ -12,7 +12,7 @@
 ```bash
 # 1. Подготовьте окружение
 cp .env.example .env
-# Обязательно заполните bot_token (и database_url если нужно)
+# Обязательно заполните BOT_TOKEN (и DATABASE_URL если нужно; используйте UPPERCASE)
 
 # 2. Запустите
 docker compose up -d --build
@@ -30,24 +30,27 @@ docker compose logs -f bot
 docker compose --profile postgres up -d --build
 ```
 
-В `.env` укажите:
+В `.env` укажите (UPPERCASE имена переменных):
 
 ```env
+BOT_TOKEN=...
 DATABASE_URL=postgresql+asyncpg://user:pass@postgres:5432/wrbot
 POSTGRES_DB=wrbot
 POSTGRES_USER=wrbot
 POSTGRES_PASSWORD=strong-password-here
+# DEFAULT_TIMEZONE=Europe/Moscow (опционально)
+# LOG_LEVEL=INFO (опционально)
 ```
 
 ## Основные файлы
 
 - `Dockerfile` — Python 3.11-slim + uv (воспроизводимая установка из `uv.lock`), non-root пользователь.
 - `docker/entrypoint.sh` — запускает `alembic upgrade head`, затем `python -m wrbot`.
-- `docker-compose.yml` — `restart: unless-stopped`, volume `./data`, `env_file: .env`, healthcheck, опциональный профиль `postgres`.
+- `docker-compose.yml` — `restart: unless-stopped`, volume `./data`, `env_file: .env` (UPPERCASE vars), healthcheck, опциональный профиль `postgres`.
 
 ## Полный цикл деплоя
 
-1. Настройте `.env` (никогда не коммитьте!).
+1. Настройте `.env` (UPPERCASE: BOT_TOKEN, DATABASE_URL и т.д.; никогда не коммитьте!).
 2. `docker compose up -d --build`
 3. Проверьте логи и статус.
 4. При обновлении кода: `git pull && docker compose up -d --build`
@@ -57,7 +60,7 @@ POSTGRES_PASSWORD=strong-password-here
 
 1. Остановите бота.
 2. Выгрузите данные (если нужно).
-3. Измените `DATABASE_URL` в `.env`.
+3. Измените `DATABASE_URL` (и другие UPPER) в `.env`.
 4. `docker compose --profile postgres up -d --build`
 5. Проверьте, что данные перенесены (или начните с чистой БД).
 

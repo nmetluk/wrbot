@@ -11,9 +11,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      # Override if needed (useful for postgres profile)
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./data/wrbot.sqlite3}
+    # No duplicating `environment:` for DATABASE_URL — rely only on env_file + .env
+    # (avoids case ambiguity; .env now uses UPPERCASE consistently).
+    # Compose yaml ${VAR} interpolation for other vars (e.g. in postgres service) still works.
     volumes:
       - ./data:/app/data
       # Optional: persist logs outside container
