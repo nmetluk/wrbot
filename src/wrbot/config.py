@@ -59,6 +59,11 @@ class Settings(BaseSettings):
     # Лимиты списаний (M3)
     max_charges: int = 50
 
+    # Admin channel for M6 observability (ADR-0008, TASK-0031)
+    # If None — all admin notifies are no-op (safe for tests/CI/local without channel)
+    admin_channel_id: int | None = None
+    admin_tz: str = "Europe/Moscow"
+
     # Project paths
     base_dir: Path = Path(__file__).parent.parent.parent
     src_dir: Path = Path(__file__).parent.parent

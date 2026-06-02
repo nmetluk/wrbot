@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-03T06:30:00Z",
-  "current_phase": "v0.1.1 ВЫПУЩЕН (hotfix 0035+0036 приняты, тег v0.1.1). Возобновляется M6.",
+  "updated_at": "2026-06-02T23:10:00Z",
+  "current_phase": "M6 в работе: TASK-0031 (admin-channel) завершён; 0032+ в inbox.",
   "current_milestone": "M6",
-  "active_task": null,
-  "last_session": "SESSION-2026-06-03-06",
+  "active_task": "TASK-0032",
+  "last_session": "SESSION-2026-06-02-12",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "v0.1.1 выпущен и принят (SESSION-2026-06-03-06, тег v0.1.1): гейт зелёный (181), баги создания списания и тупика «Мои списания» устранены. Дальше: (владелец) деплой/обновление по docs/deployment.md; возобновить M6 — исполнитель /take-task → TASK-0031 → 0032 → 0033 → 0034, затем аудит M6 и релиз v0.2.0."
+  "next_step": "TASK-0031 (admin notify foundation) done. Продолжить M6: /take-task → TASK-0032 (audit-log) → 0033 (backups) → 0034 (dashboard). После — аудит M6 + v0.2.0."
 }

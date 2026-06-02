@@ -13,6 +13,12 @@
   карта» + онбординг) и TASK-0036 (тупик «Мои списания» — кнопки «Новое списание»/«В меню»,
   ревизия `reply_markup=None`). Проверено независимо: гейт зелёный (ruff/mypy 0, **pytest 181**,
   e2e), версия 0.1.1. Проставлен git-тег **`v0.1.1`**. M6 возобновляется.
+- **TASK-0031 (исполнитель, SESSION-2026-06-02-12).** M6 foundation: добавлен конфиг
+  `ADMIN_CHANNEL_ID`/`ADMIN_TZ` (с дефолтами, UPPER в .env.example); реализован
+  `services/admin_notify.py` (AdminNotifier: send_text/photo/media_group, no-op без channel,
+  изоляция ошибок, санитизация секретов BOT_TOKEN/DATABASE_URL). Тесты в test_admin_notify.py
+  (no-op, mock send с chat_id, err isolation, sanitize). Обновлён test_config. CI 186 зелёный.
+  (Task: TASK-0031; отчёт в handoff/reports/TASK-0031-report.md)
 
 ### Fixed (hotfix v0.1.1)
 - **TASK-0035 (исполнитель, SESSION-2026-06-02-10).** Блокирующий баг исправлен:

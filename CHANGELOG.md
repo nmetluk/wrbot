@@ -12,6 +12,7 @@
 - Дополнены e2e-тесты (через Dispatcher): проверка немедленной клавиатуры после суммы; сценарий нового пользователя (дефолт + полный flow без ручного кошелька); сценарий «нет кошельков → добавить в потоке → продолжить создание».
 - Версия 0.1.1 (pyproject, `__init__`); записи в CHANGELOG.
 - **TASK-0036:** навигационные тупики «Мои списания» + ревизия reply_markup=None (кнопки new_charge/main_menu; post-action возвраты с меню).
+- **TASK-0031 (M6 start):** конфиг `ADMIN_CHANNEL_ID`/`ADMIN_TZ`; `AdminNotifier` (send_text/photo/media_group, no-op, error isolation, secret sanitization). Фундамент для observability (0032-0034).
 
 ## [0.1.0] - 2026-06-03
 

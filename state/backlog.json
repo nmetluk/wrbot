@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T22:34:55Z",
+  "generated_at": "2026-06-02T22:47:54Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 4,
+    "inbox": 3,
     "in_progress": 0,
-    "done": 32,
+    "done": 33,
     "blocked": 0
   },
   "tasks": [
@@ -252,10 +252,10 @@
     {
       "id": "TASK-0031",
       "title": "\"M6: админ-канал и сервис уведомлений + конфиг (фундамент наблюдаемости)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0031-m6-admin-channel.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0031-m6-admin-channel.md",
       "milestone": "M6",
-      "report": null
+      "report": "handoff/reports/TASK-0031-report.md"
     },
     {
       "id": "TASK-0032",
