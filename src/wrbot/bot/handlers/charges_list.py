@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 from wrbot.bot.keyboards import (
     get_charge_card_actions_keyboard,
     get_confirm_delete_keyboard,
+    get_main_menu_keyboard,
+    get_my_charges_empty_keyboard,
     get_my_charges_keyboard,
 )
 from wrbot.bot.texts import Texts
@@ -44,7 +46,8 @@ async def list_charges(callback: CallbackQuery, state: FSMContext, session: Asyn
     charges = await charge_repo.list_active_by_user(user.tg_id)
 
     if not charges:
-        await callback.message.edit_text(Texts.my_charges_empty, reply_markup=None)  # type: ignore[union-attr]
+        kb = get_my_charges_empty_keyboard()
+        await callback.message.edit_text(Texts.my_charges_empty, reply_markup=kb)  # type: ignore[union-attr]
         await callback.answer()
         return
 
@@ -113,7 +116,7 @@ async def mark_charge_paid(
     else:
         msg = Texts.charge_paid_periodic.format(next_date=updated.next_date)
 
-    await callback.message.edit_text(msg, reply_markup=None)  # type: ignore[union-attr]
+    await callback.message.edit_text(msg, reply_markup=get_main_menu_keyboard())  # type: ignore[union-attr]
     await callback.answer()
 
     # Optionally refresh list
@@ -142,9 +145,13 @@ async def charge_delete(callback: CallbackQuery, state: FSMContext, session: Asy
     deleted = await charge_repo.delete(callback.from_user.id, charge_id)
 
     if deleted:
-        await callback.message.edit_text(Texts.charge_deleted, reply_markup=None)  # type: ignore[union-attr]
+        await callback.message.edit_text(  # type: ignore[union-attr]
+            Texts.charge_deleted, reply_markup=get_main_menu_keyboard()
+        )
     else:
-        await callback.message.edit_text(Texts.error_not_found, reply_markup=None)  # type: ignore[union-attr]
+        await callback.message.edit_text(  # type: ignore[union-attr]
+            Texts.error_not_found, reply_markup=get_main_menu_keyboard()
+        )
     await state.clear()
     await callback.answer()
 

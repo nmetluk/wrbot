@@ -299,6 +299,8 @@ def get_my_charges_keyboard(charges: list[dict[str, Any]]) -> InlineKeyboardMark
             )
         )
     builder.adjust(1)
+    builder.row(InlineKeyboardButton(text="➕ Новое списание", callback_data="new_charge"))
+    builder.row(InlineKeyboardButton(text="◀️ В меню", callback_data="main_menu"))
     builder.row(InlineKeyboardButton(text="❌ Закрыть", callback_data="cancel"))
     return builder.as_markup()
 
@@ -317,6 +319,14 @@ def get_charge_card_actions_keyboard(charge_id: int) -> InlineKeyboardMarkup:
         ),
     )
     builder.row(InlineKeyboardButton(text="◀️ Назад к списку", callback_data="list_charges"))
+    return builder.as_markup()
+
+
+def get_my_charges_empty_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура для пустого списка «Мои списания» — навигация (TASK-0036)."""
+    builder = InlineKeyboardBuilder()
+    builder.row(InlineKeyboardButton(text="➕ Новое списание", callback_data="new_charge"))
+    builder.row(InlineKeyboardButton(text="◀️ В меню", callback_data="main_menu"))
     return builder.as_markup()
 
 

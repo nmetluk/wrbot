@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-02T22:50:00Z",
-  "current_phase": "HOTFIX v0.1.1 (2 блокера): TASK-0035 done; TASK-0036 (тупик «Мои списания») в очереди. M6 на паузе.",
+  "updated_at": "2026-06-02T23:00:00Z",
+  "current_phase": "HOTFIX v0.1.1 завершён (0035+0036 done). Готов к релизу v0.1.1; затем M6 (на паузе).",
   "current_milestone": "M5 (hotfix) → M6",
-  "active_task": "TASK-0036",
-  "last_session": "SESSION-2026-06-02-10",
+  "active_task": "",
+  "last_session": "SESSION-2026-06-02-11",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0035 (hotfix wallet step + default + onboarding) завершена, v0.1.1 в процессе. Следующий: TASK-0036 (навигация). После обоих — релиз v0.1.1, затем M6. Исполнитель: /take-task → TASK-0036."
+  "next_step": "Оба hotfix v0.1.1 (0035+0036) завершены. Релиз v0.1.1; затем возобновить M6 (TASK-0031+). Исполнитель: подготовить релиз / sync / new tasks."
 }

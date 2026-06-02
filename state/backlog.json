@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T22:21:27Z",
+  "generated_at": "2026-06-02T22:34:55Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 5,
+    "inbox": 4,
     "in_progress": 0,
-    "done": 31,
+    "done": 32,
     "blocked": 0
   },
   "tasks": [
@@ -292,10 +292,10 @@
     {
       "id": "TASK-0036",
       "title": "\"HOTFIX (blocker): тупиковые экраны — «Мои списания» без кнопок «Новое списание»/«В меню»\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0036-hotfix-navigation-deadends.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0036-hotfix-navigation-deadends.md",
       "milestone": "M5",
-      "report": null
+      "report": "handoff/reports/TASK-0036-report.md"
     }
   ]
 }

@@ -16,6 +16,15 @@
   - Версия → 0.1.1; e2e-тесты (немедленная kb; новый юзер + полный flow; нет кошельков → add в потоке → завершить); обновлены repo-тесты и affected.
   - CI: ruff/mypy/pytest/alembic/validate зелёные.
   (Task: TASK-0035; отчёт в handoff/reports/TASK-0035-report.md)
+- **TASK-0036 (исполнитель, SESSION-2026-06-02-11).** Тупики навигации устранены:
+  - «Мои списания» (пустой): edit с kb (new_charge + main_menu) вместо reply_markup=None.
+  - Непустой: get_my_charges_keyboard теперь добавляет «➕ Новое списание» и «◀️ В меню».
+  - Ревизия прочих reply_markup=None (charges_create finals/cancel, reminders paid/snooze, list paid/delete, start /cancel): теперь возвращают с get_main_menu_keyboard().
+  - cancel/main_menu всегда с полным меню.
+  - e2e: прямые kb asserts + feed сценарии (empty list + main_menu nav).
+  - Обновлены handler tests.
+  - CI зелёный.
+  (Task: TASK-0036; отчёт в handoff/reports/TASK-0036-report.md)
 
 ### Hotfix (remaining, blocker → v0.1.1)
 - **TASK-0036 (архитектор, SESSION-2026-06-03-05).** Тупиковые экраны: «Мои списания» при пустом

@@ -15,6 +15,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, User
 
 from wrbot.bot.handlers import reminders as reminders_handler
+from wrbot.bot.keyboards import get_main_menu_keyboard
 from wrbot.bot.states import NewChargeStates
 from wrbot.bot.texts import Texts
 
@@ -112,7 +113,7 @@ async def test_remind_snooze_sets_tomorrow_and_leaves_next_date(mock_state, mock
 
         mock_snooze.assert_awaited_once_with(12345, 7, tomorrow)
         callback.message.edit_text.assert_awaited_once_with(
-            Texts.reminder_snoozed, reply_markup=None
+            Texts.reminder_snoozed, reply_markup=get_main_menu_keyboard()
         )
         callback.answer.assert_awaited_once()
 

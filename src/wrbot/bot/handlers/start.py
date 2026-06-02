@@ -77,4 +77,4 @@ async def help_callback(callback: CallbackQuery) -> None:
 async def cmd_cancel(message: Message, state: FSMContext) -> None:
     """Обработчик команды /cancel — отменяет текущий диалог."""
     await state.clear()
-    await message.answer(Texts.action_cancelled)
+    await message.answer(Texts.action_cancelled, reply_markup=get_main_menu_keyboard())

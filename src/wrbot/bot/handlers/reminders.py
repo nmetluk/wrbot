@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from aiogram.types import CallbackQuery
     from sqlalchemy.ext.asyncio import AsyncSession
 
+from wrbot.bot.keyboards import get_main_menu_keyboard
 from wrbot.bot.states import NewChargeStates
 from wrbot.bot.texts import Texts
 from wrbot.repositories.charges import ChargeRepository
@@ -59,7 +60,7 @@ async def remind_mark_paid(
     if not isinstance(callback.message, Message):
         await callback.answer(Texts.error_generic)
         return
-    await callback.message.edit_text(msg, reply_markup=None)
+    await callback.message.edit_text(msg, reply_markup=get_main_menu_keyboard())
     await callback.answer()
 
 
@@ -86,7 +87,7 @@ async def remind_snooze(callback: CallbackQuery, state: FSMContext, session: Asy
     if not isinstance(callback.message, Message):
         await callback.answer(Texts.error_generic)
         return
-    await callback.message.edit_text(Texts.reminder_snoozed, reply_markup=None)
+    await callback.message.edit_text(Texts.reminder_snoozed, reply_markup=get_main_menu_keyboard())
     await callback.answer()
 
 

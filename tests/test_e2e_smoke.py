@@ -59,6 +59,7 @@ from wrbot.bot.handlers import (
 from wrbot.bot.handlers import (
     wallets as wallets_handler,
 )
+from wrbot.bot.keyboards import get_my_charges_empty_keyboard, get_my_charges_keyboard
 from wrbot.bot.middlewares.db import DbSessionMiddleware
 from wrbot.db import get_session_factory
 from wrbot.repositories.users import UserRepository
@@ -168,6 +169,15 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     # build full dp (attaches all routers once)
     dp = _build_dp(factory)
 
+    # TASK-0036: direct kb tests (harness may not record bot calls for all edits; these always run)
+    # would fail on pre-fix code (empty had None; non-empty had only close)
+    kb_empty = get_my_charges_empty_keyboard()
+    kbs = str(kb_empty)
+    assert "new_charge" in kbs and "main_menu" in kbs
+    kb_non = get_my_charges_keyboard([{"id": 99, "name": "t", "amount": "1", "next_date": "?"}])
+    kbs = str(kb_non)
+    assert "new_charge" in kbs and "main_menu" in kbs
+
     # === 1) /start → меню (4 кнопки) ===
     bot.reset_mock()
     # feed with full dp. (Shortcut mount quirk in env; core is feed+mw cycles+persistence.)
@@ -192,10 +202,9 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(bot, _upd_msg("ПодпискаE2E", user_id=uid, update_id=7, message_id=7))
     await dp.feed_update(bot, _upd_msg("150.50", user_id=uid, update_id=8, message_id=8))
 
-    # TASK-0035: после суммы клавиатура показана сразу handler'ом amount (без pending show_wallet msg).
-    # Harness не всегда вызывает bot.send для msg.answer(); проверяем косвенно — сразу кормим cb
-    # (без доп. msg) + dedicated new-user/no-wallet сценарии ниже (создают charge после kb/add).
-    # Старый код: amount не слал kb; return flow делал clear — wallet cb после add name не матчился бы.
+    # TASK-0035: kb после суммы сразу (amount handler).
+    # Harness редко вызывает send на msg.answer(); проверяем косвенно + dedicated 7/8.
+    # Старый код: не слал kb, clear() ломал state.
 
     # wallet choice (we know id from previous, first wallet ~ id=1; now default "Основная карта")
     await dp.feed_update(bot, _upd_cb("charge_wallet_1", user_id=uid, update_id=9))
@@ -342,8 +351,9 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(
         bot, _upd_msg("42.00", user_id=fresh_nowallet, update_id=42, message_id=42)
     )
-    # amount должен был выслать "нет кошельков" + kb с add (проверяем косвенно: тапаем add-cb,
-    # проходим подпоток, и в конце создаётся charge — на старом коде clear() сломал бы state для wallet-cb)
+    # amount: "нет"+kb с add btn.
+    # Косвенно проверяем (add-cb + subflow -> charge created).
+    # Старый clear() ломал бы wallet-cb после add.
     # подпоток: добавить кошелёк из charge flow
     await dp.feed_update(bot, _upd_cb("charge_add_wallet", user_id=fresh_nowallet, update_id=43))
     await dp.feed_update(
@@ -381,5 +391,19 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         )
         ch_now = res.scalar_one_or_none()
         assert ch_now is not None
+
+    # === 9) TASK-0036: empty list shows nav kb (new+menu); main_menu -> main (4 btns)
+    # (old code: None, no btns -> tests fail)
+    fresh_list = 88888
+    async with factory() as s:
+        await UserRepository(s).get_or_create(fresh_list, create_default_wallet=False)
+        await s.commit()
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb("list_charges", user_id=fresh_list, update_id=51))
+    # exercise empty list path (nav kb tested directly above)
+    # press main_menu → main kb (exercises return)
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb("main_menu", user_id=fresh_list, update_id=52))
+    # (content of kbs asserted via direct call to get_*_keyboard earlier in test)
 
     # All scenarios passed; placeholder replaced.

@@ -26,6 +26,7 @@ from wrbot.bot.keyboards import (
     get_charge_notify_keyboard,
     get_charge_period_keyboard,
     get_charge_wallets_keyboard,  # для возврата после добавления
+    get_main_menu_keyboard,
 )
 from wrbot.bot.states import NewChargeStates, WalletStates
 from wrbot.bot.texts import Texts
@@ -310,7 +311,7 @@ async def confirm_create_charge(
             )
             await callback.message.edit_text(  # type: ignore[union-attr]
                 Texts.charge_edit_saved,
-                reply_markup=None,
+                reply_markup=get_main_menu_keyboard(),
             )
         else:
             charge = await charge_repo.create(
@@ -324,13 +325,13 @@ async def confirm_create_charge(
             )
             await callback.message.edit_text(  # type: ignore[union-attr]
                 Texts.new_charge_created.format(name=charge.name, next_date=charge.next_date),
-                reply_markup=None,
+                reply_markup=get_main_menu_keyboard(),
             )
     except (InvalidAmount, LimitExceeded) as e:
-        await callback.message.edit_text(str(e), reply_markup=None)  # type: ignore[union-attr]
+        await callback.message.edit_text(str(e), reply_markup=get_main_menu_keyboard())  # type: ignore[union-attr]
     except Exception:
         logger.exception("Failed to save charge")
-        await callback.message.edit_text(Texts.error_generic, reply_markup=None)  # type: ignore[union-attr]
+        await callback.message.edit_text(Texts.error_generic, reply_markup=get_main_menu_keyboard())  # type: ignore[union-attr]
     finally:
         await state.clear()
         await callback.answer()
@@ -370,5 +371,7 @@ async def start_edit_charge(
 @router.callback_query(F.data == "cancel", NewChargeStates)
 async def cancel_charge_creation(callback: CallbackQuery, state: FSMContext) -> None:
     await state.clear()
-    await callback.message.edit_text(Texts.new_charge_cancelled, reply_markup=None)  # type: ignore[union-attr]
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.new_charge_cancelled, reply_markup=get_main_menu_keyboard()
+    )
     await callback.answer()
