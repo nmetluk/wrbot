@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-03T06:44:28Z",
+  "generated_at": "2026-06-03T22:34:20Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 7,
     "in_progress": 0,
     "done": 38,
     "blocked": 0
@@ -312,6 +312,62 @@
       "file": "handoff/done/TASK-0038-m6-fix-flaky-backup-test.md",
       "milestone": "M6",
       "report": "handoff/reports/TASK-0038-report.md"
+    },
+    {
+      "id": "TASK-0039",
+      "title": "\"BUG: некорректное отображение кошелька/категории/даты/периода в сводке и карточке списания (общий форматтер)\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0039-fix-charge-display.md",
+      "milestone": "M7",
+      "report": null
+    },
+    {
+      "id": "TASK-0040",
+      "title": "\"Период перед датой + валидация даты по окну периода (не дальше одного периода)\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0040-period-before-date-validation.md",
+      "milestone": "M7",
+      "report": null
+    },
+    {
+      "id": "TASK-0041",
+      "title": "\"«Мои списания»: краткий список с группировкой по категориям + кнопки перехода\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0041-my-charges-grouped.md",
+      "milestone": "M7",
+      "report": null
+    },
+    {
+      "id": "TASK-0042",
+      "title": "\"Иконки кошельков/карт: выбор эмодзи из пресета при добавлении/редактировании + отображение\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0042-wallet-icons.md",
+      "milestone": "M7",
+      "report": null
+    },
+    {
+      "id": "TASK-0043",
+      "title": "\"Каналы/группы для дубля напоминаний: схема (Category.notify_chat_ids) + UI управления в настройках категории\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0043-category-notify-targets-schema-ui.md",
+      "milestone": "M7",
+      "report": null
+    },
+    {
+      "id": "TASK-0044",
+      "title": "\"Дублирование напоминаний в каналы/группы категории + уведомление владельца при отсутствии прав\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0044-duplicate-reminders-to-channels.md",
+      "milestone": "M7",
+      "report": null
+    },
+    {
+      "id": "TASK-0045",
+      "title": "\"Редактирование списания: держать и обновлять карточку текущих данных, затирать введённое из рабочей области\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0045-edit-flow-persistent-card.md",
+      "milestone": "M7",
+      "report": null
     }
   ]
 }

@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-03T09:30:00Z",
-  "current_phase": "Релиз v0.2.0 (M6) ВЫПУЩЕН: bump версии 0.2.0, /CHANGELOG.md [0.2.0], release-notes, git-тег v0.2.0. Гейт зелёный (208). Вне кода: живой смоук + деплой.",
-  "current_milestone": "M6",
+  "updated_at": "2026-06-03T10:40:00Z",
+  "current_phase": "M7 (доработки по отзывам) спланирован: ADR-0011/0012 + 7 задач TASK-0039..0045 в inbox/. Архитектор запушил. Готово к работе исполнителя. По итогам — релиз v0.3.0.",
+  "current_milestone": "M7",
   "active_task": null,
-  "last_session": "SESSION-2026-06-03-15",
+  "last_session": "SESSION-2026-06-03-16",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "v0.2.0 выпущен (тег v0.2.0). Вне кода: живой смоук в Telegram + деплой по docs/deployment.md (исполнитель). Дальше — планирование v2 (CSV/PDF-экспорт, статистика, мультивалюта). Inbox пуст."
+  "next_step": "Исполнитель: /take-task начиная с TASK-0039 (фикс отображения — фундамент M7). Порядок с учётом зависимостей: 0039 и 0040 (без deps) → 0041/0042 (deps 0039) → 0043 → 0044 (dep 0043) → 0045 (deps 0039,0040). После M7 — аудит и релиз v0.3.0."
 }
