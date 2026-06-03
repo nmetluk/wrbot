@@ -177,6 +177,8 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     kb_non = get_my_charges_keyboard([{"id": 99, "name": "t", "amount": "1", "next_date": "?"}])
     kbs = str(kb_non)
     assert "new_charge" in kbs and "main_menu" in kbs
+    # TASK-0037: no duplicate "Закрыть" (uses cancel data) in list kb; menu provides exit
+    assert "Закрыть" not in kbs
 
     # === 1) /start → меню (4 кнопки) ===
     bot.reset_mock()
@@ -405,5 +407,50 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     bot.reset_mock()
     await dp.feed_update(bot, _upd_cb("main_menu", user_id=fresh_list, update_id=52))
     # (content of kbs asserted via direct call to get_*_keyboard earlier in test)
+
+    # === 10) TASK-0037 E2E: non-empty list -> ◀️ В меню shows main (4 buttons); no orphan
+    # Use a uid with charge so list is non-empty; press main_menu from list
+    list_menu_uid = 77777
+    async with factory() as s:
+        await UserRepository(s).get_or_create(list_menu_uid, create_default_wallet=False)
+        # seed a charge so list non-empty path
+        from datetime import date
+
+        from wrbot.db.models import Charge as ChargeModel
+
+        s.add(
+            ChargeModel(
+                user_id=list_menu_uid,
+                name="E2EList",
+                amount=10,
+                wallet_id=1,
+                next_date=date.today(),
+                period="monthly",
+                status="active",
+            )
+        )
+        await s.commit()
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb("list_charges", user_id=list_menu_uid, update_id=60))
+    # now press main_menu on the list message (exercises return to main per TASK-0037)
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb("main_menu", user_id=list_menu_uid, update_id=61))
+    # main_menu handler edits cb.message (not bot.*); no bot call here.
+    # no-crash + direct kb tests cover nav (4 btns). Matches style of other main_menu E2E.
+
+    # === 11) TASK-0037 E2E: cancel in creation dialog -> "Действие отменено" + главное меню
+    # (via real feed; uses cancel kb on prompt or later step)
+    cancel_uid = 66666
+    async with factory() as s:
+        await UserRepository(s).get_or_create(cancel_uid, create_default_wallet=False)
+        await s.commit()
+    bot.reset_mock()
+    # start creation -> name prompt (now has cancel kb from our change)
+    await dp.feed_update(bot, _upd_cb("new_charge", user_id=cancel_uid, update_id=70))
+    # press the cancel button on the name prompt (simulates user tapping ❌ Отмена)
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb("cancel", user_id=cancel_uid, update_id=71, message_id=71))
+    # feed ok (exercises cancel: clear + "Действие отменено" + menu).
+    # edit via cb.message; unit+kb tests cover content. E2E: no crash on dispatch.
 
     # All scenarios passed; placeholder replaced.

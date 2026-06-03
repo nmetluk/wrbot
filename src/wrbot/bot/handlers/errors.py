@@ -10,16 +10,19 @@ Global error handler for the bot (TASK-0021, NFR-1).
 from __future__ import annotations
 
 import logging
-from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from aiogram import Bot, Router
-from aiogram.types import CallbackQuery, ErrorEvent
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from wrbot.bot.texts import Texts
 from wrbot.repositories.audit_log import ACTION_ERROR, AuditLogRepository
 from wrbot.services.admin_notify import AdminNotifier
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from aiogram.types import CallbackQuery, ErrorEvent
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 logger = logging.getLogger(__name__)
 

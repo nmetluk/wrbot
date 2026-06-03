@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-03T06:25:00Z",
-  "current_phase": "M6: TASK-0034 (daily dashboard) завершён; осталась TASK-0037 (low UX) в inbox. Готов к аудиту после M6.",
+  "updated_at": "2026-06-03T07:10:00Z",
+  "current_phase": "M6 завершён (TASK-0031..0034 + 0037 UX + hotfixes 35/36). Готов к аудиту майлстоуна.",
   "current_milestone": "M6",
-  "active_task": "TASK-0037",
-  "last_session": "SESSION-2026-06-03-10",
+  "active_task": null,
+  "last_session": "SESSION-2026-06-03-11",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0034 (dashboard) done. Осталась TASK-0037 (low UX semantics) в inbox. После M6 — аудит + v0.2.0 (см. roadmap)."
+  "next_step": "M6 done (0037 completed). Inbox empty. Отдельная сессия: /audit M6 (см. docs/roadmap.md + AGENTS). Затем v0.2.0."
 }

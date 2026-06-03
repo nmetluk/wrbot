@@ -34,6 +34,7 @@
   + статус/heartbeat/сводка в админ-канал. services/backup.py + stats.py, scheduler job, docker volumes,
   client in image. Тесты. CI 193 зелёный. (Task: TASK-0033; отчёт в handoff/reports/TASK-0033-report.md)
 - **TASK-0034 (исполнитель, SESSION-2026-06-03-10).** Ежедневный дашборд 21:00 (ADMIN_TZ): stats метрики (рост, daily active по audit, charges/payments, periods, топ-кат, reminders+errors), charts (matplotlib Agg PNG), scheduler job Cron+to_thread+notifier send (text+media_group), audit hook в sweep+errors. Тесты (test_stats+test_charts). CI 208 зелёный. (Task: TASK-0034; отчёт в handoff/reports/TASK-0034-report.md)
+- **TASK-0037 (исполнитель, SESSION-2026-06-03-11).** UX: убрана дублирующая «❌ Закрыть» из get_my_charges_keyboard (и просмотров); cancel только в диалогах — всегда «Действие отменено» + главное меню (исправлены settings/charges_create, prompts без kb). E2E dp.feed_update + handler tests. CI 208. (Task: TASK-0037; отчёт в handoff/reports/TASK-0037-report.md)
 
 ### Fixed (hotfix v0.1.1)
 - **TASK-0035 (исполнитель, SESSION-2026-06-02-10).** Блокирующий баг исправлен:

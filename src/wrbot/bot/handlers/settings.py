@@ -22,6 +22,7 @@ from wrbot.bot.keyboards import (
     get_categories_keyboard,
     get_global_days_edit_keyboard,
     get_global_notify_keyboard,
+    get_main_menu_keyboard,
     get_settings_menu_keyboard,
     get_tz_keyboard,
     get_wallets_keyboard,
@@ -390,17 +391,17 @@ async def categories_list(callback: CallbackQuery, state: FSMContext, **data: An
 
 @router.callback_query(F.data == "cancel")
 async def cancel_action(callback: CallbackQuery, state: FSMContext) -> None:
-    """Отменить текущее действие."""
+    """Отменить текущее действие (диалог). Показывает «Действие отменено» + главное меню."""
     await state.clear()
-    await callback.message.edit_text(Texts.action_cancelled)  # type: ignore[union-attr]
+    await callback.message.edit_text(Texts.action_cancelled, reply_markup=get_main_menu_keyboard())  # type: ignore[union-attr]
     await callback.answer()
 
 
 @router.message(Command("cancel"))
 async def cancel_command(message: Message, state: FSMContext) -> None:
-    """Отменить текущее действие (команда)."""
+    """Отменить текущее действие (команда). Показывает «Действие отменено» + главное меню."""
     await state.clear()
-    await message.answer(Texts.action_cancelled)
+    await message.answer(Texts.action_cancelled, reply_markup=get_main_menu_keyboard())
 
 
 @router.callback_query(F.data == "settings_tz")

@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 from wrbot.bot.keyboards import (
+    get_cancel_keyboard,
     get_charge_categories_keyboard,
     get_charge_confirm_keyboard,
     get_charge_notify_keyboard,
@@ -84,7 +85,7 @@ async def new_charge_start(
     await state.update_data(user_id=callback.from_user.id)
 
     await callback.message.edit_text(  # type: ignore[union-attr]
-        Texts.new_charge_enter_name, reply_markup=None
+        Texts.new_charge_enter_name, reply_markup=get_cancel_keyboard()
     )
     await callback.answer()
 
@@ -102,7 +103,7 @@ async def process_name(message: Message, state: FSMContext) -> None:
 
     await state.update_data(name=name)
     await state.set_state(NewChargeStates.amount)
-    await message.answer(Texts.new_charge_enter_amount)
+    await message.answer(Texts.new_charge_enter_amount, reply_markup=get_cancel_keyboard())
 
 
 # 2. Сумма
@@ -362,16 +363,17 @@ async def start_edit_charge(
     await state.set_state(NewChargeStates.name)
     await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.charge_edit_started + "\n\n" + Texts.new_charge_enter_name,
-        reply_markup=None,
+        reply_markup=get_cancel_keyboard(),
     )
     await callback.answer()
 
 
-# Поддержка отмены в любом состоянии charge flow
+# Поддержка отмены в любом состоянии charge flow (создание/редактирование)
 @router.callback_query(F.data == "cancel", NewChargeStates)
 async def cancel_charge_creation(callback: CallbackQuery, state: FSMContext) -> None:
+    """Отмена диалога (создание/редакт): «Действие отменено» + меню (TASK-0037)."""
     await state.clear()
     await callback.message.edit_text(  # type: ignore[union-attr]
-        Texts.new_charge_cancelled, reply_markup=get_main_menu_keyboard()
+        Texts.action_cancelled, reply_markup=get_main_menu_keyboard()
     )
     await callback.answer()

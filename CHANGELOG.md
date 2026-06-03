@@ -16,6 +16,7 @@
 - **TASK-0032:** audit_log таблица + запись действий (без sensitive), дублирование критичных ошибок в админ-канал.
 - **TASK-0033:** ежечасный бэкап (VACUUM/pg_dump, ротация 36) + heartbeat + сводка в админ-канал; docker support.
 - **TASK-0034:** ежедневный дашборд 21:00 в ADMIN_TZ — расширенные метрики (stats) + 8 графиков (matplotlib Agg, PNG bytes), отправка саммари + альбом в админ-канал; инструментация audit для sent reminders + critical errors; тесты, полный CI.
+- **TASK-0037:** UX consistency (low): removed duplicate «❌ Закрыть» (cancel) from «Мои списания» kb (and views); «Отмена»/cancel only in active dialogs (now always «Действие отменено» + main menu kb, no orphans). E2E via feed_update + prompt kb fixes. CI green.
 
 ## [0.1.0] - 2026-06-03
 

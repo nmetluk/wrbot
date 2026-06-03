@@ -301,7 +301,6 @@ def get_my_charges_keyboard(charges: list[dict[str, Any]]) -> InlineKeyboardMark
     builder.adjust(1)
     builder.row(InlineKeyboardButton(text="➕ Новое списание", callback_data="new_charge"))
     builder.row(InlineKeyboardButton(text="◀️ В меню", callback_data="main_menu"))
-    builder.row(InlineKeyboardButton(text="❌ Закрыть", callback_data="cancel"))
     return builder.as_markup()
 
 

@@ -11,6 +11,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, User
 
 from wrbot.bot.handlers import settings as settings_handler
+from wrbot.bot.keyboards import get_main_menu_keyboard
 from wrbot.bot.texts import Texts
 
 
@@ -231,7 +232,9 @@ async def test_cancel_action_callback(mock_state):
     await settings_handler.cancel_action(callback, mock_state)
 
     mock_state.clear.assert_called_once()
-    callback.message.edit_text.assert_called_once_with(Texts.action_cancelled)
+    callback.message.edit_text.assert_called_once_with(
+        Texts.action_cancelled, reply_markup=get_main_menu_keyboard()
+    )
     callback.answer.assert_called_once()
 
 
@@ -246,4 +249,6 @@ async def test_cancel_command_message(mock_state):
     await settings_handler.cancel_command(message, mock_state)
 
     mock_state.clear.assert_called_once()
-    message.answer.assert_called_once_with(Texts.action_cancelled)
+    message.answer.assert_called_once_with(
+        Texts.action_cancelled, reply_markup=get_main_menu_keyboard()
+    )
