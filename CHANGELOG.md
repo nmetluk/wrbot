@@ -2,6 +2,38 @@
 
 История версий wrbot для пользователей. Формат основан на [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.0] - 2026-06-03
+
+Майлстоун **M6 — наблюдаемость и админ-функции**. Принят повторным аудитом
+(`handoff/reports/AUDIT-M6-2026-06-03.md` + TASK-0038). Изменения видимы только
+администратору (приватный канал) — пользовательский интерфейс не меняется, кроме
+мелкой UX-полировки.
+
+### Added
+- **Приватный админ-канал наблюдаемости** (TASK-0031). Конфиг `ADMIN_CHANNEL_ID`/`ADMIN_TZ`;
+  `AdminNotifier` (текст/фото/альбом) с безопасными дефолтами: no-op без канала, изоляция
+  ошибок отправки, **санитизация секретов** (`BOT_TOKEN`/`DATABASE_URL` никогда не попадают в канал).
+- **Аудит-лог** (TASK-0032). Таблица `audit_log` фиксирует действия (тип + id, без сумм, имён и
+  текстов); критичные ошибки дублируются в админ-канал.
+- **Автоматические бэкапы** (TASK-0033). Ежечасный бэкап БД (SQLite `VACUUM INTO` / `pg_dump`),
+  ротация 36 копий, heartbeat и краткая сводка в админ-канал. Docker: том для бэкапов + pg-client в образе.
+- **Ежедневный дашборд 21:00** (TASK-0034, время в `ADMIN_TZ`). Метрики роста, активности, платежей,
+  периодичностей, топ-категорий, напоминаний и ошибок + графики (matplotlib) — саммари и альбом в канал.
+
+### Changed
+- **UX-консистентность** (TASK-0037): убрана дублирующая «❌ Закрыть» из списка «Мои списания»;
+  «Отмена» работает только в активных диалогах и всегда возвращает «Действие отменено» + главное меню.
+
+### Fixed
+- **Детерминированный CI** (TASK-0038): тест бэкапа сделан герметичным
+  (`create_backup(db_url=)` + autouse-сброс `get_settings` lru_cache); полный `pytest` стабилен
+  независимо от порядка тестов (**208 passed**).
+
+### Technical
+- 208 тестов; ruff, mypy (strict), Alembic, валидация состояния — на зафиксированных версиях (`uv.lock`).
+- Прод-поведение бэкапа неизменно (берёт БД из настроек); приватность аудита и санитизация секретов
+  защищены тестами.
+
 ## [0.1.1] - 2026-06-03
 
 ### Fixed
@@ -12,12 +44,6 @@
 - Дополнены e2e-тесты (через Dispatcher): проверка немедленной клавиатуры после суммы; сценарий нового пользователя (дефолт + полный flow без ручного кошелька); сценарий «нет кошельков → добавить в потоке → продолжить создание».
 - Версия 0.1.1 (pyproject, `__init__`); записи в CHANGELOG.
 - **TASK-0036:** навигационные тупики «Мои списания» + ревизия reply_markup=None (кнопки new_charge/main_menu; post-action возвраты с меню).
-- **TASK-0031 (M6 start):** конфиг `ADMIN_CHANNEL_ID`/`ADMIN_TZ`; `AdminNotifier` (send_text/photo/media_group, no-op, error isolation, secret sanitization). Фундамент для observability (0032-0034).
-- **TASK-0032:** audit_log таблица + запись действий (без sensitive), дублирование критичных ошибок в админ-канал.
-- **TASK-0033:** ежечасный бэкап (VACUUM/pg_dump, ротация 36) + heartbeat + сводка в админ-канал; docker support.
-- **TASK-0034:** ежедневный дашборд 21:00 в ADMIN_TZ — расширенные метрики (stats) + 8 графиков (matplotlib Agg, PNG bytes), отправка саммари + альбом в админ-канал; инструментация audit для sent reminders + critical errors; тесты, полный CI.
-- **TASK-0037:** UX consistency (low): removed duplicate «❌ Закрыть» (cancel) from «Мои списания» kb (and views); «Отмена»/cancel only in active dialogs (now always «Действие отменено» + main menu kb, no orphans). E2E via feed_update + prompt kb fixes. CI green.
-- **TASK-0038 (M6 blocker fix):** made backup test hermetic (create_backup now accepts explicit db_url=; autouse fixture + manual cache_clear for get_settings lru_cache; pass temp DB from test_engine). Full pytest now deterministic (208 passed, no order deps). CI green. Prepares for re-audit + v0.2.0.
 
 ## [0.1.0] - 2026-06-03
 

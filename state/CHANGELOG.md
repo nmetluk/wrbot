@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Released
+- **v0.2.0 ВЫПУЩЕН (архитектор, SESSION-2026-06-03-15).** Майлстоун M6 (наблюдаемость/админ):
+  TASK-0031..0034 + 0037 (UX) + 0038 (детерминизм). Bump версии 0.2.0 (pyproject + `__init__`),
+  пользовательская запись `/CHANGELOG.md [0.2.0]` (M6-пункты перенесены из ошибочно помеченного
+  [0.1.1]), release-notes `docs/release-notes/v0.2.0.md`. Гейт начисто зелёный (ruff/mypy 42 файла/
+  **pytest 208**/alembic check/validate). Проставлен аннотированный git-тег **`v0.2.0`**.
+  Вне кода: живой смоук + деплой по docs/deployment.md.
+
 ### Audit
 - **TASK-0038 ПРИНЯТ + AUDIT-M6 повторно ПРОЙДЕН (SESSION-2026-06-03-15).** Блокер закрыт:
   `create_backup(db_url=None)` (прод-вызов `to_thread(create_backup)` без аргумента — дефолт
