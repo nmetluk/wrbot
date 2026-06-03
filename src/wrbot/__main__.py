@@ -24,7 +24,7 @@ from wrbot.bot.middlewares.db import DbSessionMiddleware
 from wrbot.config import get_settings
 from wrbot.db import get_engine, get_session_factory
 from wrbot.logging import setup_logging
-from wrbot.scheduler.app import register_sweep_job, setup_scheduler
+from wrbot.scheduler.app import register_backup_job, register_sweep_job, setup_scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +111,7 @@ async def main() -> None:
     logger.info("Initializing scheduler...")
     scheduler = setup_scheduler()
     register_sweep_job(scheduler, bot, session_factory)
+    register_backup_job(scheduler, bot, session_factory)
     scheduler.start()
 
     # Graceful shutdown по сигналам (SIGINT/SIGTERM) — критично для 24/7 в Docker / systemd (NFR-1)

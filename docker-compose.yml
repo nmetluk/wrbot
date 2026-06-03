@@ -16,6 +16,7 @@ services:
     # Compose yaml ${VAR} interpolation for other vars (e.g. in postgres service) still works.
     volumes:
       - ./data:/app/data
+      - ./backups:/app/backups
       # Optional: persist logs outside container
       # - ./logs:/app/logs
     # Simple healthcheck (process alive). For production consider a /health endpoint.

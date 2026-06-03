@@ -30,6 +30,9 @@
   (charges/wallets/categories/users — только тип+id). Критичные ошибки дублируются в канал
   через AdminNotifier (hook в error handler с bot closure). Тесты. Следовал чек-листу executor-guide.
   CI 189 зелёный. (Task: TASK-0032; отчёт в handoff/reports/TASK-0032-report.md)
+- **TASK-0033 (исполнитель, SESSION-2026-06-03-09).** Ежечасный бэкап (sqlite VACUUM/pg_dump) + ротация 36
+  + статус/heartbeat/сводка в админ-канал. services/backup.py + stats.py, scheduler job, docker volumes,
+  client in image. Тесты. CI 193 зелёный. (Task: TASK-0033; отчёт в handoff/reports/TASK-0033-report.md)
 
 ### Fixed (hotfix v0.1.1)
 - **TASK-0035 (исполнитель, SESSION-2026-06-02-10).** Блокирующий баг исправлен:

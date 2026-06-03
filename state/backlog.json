@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-02T23:14:30Z",
+  "generated_at": "2026-06-03T05:21:12Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 3,
+    "inbox": 2,
     "in_progress": 0,
-    "done": 34,
+    "done": 35,
     "blocked": 0
   },
   "tasks": [
@@ -268,10 +268,10 @@
     {
       "id": "TASK-0033",
       "title": "\"M6: ежечасный бэкап БД (ротация 36) + heartbeat + краткая сводка в админ-канал\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0033-m6-backups-heartbeat.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0033-m6-backups-heartbeat.md",
       "milestone": "M6",
-      "report": null
+      "report": "handoff/reports/TASK-0033-report.md"
     },
     {
       "id": "TASK-0034",

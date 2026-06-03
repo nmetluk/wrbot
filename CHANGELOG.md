@@ -14,6 +14,7 @@
 - **TASK-0036:** навигационные тупики «Мои списания» + ревизия reply_markup=None (кнопки new_charge/main_menu; post-action возвраты с меню).
 - **TASK-0031 (M6 start):** конфиг `ADMIN_CHANNEL_ID`/`ADMIN_TZ`; `AdminNotifier` (send_text/photo/media_group, no-op, error isolation, secret sanitization). Фундамент для observability (0032-0034).
 - **TASK-0032:** audit_log таблица + запись действий (без sensitive), дублирование критичных ошибок в админ-канал.
+- **TASK-0033:** ежечасный бэкап (VACUUM/pg_dump, ротация 36) + heartbeat + сводка в админ-канал; docker support.
 
 ## [0.1.0] - 2026-06-03
 

@@ -56,3 +56,26 @@ def register_sweep_job(
         replace_existing=True,
         misfire_grace_time=30,  # секунд, на случай задержек
     )
+
+
+def register_backup_job(
+    scheduler: AsyncIOScheduler,
+    bot: Bot,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    """
+    Зарегистрировать ежечасную джобу бэкапа + heartbeat + краткой сводки (M6 TASK-0033).
+
+    Вызывается из __main__ после создания bot и session_factory.
+    """
+    from wrbot.scheduler.backup import run_backup  # локальный импорт
+
+    scheduler.add_job(
+        run_backup,
+        trigger=IntervalTrigger(hours=1, timezone=UTC),
+        args=[bot, session_factory],
+        id="backup_heartbeat",
+        name="Hourly DB backup + heartbeat + summary to admin channel",
+        replace_existing=True,
+        misfire_grace_time=300,  # 5 мин
+    )

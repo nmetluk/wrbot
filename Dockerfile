@@ -28,8 +28,12 @@ WORKDIR /app
 # Create non-root user (good security practice)
 RUN groupadd -r appgroup --gid=10001 \
     && useradd -r -g appgroup --uid=10001 --create-home appuser \
-    && mkdir -p /app/data /app/logs \
+    && mkdir -p /app/data /app/logs /app/backups \
     && chown -R appuser:appgroup /app
+
+# Install postgresql-client for pg_dump (Postgres backups, TASK-0033). Small package.
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy virtual environment from builder stage
 COPY --from=builder --chown=appuser:appgroup /app/.venv /app/.venv
