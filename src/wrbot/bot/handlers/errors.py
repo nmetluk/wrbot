@@ -7,14 +7,18 @@ Global error handler for the bot (TASK-0021, NFR-1).
 Критичные ошибки дублируются в админ-канал (TASK-0032).
 """
 
+from __future__ import annotations
+
 import logging
 from collections.abc import Awaitable, Callable
 from typing import Any
 
 from aiogram import Bot, Router
 from aiogram.types import CallbackQuery, ErrorEvent
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from wrbot.bot.texts import Texts
+from wrbot.repositories.audit_log import ACTION_ERROR, AuditLogRepository
 from wrbot.services.admin_notify import AdminNotifier
 
 logger = logging.getLogger(__name__)
@@ -22,8 +26,13 @@ logger = logging.getLogger(__name__)
 errors_router = Router(name="errors")
 
 
-def make_global_error_handler(bot: Bot | None = None) -> Callable[[ErrorEvent], Awaitable[None]]:
-    """Factory: registers error handler (with bot for admin notify duplicate)."""
+def make_global_error_handler(
+    bot: Bot | None = None,
+    session_factory: async_sessionmaker[AsyncSession] | None = None,
+) -> Callable[[ErrorEvent], Awaitable[None]]:
+    """Factory: registers error handler.
+    bot for admin notify (TASK-0032); session_factory for audit error records (TASK-0034).
+    """
 
     @errors_router.error()
     async def global_error_handler(event: ErrorEvent) -> None:
@@ -83,6 +92,22 @@ def make_global_error_handler(bot: Bot | None = None) -> Callable[[ErrorEvent], 
                 )
             except Exception as notify_exc:
                 logger.warning("Failed to duplicate error to admin channel: %s", notify_exc)
+
+        # Record to audit_log for daily dashboard "ошибки за день" metric (TASK-0034)
+        if session_factory:
+            try:
+                async with session_factory() as s:
+                    audit_repo = AuditLogRepository(s)
+                    await audit_repo.record(
+                        actor_id=0,
+                        actor_role="system",
+                        action=ACTION_ERROR,
+                        entity_type=None,
+                        entity_id=None,
+                    )
+                    await s.commit()
+            except Exception as audit_exc:
+                logger.warning("Failed to record critical error to audit: %s", audit_exc)
 
         # Важно: НЕ re-raise, иначе update упадёт и polling может пострадать
 

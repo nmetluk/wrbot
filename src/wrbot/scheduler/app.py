@@ -79,3 +79,33 @@ def register_backup_job(
         replace_existing=True,
         misfire_grace_time=300,  # 5 мин
     )
+
+
+def register_daily_dashboard_job(
+    scheduler: AsyncIOScheduler,
+    bot: Bot,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    """
+    Зарегистрировать ежедневную джобу дашборда 21:00 в ADMIN_TZ (M6 TASK-0034).
+
+    Метрики + графики (matplotlib) + отправка в админ-канал.
+    Вызывается из __main__ после создания bot и session_factory.
+    """
+    from apscheduler.triggers.cron import CronTrigger
+
+    from wrbot.config import get_settings
+    from wrbot.scheduler.dashboard import run_daily_dashboard  # локальный импорт
+
+    settings = get_settings()
+    tz = settings.admin_tz  # e.g. "Europe/Moscow"; CronTrigger принимает str или tzinfo
+
+    scheduler.add_job(
+        run_daily_dashboard,
+        trigger=CronTrigger(hour=21, minute=0, timezone=tz),
+        args=[bot, session_factory],
+        id="daily_dashboard",
+        name="Daily 21:00 dashboard (stats + charts) to admin channel in ADMIN_TZ",
+        replace_existing=True,
+        misfire_grace_time=3600,  # 1 час
+    )

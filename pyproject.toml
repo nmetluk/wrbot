@@ -27,6 +27,8 @@ dependencies = [
     "alembic>=1.14.0",
     "asyncpg>=0.30.0",  # PostgreSQL driver
     "aiosqlite>=0.20.0",  # SQLite driver for local dev
+    # Charts for admin daily dashboard (TASK-0034, ADR-0008) — Agg backend, no GUI
+    "matplotlib>=3.8",
     # Environment variables
     "python-dotenv>=1.0.1",
 ]

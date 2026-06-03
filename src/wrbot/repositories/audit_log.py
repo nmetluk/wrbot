@@ -29,6 +29,8 @@ ACTION_CATEGORY_DELETE = "category.delete"
 ACTION_SETTINGS_NOTIFY_TIME = "settings.notify_time"
 ACTION_SETTINGS_DAYS = "settings.days"
 ACTION_SETTINGS_TZ = "settings.tz"
+ACTION_REMINDER_SENT = "reminder.sent"
+ACTION_ERROR = "error.critical"
 
 
 class AuditLogRepository:

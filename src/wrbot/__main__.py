@@ -24,7 +24,12 @@ from wrbot.bot.middlewares.db import DbSessionMiddleware
 from wrbot.config import get_settings
 from wrbot.db import get_engine, get_session_factory
 from wrbot.logging import setup_logging
-from wrbot.scheduler.app import register_backup_job, register_sweep_job, setup_scheduler
+from wrbot.scheduler.app import (
+    register_backup_job,
+    register_daily_dashboard_job,
+    register_sweep_job,
+    setup_scheduler,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -98,10 +103,11 @@ async def main() -> None:
     dp.include_router(reminders_handler.router)
 
     # Глобальный обработчик ошибок (TASK-0021) — дублирование критичных в канал (TASK-0032)
+    # + запись в audit для метрик дашборда (TASK-0034)
     from wrbot.bot.handlers.errors import make_global_error_handler
 
-    # Call maker: it executes @errors_router.error() which registers the handler closing over bot
-    make_global_error_handler(bot)
+    # Call maker: registers error handler (bot notify 0032; session_factory for audit 0034)
+    make_global_error_handler(bot, session_factory)
     dp.include_router(errors_handler.errors_router)
 
     # Настройка команд в меню
@@ -112,6 +118,7 @@ async def main() -> None:
     scheduler = setup_scheduler()
     register_sweep_job(scheduler, bot, session_factory)
     register_backup_job(scheduler, bot, session_factory)
+    register_daily_dashboard_job(scheduler, bot, session_factory)
     scheduler.start()
 
     # Graceful shutdown по сигналам (SIGINT/SIGTERM) — критично для 24/7 в Docker / systemd (NFR-1)

@@ -110,7 +110,12 @@ async def test_backup_error_is_isolated(monkeypatch):
         patch("wrbot.scheduler.backup.AdminNotifier") as mock_n,
         patch(
             "wrbot.scheduler.backup.get_hourly_summary",
-            return_value={"total_users": 0, "active_charges": 0, "charges_created_last_hour": 0, "charges_paid_last_hour": 0},
+            return_value={
+                "total_users": 0,
+                "active_charges": 0,
+                "charges_created_last_hour": 0,
+                "charges_paid_last_hour": 0,
+            },
         ),
     ):
         notifier = mock_n.return_value

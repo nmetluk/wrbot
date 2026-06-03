@@ -15,6 +15,7 @@
 - **TASK-0031 (M6 start):** конфиг `ADMIN_CHANNEL_ID`/`ADMIN_TZ`; `AdminNotifier` (send_text/photo/media_group, no-op, error isolation, secret sanitization). Фундамент для observability (0032-0034).
 - **TASK-0032:** audit_log таблица + запись действий (без sensitive), дублирование критичных ошибок в админ-канал.
 - **TASK-0033:** ежечасный бэкап (VACUUM/pg_dump, ротация 36) + heartbeat + сводка в админ-канал; docker support.
+- **TASK-0034:** ежедневный дашборд 21:00 в ADMIN_TZ — расширенные метрики (stats) + 8 графиков (matplotlib Agg, PNG bytes), отправка саммари + альбом в админ-канал; инструментация audit для sent reminders + critical errors; тесты, полный CI.
 
 ## [0.1.0] - 2026-06-03
 

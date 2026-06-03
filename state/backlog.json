@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-03T05:21:12Z",
+  "generated_at": "2026-06-03T05:31:39Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 35,
+    "done": 36,
     "blocked": 0
   },
   "tasks": [
@@ -276,10 +276,10 @@
     {
       "id": "TASK-0034",
       "title": "\"M6: ежедневный дашборд 21:00 — статистика + графики в админ-канал\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0034-m6-daily-dashboard.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0034-m6-daily-dashboard.md",
       "milestone": "M6",
-      "report": null
+      "report": "handoff/reports/TASK-0034-report.md"
     },
     {
       "id": "TASK-0035",

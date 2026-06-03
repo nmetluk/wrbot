@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from wrbot.bot.keyboards import get_reminder_actions_keyboard
 from wrbot.bot.texts import Texts
+from wrbot.repositories.audit_log import ACTION_REMINDER_SENT, AuditLogRepository
 from wrbot.repositories.sent_reminders import SentReminderRepository
 from wrbot.services.reminders import get_due_reminders_today, select_users_to_notify_at
 
@@ -93,6 +94,18 @@ async def run_sweep(bot: Bot, session_factory: async_sessionmaker[AsyncSession])
                 )
                 # Фиксируем отправку только после успешной доставки
                 await sent_repo.record(charge.id, target_date, days_before)
+                # Audit for dashboard metrics (TASK-0034): count sent reminders from audit_log
+                try:
+                    audit_repo = AuditLogRepository(session)
+                    await audit_repo.record(
+                        actor_id=0,
+                        actor_role="system",
+                        action=ACTION_REMINDER_SENT,
+                        entity_type="charge",
+                        entity_id=charge.id,
+                    )
+                except Exception:
+                    logger.exception("Failed to record reminder.sent to audit (isolated)")
                 sent_count += 1
                 logger.info(
                     "Sent reminder: user=%s, charge=%s (%s), days_before=%s",
