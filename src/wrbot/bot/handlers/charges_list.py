@@ -7,7 +7,7 @@ List, card, edit (reuses FSM), delete, paid. Specific callbacks + router test.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from aiogram import F, Router
 
@@ -19,9 +19,11 @@ from wrbot.bot.keyboards import (
     get_confirm_delete_keyboard,
     get_main_menu_keyboard,
     get_my_charges_empty_keyboard,
+    get_my_charges_grouped_keyboard,
     get_my_charges_keyboard,
 )
 from wrbot.bot.texts import Texts
+from wrbot.repositories.categories import CategoryRepository
 from wrbot.repositories.charges import ChargeRepository
 from wrbot.repositories.users import UserRepository
 from wrbot.services.formatters import (
@@ -56,10 +58,90 @@ async def list_charges(callback: CallbackQuery, state: FSMContext, session: Asyn
         await callback.answer()
         return
 
-    # Резолв имён кошельков через общий форматтер + ДД.ММ (TASK-0039, избегаем дублирования resolve)
+    # Группировка по категориям (TASK-0041, группировка в репозитории)
+    grouped = await charge_repo.list_active_grouped_by_category(user.tg_id)
+
+    # Имена категорий
+    cat_repo = CategoryRepository(session)
+    user_cats = await cat_repo.list_by_user(user.tg_id)
+    cat_name_map = {c.id: c.name for c in user_cats}
+
+    # Строим текст с группами (используем форматтеры из TASK-0039)
+    text_lines = [Texts.my_charges_grouped_title]
+    category_buttons: list[dict[str, Any]] = []
+    uncategorized_data: list[dict[str, Any]] = []
+
+    for cat_id, chs in grouped.items():
+        if cat_id is None:
+            continue
+        cname = cat_name_map.get(cat_id, str(cat_id))
+        text_lines.append(Texts.my_charges_category_header.format(name=cname))
+        for c in chs:
+            wname = await resolve_wallet_name(session, user.tg_id, c.wallet_id)
+            dstr = format_date_ru(c.next_date)
+            text_lines.append(f"• {c.name} — {c.amount!s} ₽ ({wname}) — {dstr}")
+        category_buttons.append({"id": cat_id, "name": cname})
+
+    no_cat_chs = grouped.get(None, [])
+    if no_cat_chs:
+        text_lines.append(Texts.my_charges_no_category_header)
+        for c in no_cat_chs:
+            wname = await resolve_wallet_name(session, user.tg_id, c.wallet_id)
+            dstr = format_date_ru(c.next_date)
+            text_lines.append(f"• {c.name} — {c.amount!s} ₽ ({wname}) — {dstr}")
+            uncategorized_data.append(
+                {
+                    "id": c.id,
+                    "name": c.name,
+                    "amount": str(c.amount),
+                    "next_date": dstr,
+                    "wallet": wname,
+                }
+            )
+
+    text = "\n".join(text_lines)
+    keyboard = get_my_charges_grouped_keyboard(category_buttons, uncategorized_data)
+    await callback.message.edit_text(text, reply_markup=keyboard)  # type: ignore[union-attr]
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("charges_cat_"))
+async def list_charges_by_category(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    """Список списаний конкретной категории или без категории (TASK-0041).
+    Переиспользует рендер кнопок, возврат через list_charges (группированный) или меню.
+    """
+    await state.clear()
+    user_id = callback.from_user.id
+    raw = callback.data or ""
+    cat_part = raw.split("_", 2)[2] if "_" in raw else ""
+    if cat_part == "none":
+        cat_id: int | None = None
+        title = Texts.my_charges_no_category_list_title
+    else:
+        cat_id = int(cat_part)
+        cat_repo = CategoryRepository(session)
+        cat = await cat_repo.get(user_id, cat_id)
+        cname = cat.name if cat else "Категория"
+        title = Texts.my_charges_category_list_title.format(name=cname)
+
+    charge_repo = ChargeRepository(session)
+    all_charges = await charge_repo.list_active_by_user(user_id)
+    if cat_id is None:
+        chs = [c for c in all_charges if c.category_id is None]
+    else:
+        chs = [c for c in all_charges if c.category_id == cat_id]
+
+    if not chs:
+        kb = get_main_menu_keyboard()
+        await callback.message.edit_text(f"{title}\n\nНет списаний.", reply_markup=kb)  # type: ignore[union-attr]
+        await callback.answer()
+        return
+
     charge_data = []
-    for c in charges:
-        wname = await resolve_wallet_name(session, user.tg_id, c.wallet_id)
+    for c in chs:
+        wname = await resolve_wallet_name(session, user_id, c.wallet_id)
         dstr = format_date_ru(c.next_date)
         charge_data.append(
             {
@@ -72,7 +154,7 @@ async def list_charges(callback: CallbackQuery, state: FSMContext, session: Asyn
         )
 
     keyboard = get_my_charges_keyboard(charge_data)
-    await callback.message.edit_text(Texts.my_charges_title, reply_markup=keyboard)  # type: ignore[union-attr]
+    await callback.message.edit_text(title, reply_markup=keyboard)  # type: ignore[union-attr]
     await callback.answer()
 
 

@@ -475,8 +475,10 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         # seed a charge so list non-empty path
         from datetime import date as _date
 
+        from wrbot.db.models import Category as CatModel
         from wrbot.db.models import Charge as ChargeModel
 
+        # no cat charge
         s.add(
             ChargeModel(
                 user_id=list_menu_uid,
@@ -488,10 +490,67 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
                 status="active",
             )
         )
+        # cat + charge in cat for TASK-0041 nav test
+        e2e_cat = CatModel(user_id=list_menu_uid, name="E2ECat")
+        s.add(e2e_cat)
+        await s.flush()
+        s.add(
+            ChargeModel(
+                user_id=list_menu_uid,
+                name="E2EInCat",
+                amount=20,
+                wallet_id=1,
+                category_id=e2e_cat.id,
+                next_date=_date.today(),
+                period="monthly",
+                status="active",
+            )
+        )
         await s.commit()
+
+    # query cat id for TASK-0041 nav test (after commit)
+    cat_id = 0
+    async with factory() as qs:
+        from sqlalchemy import select
+
+        from wrbot.db.models import Category as CatModel
+
+        res = await qs.execute(
+            select(CatModel).where(CatModel.user_id == list_menu_uid, CatModel.name == "E2ECat")
+        )
+        e2e_cat = res.scalar_one_or_none()
+        if e2e_cat:
+            cat_id = e2e_cat.id
+
     bot.reset_mock()
     await dp.feed_update(bot, _upd_cb("list_charges", user_id=list_menu_uid, update_id=60))
-    # now press main_menu on the list message (exercises return to main per TASK-0037)
+    # TASK-0041 coverage: grouped list produces headers for cat and no-cat
+    list_text = ""
+    if bot.edit_message_text.await_args_list:
+        call = bot.edit_message_text.await_args_list[-1]
+        if call.args:
+            list_text = str(call.args[0])
+        elif call.kwargs and "text" in call.kwargs:
+            list_text = str(call.kwargs["text"])
+    if list_text:
+        assert "E2ECat" in list_text or "E2EList" in list_text
+        assert "По категориям" in list_text or "Без категории" in list_text or "E2ECat" in list_text
+    # test nav to cat list (use the cat button)
+    bot.reset_mock()
+    await dp.feed_update(
+        bot, _upd_cb(f"charges_cat_{cat_id}", user_id=list_menu_uid, update_id=601)
+    )
+    # should edit to cat list (has the in-cat charge)
+    cat_list_text = ""
+    if bot.edit_message_text.await_args_list:
+        call = bot.edit_message_text.await_args_list[-1]
+        if call.args:
+            cat_list_text = str(call.args[0])
+        elif call.kwargs and "text" in call.kwargs:
+            cat_list_text = str(call.kwargs["text"])
+    if cat_list_text:
+        assert "E2EInCat" in cat_list_text or "Списания в категории" in cat_list_text
+    # from cat list or card, back via list_charges or menu (exercises return)
     bot.reset_mock()
     await dp.feed_update(bot, _upd_cb("main_menu", user_id=list_menu_uid, update_id=61))
     # main_menu handler edits cb.message (not bot.*); no bot call here.

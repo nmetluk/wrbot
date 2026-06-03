@@ -312,6 +312,40 @@ def get_my_charges_keyboard(charges: list[dict[str, Any]]) -> InlineKeyboardMark
     return builder.as_markup()
 
 
+def get_my_charges_grouped_keyboard(
+    categories: list[dict[str, Any]], uncategorized: list[dict[str, Any]]
+) -> InlineKeyboardMarkup:
+    """Группированный список (TASK-0041): cat buttons + uncat charge buttons + nav."""
+    builder = InlineKeyboardBuilder()
+    for cat in categories:
+        builder.add(
+            InlineKeyboardButton(
+                text=f"🏷️ {cat['name']}",
+                callback_data=f"charges_cat_{cat['id']}",
+            )
+        )
+    if categories:
+        builder.adjust(1)
+    for ch in uncategorized:
+        # Через форматтер (TASK-0039)
+        text = format_charge_button_text(
+            name=ch["name"],
+            amount=ch.get("amount", "?"),
+            wallet=ch.get("wallet", "?"),
+            next_date=ch.get("next_date", "?"),
+        )
+        builder.add(
+            InlineKeyboardButton(
+                text=text,
+                callback_data=f"charge_item_{ch['id']}",
+            )
+        )
+    builder.adjust(1)
+    builder.row(InlineKeyboardButton(text="➕ Новое списание", callback_data="new_charge"))
+    builder.row(InlineKeyboardButton(text="◀️ В меню", callback_data="main_menu"))
+    return builder.as_markup()
+
+
 def get_charge_card_actions_keyboard(charge_id: int) -> InlineKeyboardMarkup:
     """Карточка списания с действиями."""
     builder = InlineKeyboardBuilder()

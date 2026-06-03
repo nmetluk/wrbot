@@ -213,6 +213,13 @@ class Texts:
     category_skipped = "—"
     my_charges_button = "{name} — {amount} ₽ ({wallet}) — {next_date}"
 
+    # M7 TASK-0041 grouped list
+    my_charges_grouped_title = "📋 *Мои списания*\n\nПо категориям:"
+    my_charges_category_header = "📁 {name}:"
+    my_charges_no_category_header = "📁 Без категории:"
+    my_charges_category_list_title = "📋 *{name}*\n\nСписания в категории:"
+    my_charges_no_category_list_title = "📋 *Без категории*\n\nСписания без категории:"
+
     # M4 - Текст и действия из уведомлений (TASK-0015, FR-12)
     reminder_notification = (
         "🔔 *Напоминание о списании*\n\n"

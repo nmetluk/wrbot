@@ -6,6 +6,7 @@ Charge repository.
 """
 
 import logging
+from collections import defaultdict
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
@@ -113,6 +114,17 @@ class ChargeRepository:
             .order_by(Charge.next_date, Charge.id)
         )
         return list(result.scalars().all())
+
+    async def list_active_grouped_by_category(self, user_id: int) -> dict[int | None, list[Charge]]:
+        """Активные списания, сгруппированные по category_id (None = без категории).
+        Внутри группы отсортированы по next_date (для TASK-0041)."""
+        charges = await self.list_active_by_user(user_id)
+        groups: dict[int | None, list[Charge]] = defaultdict(list)
+        for c in charges:
+            groups[c.category_id].append(c)
+        for k in groups:
+            groups[k].sort(key=lambda c: c.next_date or date(9999, 1, 1))
+        return dict(groups)
 
     async def get(self, user_id: int, charge_id: int) -> Charge | None:
         """Получить списание по ID с проверкой владельца."""

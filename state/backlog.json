@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-03T23:20:10Z",
+  "generated_at": "2026-06-03T23:36:41Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 5,
-    "in_progress": 0,
-    "done": 40,
+    "inbox": 1,
+    "in_progress": 3,
+    "done": 41,
     "blocked": 0
   },
   "tasks": [
@@ -332,24 +332,24 @@
     {
       "id": "TASK-0041",
       "title": "\"«Мои списания»: краткий список с группировкой по категориям + кнопки перехода\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0041-my-charges-grouped.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0041-my-charges-grouped.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0041-report.md"
     },
     {
       "id": "TASK-0042",
       "title": "\"Иконки кошельков/карт: выбор эмодзи из пресета при добавлении/редактировании + отображение\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0042-wallet-icons.md",
+      "status": "in_progress",
+      "file": "handoff/in-progress/TASK-0042-wallet-icons.md",
       "milestone": "M7",
       "report": null
     },
     {
       "id": "TASK-0043",
       "title": "\"Каналы/группы для дубля напоминаний: схема (Category.notify_chat_ids) + UI управления в настройках категории\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0043-category-notify-targets-schema-ui.md",
+      "status": "in_progress",
+      "file": "handoff/in-progress/TASK-0043-category-notify-targets-schema-ui.md",
       "milestone": "M7",
       "report": null
     },
@@ -364,8 +364,8 @@
     {
       "id": "TASK-0045",
       "title": "\"Редактирование списания: держать и обновлять карточку текущих данных, затирать введённое из рабочей области\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0045-edit-flow-persistent-card.md",
+      "status": "in_progress",
+      "file": "handoff/in-progress/TASK-0045-edit-flow-persistent-card.md",
       "milestone": "M7",
       "report": null
     }

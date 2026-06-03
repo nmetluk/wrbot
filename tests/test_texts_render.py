@@ -45,6 +45,12 @@ from wrbot.bot.texts import Texts
             Texts.my_charges_button,
             {"name": "VPN", "amount": "299.00", "wallet": "Сбер", "next_date": "15.07.2026"},
         ),
+        # M7 TASK-0041 grouped (TASK-0041)
+        (Texts.my_charges_grouped_title, {}),
+        (Texts.my_charges_category_header, {"name": "ЖКХ"}),
+        (Texts.my_charges_no_category_header, {}),
+        (Texts.my_charges_category_list_title, {"name": "Подписки"}),
+        (Texts.my_charges_no_category_list_title, {}),
     ],
 )
 def test_text_template_renders(template, kwargs):
