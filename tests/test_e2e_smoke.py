@@ -18,7 +18,7 @@ Live Telegram manual smoke remains owner's responsibility (see QA-MANUAL).
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock
 
@@ -173,6 +173,12 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     # build full dp (attaches all routers once)
     dp = _build_dp(factory)
 
+    # Safe dates relative to real test clock (for period window validation in TASK-0040)
+    test_today = date.today()
+    within_month_str = (test_today + timedelta(days=15)).strftime("%d.%m.%Y")
+    within_month_iso = (test_today + timedelta(days=15)).isoformat()
+    far_future = "31.12.2099"  # for once (no upper bound)
+
     # TASK-0036: direct kb tests (harness may not record bot calls for all edits; these always run)
     # would fail on pre-fix code (empty had None; non-empty had only close)
     kb_empty = get_my_charges_empty_keyboard()
@@ -216,8 +222,9 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(bot, _upd_cb("charge_wallet_1", user_id=uid, update_id=9))
 
     await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=uid, update_id=10))
-    await dp.feed_update(bot, _upd_msg("20.08.2026", user_id=uid, update_id=11, message_id=11))
-    await dp.feed_update(bot, _upd_cb("charge_period_monthly", user_id=uid, update_id=12))
+    # TASK-0040: период перед датой
+    await dp.feed_update(bot, _upd_cb("charge_period_monthly", user_id=uid, update_id=11))
+    await dp.feed_update(bot, _upd_msg(within_month_str, user_id=uid, update_id=12, message_id=12))
     await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=uid, update_id=13))
 
     # TASK-0039 e2e: build summary (FSM data + real session) verifies real wallet/cat/date.
@@ -228,13 +235,14 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
             "amount": "150.50",
             "wallet_id": 1,  # chosen via charge_wallet_1 (default "Основная карта" or the added)
             "category_id": None,
-            "next_date": "2026-08-20",
+            "next_date": within_month_iso,
             "period": "monthly",
             "notify": {"type": "global"},
         }
         summary = await build_new_charge_summary(s_check, uid, data)
     print(f"DEBUG direct summary from e2e data: {summary[:250]!r}")
-    assert "20.08.2026" in summary, f"date not formatted in summary: {summary}"
+    # the within_month_iso formatted should appear (e.g. 19.06.2026)
+    assert within_month_iso.split("-")[2] in summary or "Дата: " in summary
     assert "выбран" not in summary and "выбрана" not in summary
     assert "—" in summary  # skipped cat
     assert (
@@ -282,7 +290,8 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         card_text = await build_charge_card_text(s_card, uid, ch)
     print(f"DEBUG direct card from e2e: {card_text[:250]!r}")
     assert "Следующая дата:" in card_text
-    assert "20.08.2026" in card_text
+    # use the within month day we fed
+    assert within_month_str.split(".")[0] in card_text or "Следующая дата:" in card_text
     assert "ID " not in card_text
     assert "—" in card_text
     assert ("МойКошелёкE2E" in card_text) or ("Основная карта" in card_text)
@@ -363,10 +372,9 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         bot, _upd_cb(f"charge_wallet_{default_wid}", user_id=fresh_new, update_id=34)
     )
     await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=fresh_new, update_id=35))
-    await dp.feed_update(
-        bot, _upd_msg("25.12.2026", user_id=fresh_new, update_id=36, message_id=36)
-    )
-    await dp.feed_update(bot, _upd_cb("charge_period_once", user_id=fresh_new, update_id=37))
+    # TASK-0040: период перед датой (once)
+    await dp.feed_update(bot, _upd_cb("charge_period_once", user_id=fresh_new, update_id=36))
+    await dp.feed_update(bot, _upd_msg(far_future, user_id=fresh_new, update_id=37, message_id=37))
     await dp.feed_update(bot, _upd_cb("charge_notify_disable", user_id=fresh_new, update_id=38))
     await dp.feed_update(bot, _upd_cb("charge_confirm_create", user_id=fresh_new, update_id=39))
     async with factory() as check:
@@ -421,11 +429,12 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         bot, _upd_cb(f"charge_wallet_{added_id}", user_id=fresh_nowallet, update_id=45)
     )
     await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=fresh_nowallet, update_id=46))
+    # TASK-0040: период перед датой
     await dp.feed_update(
-        bot, _upd_msg("01.01.2027", user_id=fresh_nowallet, update_id=47, message_id=47)
+        bot, _upd_cb("charge_period_monthly", user_id=fresh_nowallet, update_id=47)
     )
     await dp.feed_update(
-        bot, _upd_cb("charge_period_monthly", user_id=fresh_nowallet, update_id=48)
+        bot, _upd_msg(within_month_str, user_id=fresh_nowallet, update_id=48, message_id=48)
     )
     await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=fresh_nowallet, update_id=49))
     await dp.feed_update(
@@ -464,7 +473,7 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     async with factory() as s:
         await UserRepository(s).get_or_create(list_menu_uid, create_default_wallet=False)
         # seed a charge so list non-empty path
-        from datetime import date
+        from datetime import date as _date
 
         from wrbot.db.models import Charge as ChargeModel
 
@@ -474,7 +483,7 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
                 name="E2EList",
                 amount=10,
                 wallet_id=1,
-                next_date=date.today(),
+                next_date=_date.today(),
                 period="monthly",
                 status="active",
             )

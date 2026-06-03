@@ -199,7 +199,7 @@ def get_confirm_delete_keyboard(entity_type: str, entity_id: int) -> InlineKeybo
     builder.row(
         InlineKeyboardButton(
             text="✅ Да, удалить",
-            callback_data=f"{entity_type}_confirm_{entity_id}",
+            callback_data=f"{entity_type}_confirm_delete_{entity_id}",
         ),
         InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"),
     )

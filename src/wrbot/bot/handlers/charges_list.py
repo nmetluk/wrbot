@@ -139,9 +139,9 @@ async def charge_delete_confirm(callback: CallbackQuery, state: FSMContext) -> N
     await callback.answer()
 
 
-@router.callback_query(F.data.startswith("charge_confirm_"))
+@router.callback_query(F.data.startswith("charge_confirm_delete_"))
 async def charge_delete(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
-    charge_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
+    charge_id = int(callback.data.split("_")[3])  # type: ignore[union-attr]
     charge_repo = ChargeRepository(session)
     deleted = await charge_repo.delete(callback.from_user.id, charge_id)
 

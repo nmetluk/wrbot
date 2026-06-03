@@ -36,7 +36,12 @@ from wrbot.repositories.charges import ChargeRepository
 from wrbot.repositories.users import UserRepository
 from wrbot.repositories.wallets import WalletRepository
 from wrbot.services.charges import validate_charge_amount
-from wrbot.services.formatters import build_new_charge_summary, format_date_ru
+from wrbot.services.dates import get_period_upper_bound, validate_next_date
+from wrbot.services.formatters import (
+    build_new_charge_summary,
+    format_date_ru,
+    format_period_ru,
+)
 from wrbot.services.reference import InvalidAmount, LimitExceeded
 
 logger = logging.getLogger(__name__)
@@ -147,13 +152,23 @@ async def start_add_wallet_in_charge(callback: CallbackQuery, state: FSMContext)
 async def process_charge_category_choice(callback: CallbackQuery, state: FSMContext) -> None:
     cat_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
     await state.update_data(category_id=cat_id)
-    await _go_to_date_step(callback, state)
+    await _go_to_period_step(callback, state)
 
 
 @router.callback_query(F.data == "charge_skip_category", NewChargeStates.category)
 async def process_skip_category(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(category_id=None)
-    await _go_to_date_step(callback, state)
+    await _go_to_period_step(callback, state)
+
+
+async def _go_to_period_step(callback: CallbackQuery, state: FSMContext) -> None:
+    """Переход к выбору периода (TASK-0040: период перед датой)."""
+    await state.set_state(NewChargeStates.period)
+    keyboard = get_charge_period_keyboard()
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.new_charge_select_period, reply_markup=keyboard
+    )
+    await callback.answer()
 
 
 async def _go_to_date_step(callback: CallbackQuery, state: FSMContext) -> None:
@@ -164,7 +179,7 @@ async def _go_to_date_step(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-# 5. Дата
+# 5. Дата (TASK-0040: после периода; валидация окна периода)
 @router.message(NewChargeStates.next_date)
 async def process_next_date(message: Message, state: FSMContext) -> None:
     d = _parse_date_ddmmyyyy(message.text or "")
@@ -177,29 +192,42 @@ async def process_next_date(message: Message, state: FSMContext) -> None:
         await message.answer(Texts.new_charge_invalid_date)
         return
 
+    data = await state.get_data()
+    period = data.get("period")
+    if not period:
+        # Не должно случаться, но defensive
+        period = "once"
+
+    try:
+        validate_next_date(period, d, today)  # type: ignore[arg-type]
+    except ValueError:
+        if period == "once":
+            await message.answer(Texts.new_charge_invalid_date)
+        else:
+            upper = get_period_upper_bound(today, period)  # type: ignore[arg-type]
+            upper_str = format_date_ru(upper)
+            p_str = format_period_ru(period)
+            err = Texts.new_charge_invalid_date_window.format(period=p_str, max_date=upper_str)
+            await message.answer(err)
+        return
+
     await state.update_data(next_date=d.isoformat())
-    await state.set_state(NewChargeStates.period)
+    await state.set_state(NewChargeStates.notify)
 
-    keyboard = get_charge_period_keyboard()
-    await message.answer(Texts.new_charge_select_period, reply_markup=keyboard)
+    keyboard = get_charge_notify_keyboard()
+    await message.answer(Texts.new_charge_select_notify, reply_markup=keyboard)
 
 
-# 6. Период
+# 6. Период (TASK-0040: теперь перед датой)
 @router.callback_query(F.data.startswith("charge_period_"), NewChargeStates.period)
 async def process_period(callback: CallbackQuery, state: FSMContext) -> None:
     period = callback.data.split("_", 2)[2]  # type: ignore[union-attr]
     await state.update_data(period=period)
-    await state.set_state(NewChargeStates.notify)
-
-    keyboard = get_charge_notify_keyboard()
-    await callback.message.edit_text(  # type: ignore[union-attr]
-        Texts.new_charge_select_notify, reply_markup=keyboard
-    )
-    await callback.answer()
+    await _go_to_date_step(callback, state)
 
 
 # 7. Уведомления
-@router.callback_query(F.data == "charge_notify_global", NewChargeStates.notify)
+@router.callback_query(F.data == "charge_notify_global")
 async def process_notify_global(
     callback: CallbackQuery, state: FSMContext, session: AsyncSession
 ) -> None:
@@ -207,7 +235,7 @@ async def process_notify_global(
     await _show_summary_and_confirm(callback, state, session)
 
 
-@router.callback_query(F.data == "charge_notify_disable", NewChargeStates.notify)
+@router.callback_query(F.data == "charge_notify_disable")
 async def process_notify_disable(
     callback: CallbackQuery, state: FSMContext, session: AsyncSession
 ) -> None:
@@ -265,7 +293,7 @@ async def _show_summary_message(message: Message, state: FSMContext, session: As
 # _build_summary_text удалён: теперь через build_new_charge_summary в formatters (TASK-0039)
 
 
-@router.callback_query(F.data == "charge_confirm_create", NewChargeStates.notify)
+@router.callback_query(F.data == "charge_confirm_create")
 async def confirm_create_charge(
     callback: CallbackQuery, state: FSMContext, session: AsyncSession
 ) -> None:

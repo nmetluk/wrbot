@@ -14,6 +14,13 @@
   Тесты: unit (реальный рендер Texts, анти-дрейф), e2e (dp.feed + прямой build assert), обновлены reminders/sweep.
   Все критерии приёмки закрыты; CI начисто зелёный (ruff/mypy/pytest 225/alembic/validate).
 
+- **TASK-0040: период перед датой + валидация даты по окну периода (исполнитель, SESSION-2026-06-03-19).**
+  Порядок шагов: category → period → date → notify (states + handlers/charges_create).
+  `validate_next_date` + `get_period_upper_bound` в services/dates.py (переиспользует _add_months clamp ADR-0006).
+  Динамические ошибки окна через локаль (new_charge_invalid_date_window).
+  Unit (test_dates: границы, clamp 31→28), e2e (reorder feeds + safe relative даты).
+  CI зелёный (pytest 230+). Side: починил routing collision confirm_create/delete.
+
 ### Planned
 - **Декомпозиция M7 — доработки по отзывам реальных пользователей (архитектор, SESSION-2026-06-03-16).**
   После v0.2.0. ADR-0011 (эмодзи-иконки кошельков), ADR-0012 (дубль напоминаний в каналы/группы по

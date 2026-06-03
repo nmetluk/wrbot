@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-03T22:56:34Z",
+  "generated_at": "2026-06-03T23:20:10Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
     "inbox": 5,
-    "in_progress": 1,
-    "done": 39,
+    "in_progress": 0,
+    "done": 40,
     "blocked": 0
   },
   "tasks": [
@@ -324,10 +324,10 @@
     {
       "id": "TASK-0040",
       "title": "\"Период перед датой + валидация даты по окну периода (не дальше одного периода)\"",
-      "status": "in_progress",
-      "file": "handoff/in-progress/TASK-0040-period-before-date-validation.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0040-period-before-date-validation.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0040-report.md"
     },
     {
       "id": "TASK-0041",
