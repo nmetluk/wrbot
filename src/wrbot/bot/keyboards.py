@@ -9,6 +9,8 @@ from typing import Any
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from wrbot.services.formatters import format_charge_button_text
+
 # Curated list of main Russian timezones for UI (per TASK-0025, not full IANA)
 TZ_CHOICES: list[tuple[str, str]] = [
     ("Калининград (Europe/Kaliningrad) UTC+2", "Europe/Kaliningrad"),
@@ -291,7 +293,13 @@ def get_my_charges_keyboard(charges: list[dict[str, Any]]) -> InlineKeyboardMark
     """Список активных списаний с кнопками на карточку."""
     builder = InlineKeyboardBuilder()
     for ch in charges:
-        text = f"{ch['name']} — {ch.get('amount', '?')} ₽ — {ch.get('next_date', '?')}"
+        # Через общий форматтер (TASK-0039) — единое место для button-текста, анти-дрейф
+        text = format_charge_button_text(
+            name=ch["name"],
+            amount=ch.get("amount", "?"),
+            wallet=ch.get("wallet", "?"),
+            next_date=ch.get("next_date", "?"),
+        )
         builder.add(
             InlineKeyboardButton(
                 text=text,

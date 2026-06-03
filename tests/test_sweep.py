@@ -87,10 +87,15 @@ async def test_sweep_sends_and_records(mock_bot, mock_session_factory):
                 mock_repo = mock_repo_cls.return_value
                 mock_repo.record = AsyncMock(return_value=True)
 
-                await run_sweep(mock_bot, factory)
+                with patch(
+                    "wrbot.scheduler.sweep.build_reminder_text", new_callable=AsyncMock
+                ) as mock_build:
+                    mock_build.return_value = "🔔 test reminder"
 
-                mock_bot.send_message.assert_awaited_once()
-                mock_repo.record.assert_awaited_once_with(charge.id, date(2026, 6, 10), 5)
+                    await run_sweep(mock_bot, factory)
+
+                    mock_bot.send_message.assert_awaited_once()
+                    mock_repo.record.assert_awaited_once_with(charge.id, date(2026, 6, 10), 5)
 
 
 @pytest.mark.asyncio
@@ -127,11 +132,16 @@ async def test_sweep_idempotent_two_ticks_one_send(mock_bot, mock_session_factor
                 mock_repo = mock_repo_cls.return_value
                 mock_repo.record = AsyncMock(return_value=True)
 
-                await run_sweep(mock_bot, factory)
-                await run_sweep(mock_bot, factory)
+                with patch(
+                    "wrbot.scheduler.sweep.build_reminder_text", new_callable=AsyncMock
+                ) as mock_build:
+                    mock_build.return_value = "🔔 test reminder"
 
-                assert mock_bot.send_message.call_count == 1
-                assert mock_repo.record.call_count == 1
+                    await run_sweep(mock_bot, factory)
+                    await run_sweep(mock_bot, factory)
+
+                    assert mock_bot.send_message.call_count == 1
+                    assert mock_repo.record.call_count == 1
 
 
 @pytest.mark.asyncio
@@ -191,12 +201,17 @@ async def test_sweep_error_isolation_one_user_fails_others_succeed(mock_bot, moc
                 mock_repo = mock_repo_cls.return_value
                 mock_repo.record = AsyncMock(return_value=True)
 
-                await run_sweep(mock_bot, factory)
+                with patch(
+                    "wrbot.scheduler.sweep.build_reminder_text", new_callable=AsyncMock
+                ) as mock_build:
+                    mock_build.return_value = "🔔 test reminder"
 
-                # OK отправлен и записан, FAIL — попытка была, но не записан
-                assert mock_bot.send_message.call_count == 2
-                # record только для успешного
-                assert mock_repo.record.call_count == 1
+                    await run_sweep(mock_bot, factory)
+
+                    # OK отправлен и записан, FAIL — попытка была, но не записан
+                    assert mock_bot.send_message.call_count == 2
+                    # record только для успешного
+                    assert mock_repo.record.call_count == 1
                 mock_repo.record.assert_awaited_with(charge_ok.id, date(2026, 6, 10), 5)
 
 
@@ -255,10 +270,15 @@ async def test_sweep_respects_notify_time_and_timezone(mock_bot, mock_session_fa
                 mock_repo = mock_repo_cls.return_value
                 mock_repo.record = AsyncMock(return_value=True)
 
-                await run_sweep(mock_bot, factory)
+                with patch(
+                    "wrbot.scheduler.sweep.build_reminder_text", new_callable=AsyncMock
+                ) as mock_build:
+                    mock_build.return_value = "🔔 test reminder"
 
-                mock_bot.send_message.assert_awaited_once()
-                mock_due.assert_awaited_once()
-                # Убедимся, что передали user_tg_ids в get_due
-                _, kwargs = mock_due.call_args
-                assert kwargs.get("user_tg_ids") == [123]
+                    await run_sweep(mock_bot, factory)
+
+                    mock_bot.send_message.assert_awaited_once()
+                    mock_due.assert_awaited_once()
+                    # Убедимся, что передали user_tg_ids в get_due
+                    _, kwargs = mock_due.call_args
+                    assert kwargs.get("user_tg_ids") == [123]

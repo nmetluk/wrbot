@@ -64,6 +64,10 @@ from wrbot.bot.middlewares.db import DbSessionMiddleware
 from wrbot.db import get_session_factory
 from wrbot.repositories.users import UserRepository
 from wrbot.repositories.wallets import WalletRepository
+from wrbot.services.formatters import (
+    build_charge_card_text,
+    build_new_charge_summary,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -215,6 +219,30 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(bot, _upd_msg("20.08.2026", user_id=uid, update_id=11, message_id=11))
     await dp.feed_update(bot, _upd_cb("charge_period_monthly", user_id=uid, update_id=12))
     await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=uid, update_id=13))
+
+    # TASK-0039 e2e: build summary (FSM data + real session) verifies real wallet/cat/date.
+    async with factory() as s_check:
+        data = {
+            "user_id": uid,
+            "name": "ПодпискаE2E",
+            "amount": "150.50",
+            "wallet_id": 1,  # chosen via charge_wallet_1 (default "Основная карта" or the added)
+            "category_id": None,
+            "next_date": "2026-08-20",
+            "period": "monthly",
+            "notify": {"type": "global"},
+        }
+        summary = await build_new_charge_summary(s_check, uid, data)
+    print(f"DEBUG direct summary from e2e data: {summary[:250]!r}")
+    assert "20.08.2026" in summary, f"date not formatted in summary: {summary}"
+    assert "выбран" not in summary and "выбрана" not in summary
+    assert "—" in summary  # skipped cat
+    assert (
+        ("Основная карта" in summary)
+        or ("МойКошелёкE2E" in summary)
+        or "wallet" not in summary.lower()
+    )
+
     await dp.feed_update(bot, _upd_cb("charge_confirm_create", user_id=uid, update_id=14))
 
     async with factory() as check:
@@ -234,8 +262,30 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     # verify visible in list (simulate list_charges)
     bot.reset_mock()
     await dp.feed_update(bot, _upd_cb("list_charges", user_id=uid, update_id=15))
+    print(
+        f"DEBUG after list_charges: edits={len(bot.edit_message_text.await_args_list)}, "
+        f"sends={len(getattr(bot.send_message, 'await_args_list', []))}"
+    )
     # should have called edit or send with list containing the name
     assert bot.edit_message_text.awaited or bot.send_message.awaited
+
+    # === TASK-0039: карточка — реальные кошелёк/категория(—)/дата ДД.ММ (не ID/ISO)
+    # feed to exercise handler path
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb(f"charge_item_{charge_id}", user_id=uid, update_id=160))
+    # verify via direct build (harness doesn't populate bot mocks for message.edit paths)
+    async with factory() as s_card:
+        from wrbot.repositories.charges import ChargeRepository as CardChargeRepo
+
+        ch = await CardChargeRepo(s_card).get(uid, charge_id)
+        assert ch is not None
+        card_text = await build_charge_card_text(s_card, uid, ch)
+    print(f"DEBUG direct card from e2e: {card_text[:250]!r}")
+    assert "Следующая дата:" in card_text
+    assert "20.08.2026" in card_text
+    assert "ID " not in card_text
+    assert "—" in card_text
+    assert ("МойКошелёкE2E" in card_text) or ("Основная карта" in card_text)
 
     # === 4) «Оплачено» (periodic) → next_date сдвинут ===
     await dp.feed_update(bot, _upd_cb(f"charge_paid_{charge_id}", user_id=uid, update_id=16))

@@ -202,6 +202,13 @@ class Texts:
     )
     charge_edit_saved = "✅ Списание обновлено."
 
+    # M7 - Форматтеры отображения (TASK-0039): реальные имена/даты вместо заглушек и ISO
+    notify_global = "глобальные"
+    notify_disabled = "отключены"
+    notify_custom = "свои: {days}"
+    category_skipped = "—"
+    my_charges_button = "{name} — {amount} ₽ ({wallet}) — {next_date}"
+
     # M4 - Текст и действия из уведомлений (TASK-0015, FR-12)
     reminder_notification = (
         "🔔 *Напоминание о списании*\n\n"

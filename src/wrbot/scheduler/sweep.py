@@ -15,9 +15,9 @@ from datetime import UTC, date, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 from wrbot.bot.keyboards import get_reminder_actions_keyboard
-from wrbot.bot.texts import Texts
 from wrbot.repositories.audit_log import ACTION_REMINDER_SENT, AuditLogRepository
 from wrbot.repositories.sent_reminders import SentReminderRepository
+from wrbot.services.formatters import build_reminder_text
 from wrbot.services.reminders import get_due_reminders_today, select_users_to_notify_at
 
 if TYPE_CHECKING:
@@ -76,14 +76,8 @@ async def run_sweep(bot: Bot, session_factory: async_sessionmaker[AsyncSession])
             target_date = cast("date", item["target_date"])
             days_before = cast("int", item["days_before"])
 
-            # Подготовка текста (wallet name упрощённо; в будущем можно дообогатить join'ом)
-            wallet_label = f"#{charge.wallet_id}"
-            text = Texts.reminder_notification.format(
-                name=charge.name,
-                amount=str(charge.amount),
-                wallet=wallet_label,
-                next_date=charge.next_date,
-            )
+            # TASK-0039: реальное имя кошелька + ДД.ММ (вместо #ID/ISO) через форматтер
+            text = await build_reminder_text(session, charge.user_id, charge)
             keyboard = get_reminder_actions_keyboard(charge.id)
 
             try:

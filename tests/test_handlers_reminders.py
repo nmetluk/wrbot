@@ -70,7 +70,7 @@ async def test_remind_paid_periodic(mock_state, mock_session):
         mock_mark.assert_awaited_once_with(12345, 42)
         callback.message.edit_text.assert_awaited_once()
         args, _ = callback.message.edit_text.call_args
-        assert "Следующее списание: 2026-07-15" in args[0]
+        assert "Следующее списание: 15.07.2026" in args[0]
         callback.answer.assert_awaited_once()
 
 

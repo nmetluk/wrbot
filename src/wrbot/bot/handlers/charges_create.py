@@ -36,6 +36,7 @@ from wrbot.repositories.charges import ChargeRepository
 from wrbot.repositories.users import UserRepository
 from wrbot.repositories.wallets import WalletRepository
 from wrbot.services.charges import validate_charge_amount
+from wrbot.services.formatters import build_new_charge_summary, format_date_ru
 from wrbot.services.reference import InvalidAmount, LimitExceeded
 
 logger = logging.getLogger(__name__)
@@ -50,27 +51,6 @@ def _parse_date_ddmmyyyy(text: str) -> date | None:
         return date(y, m, d)
     except Exception:
         return None
-
-
-def _format_period(period: str) -> str:
-    mapping = {
-        "once": "одноразово",
-        "monthly": "ежемесячно",
-        "quarterly": "ежеквартально",
-        "yearly": "ежегодно",
-    }
-    return mapping.get(period, period)
-
-
-def _format_notify(notify_data: dict[str, Any] | None) -> str:
-    if not notify_data:
-        return "глобальные"
-    if notify_data.get("disabled"):
-        return "отключены"
-    days = notify_data.get("days")
-    if days:
-        return f"свои: {', '.join(map(str, days))}"
-    return "глобальные"
 
 
 @router.callback_query(F.data == "new_charge")
@@ -220,15 +200,19 @@ async def process_period(callback: CallbackQuery, state: FSMContext) -> None:
 
 # 7. Уведомления
 @router.callback_query(F.data == "charge_notify_global", NewChargeStates.notify)
-async def process_notify_global(callback: CallbackQuery, state: FSMContext) -> None:
+async def process_notify_global(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
     await state.update_data(notify={"type": "global"})
-    await _show_summary_and_confirm(callback, state)
+    await _show_summary_and_confirm(callback, state, session)
 
 
 @router.callback_query(F.data == "charge_notify_disable", NewChargeStates.notify)
-async def process_notify_disable(callback: CallbackQuery, state: FSMContext) -> None:
+async def process_notify_disable(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
     await state.update_data(notify={"type": "disabled"})
-    await _show_summary_and_confirm(callback, state)
+    await _show_summary_and_confirm(callback, state, session)
 
 
 @router.callback_query(F.data == "charge_notify_custom", NewChargeStates.notify)
@@ -241,7 +225,7 @@ async def process_notify_custom_start(callback: CallbackQuery, state: FSMContext
 
 
 @router.message(NewChargeStates.notify)
-async def process_notify_days(message: Message, state: FSMContext) -> None:
+async def process_notify_days(message: Message, state: FSMContext, session: AsyncSession) -> None:
     text = (message.text or "").strip()
     try:
         days = sorted({int(x.strip()) for x in text.split(",") if x.strip()})
@@ -254,12 +238,15 @@ async def process_notify_days(message: Message, state: FSMContext) -> None:
     await state.update_data(notify={"type": "custom", "days": days})
     # Показать summary (нужен callback context, но здесь message)
     # Для простоты: сразу идем к confirm, но summary покажем в следующем сообщении
-    await _show_summary_message(message, state)
+    await _show_summary_message(message, state, session)
 
 
-async def _show_summary_and_confirm(callback: CallbackQuery, state: FSMContext) -> None:
+async def _show_summary_and_confirm(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
     data = await state.get_data()
-    summary = _build_summary_text(data)
+    user_id = data.get("user_id") or callback.from_user.id
+    summary = await build_new_charge_summary(session, user_id, data)
     keyboard = get_charge_confirm_keyboard()
     await callback.message.edit_text(  # type: ignore[union-attr]
         summary, reply_markup=keyboard
@@ -267,23 +254,15 @@ async def _show_summary_and_confirm(callback: CallbackQuery, state: FSMContext) 
     await callback.answer()
 
 
-async def _show_summary_message(message: Message, state: FSMContext) -> None:
+async def _show_summary_message(message: Message, state: FSMContext, session: AsyncSession) -> None:
     data = await state.get_data()
-    summary = _build_summary_text(data)
+    user_id = data.get("user_id") or message.from_user.id if message.from_user else 0
+    summary = await build_new_charge_summary(session, user_id, data)
     keyboard = get_charge_confirm_keyboard()
     await message.answer(summary, reply_markup=keyboard)
 
 
-def _build_summary_text(data: dict[str, Any]) -> str:
-    return Texts.new_charge_summary.format(
-        name=data.get("name", "?"),
-        amount=data.get("amount", "?"),
-        wallet="выбран",
-        category="выбрана" if data.get("category_id") else "пропущена",
-        next_date=data.get("next_date", "?"),
-        period=_format_period(data.get("period", "")),
-        notify=_format_notify(data.get("notify")),
-    )
+# _build_summary_text удалён: теперь через build_new_charge_summary в formatters (TASK-0039)
 
 
 @router.callback_query(F.data == "charge_confirm_create", NewChargeStates.notify)
@@ -325,7 +304,9 @@ async def confirm_create_charge(
                 period=data["period"],
             )
             await callback.message.edit_text(  # type: ignore[union-attr]
-                Texts.new_charge_created.format(name=charge.name, next_date=charge.next_date),
+                Texts.new_charge_created.format(
+                    name=charge.name, next_date=format_date_ru(charge.next_date)
+                ),
                 reply_markup=get_main_menu_keyboard(),
             )
     except (InvalidAmount, LimitExceeded) as e:

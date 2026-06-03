@@ -24,6 +24,7 @@ from wrbot.bot.keyboards import get_main_menu_keyboard
 from wrbot.bot.states import NewChargeStates
 from wrbot.bot.texts import Texts
 from wrbot.repositories.charges import ChargeRepository
+from wrbot.services.formatters import format_date_ru
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ async def remind_mark_paid(
     if updated.status == "done":
         msg = Texts.reminder_paid_once
     else:
-        msg = Texts.reminder_paid_periodic.format(next_date=updated.next_date)
+        msg = Texts.reminder_paid_periodic.format(next_date=format_date_ru(updated.next_date))
 
     if not isinstance(callback.message, Message):
         await callback.answer(Texts.error_generic)

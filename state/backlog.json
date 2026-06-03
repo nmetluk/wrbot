@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-03T22:34:20Z",
+  "generated_at": "2026-06-03T22:56:34Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 7,
-    "in_progress": 0,
-    "done": 38,
+    "inbox": 5,
+    "in_progress": 1,
+    "done": 39,
     "blocked": 0
   },
   "tasks": [
@@ -316,16 +316,16 @@
     {
       "id": "TASK-0039",
       "title": "\"BUG: некорректное отображение кошелька/категории/даты/периода в сводке и карточке списания (общий форматтер)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0039-fix-charge-display.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0039-fix-charge-display.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0039-report.md"
     },
     {
       "id": "TASK-0040",
       "title": "\"Период перед датой + валидация даты по окну периода (не дальше одного периода)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0040-period-before-date-validation.md",
+      "status": "in_progress",
+      "file": "handoff/in-progress/TASK-0040-period-before-date-validation.md",
       "milestone": "M7",
       "report": null
     },

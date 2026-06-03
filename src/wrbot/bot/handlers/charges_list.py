@@ -24,6 +24,11 @@ from wrbot.bot.keyboards import (
 from wrbot.bot.texts import Texts
 from wrbot.repositories.charges import ChargeRepository
 from wrbot.repositories.users import UserRepository
+from wrbot.services.formatters import (
+    build_charge_card_text,
+    format_date_ru,
+    resolve_wallet_name,
+)
 
 if TYPE_CHECKING:
     from aiogram.fsm.context import FSMContext
@@ -51,16 +56,20 @@ async def list_charges(callback: CallbackQuery, state: FSMContext, session: Asyn
         await callback.answer()
         return
 
-    # Prepare data for keyboard
-    charge_data = [
-        {
-            "id": c.id,
-            "name": c.name,
-            "amount": str(c.amount),
-            "next_date": c.next_date.isoformat() if c.next_date else "?",
-        }
-        for c in charges
-    ]
+    # Резолв имён кошельков через общий форматтер + ДД.ММ (TASK-0039, избегаем дублирования resolve)
+    charge_data = []
+    for c in charges:
+        wname = await resolve_wallet_name(session, user.tg_id, c.wallet_id)
+        dstr = format_date_ru(c.next_date)
+        charge_data.append(
+            {
+                "id": c.id,
+                "name": c.name,
+                "amount": str(c.amount),
+                "next_date": dstr,
+                "wallet": wname,
+            }
+        )
 
     keyboard = get_my_charges_keyboard(charge_data)
     await callback.message.edit_text(Texts.my_charges_title, reply_markup=keyboard)  # type: ignore[union-attr]
@@ -81,16 +90,8 @@ async def show_charge_card(
         await callback.answer(Texts.error_not_found)
         return
 
-    # Format card (simplified, in real would fetch wallet/category names)
-    card_text = Texts.my_charges_card.format(
-        name=charge.name,
-        amount=str(charge.amount),
-        wallet=f"ID {charge.wallet_id}",  # TODO: fetch name if needed
-        category=f"ID {charge.category_id}" if charge.category_id else "—",
-        next_date=charge.next_date,
-        period=charge.period,
-        notify="настроены",  # TODO
-    )
+    # Реальные имена + форматы через общий форматтер (TASK-0039)
+    card_text = await build_charge_card_text(session, callback.from_user.id, charge)
 
     keyboard = get_charge_card_actions_keyboard(charge_id)
     await callback.message.edit_text(card_text, reply_markup=keyboard)  # type: ignore[union-attr]
@@ -114,7 +115,7 @@ async def mark_charge_paid(
     if updated.status == "done":
         msg = Texts.charge_paid_once
     else:
-        msg = Texts.charge_paid_periodic.format(next_date=updated.next_date)
+        msg = Texts.charge_paid_periodic.format(next_date=format_date_ru(updated.next_date))
 
     await callback.message.edit_text(msg, reply_markup=get_main_menu_keyboard())  # type: ignore[union-attr]
     await callback.answer()
