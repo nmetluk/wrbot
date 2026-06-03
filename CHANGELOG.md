@@ -17,6 +17,7 @@
 - **TASK-0033:** ежечасный бэкап (VACUUM/pg_dump, ротация 36) + heartbeat + сводка в админ-канал; docker support.
 - **TASK-0034:** ежедневный дашборд 21:00 в ADMIN_TZ — расширенные метрики (stats) + 8 графиков (matplotlib Agg, PNG bytes), отправка саммари + альбом в админ-канал; инструментация audit для sent reminders + critical errors; тесты, полный CI.
 - **TASK-0037:** UX consistency (low): removed duplicate «❌ Закрыть» (cancel) from «Мои списания» kb (and views); «Отмена»/cancel only in active dialogs (now always «Действие отменено» + main menu kb, no orphans). E2E via feed_update + prompt kb fixes. CI green.
+- **TASK-0038 (M6 blocker fix):** made backup test hermetic (create_backup now accepts explicit db_url=; autouse fixture + manual cache_clear for get_settings lru_cache; pass temp DB from test_engine). Full pytest now deterministic (208 passed, no order deps). CI green. Prepares for re-audit + v0.2.0.
 
 ## [0.1.0] - 2026-06-03
 

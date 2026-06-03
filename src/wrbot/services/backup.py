@@ -98,13 +98,14 @@ def _pg_backup(db_url: str, ts: str) -> dict[str, Any]:
         return {"success": False, "file": None, "size": None, "error": str(exc)}
 
 
-def create_backup() -> dict[str, Any]:
+def create_backup(db_url: str | None = None) -> dict[str, Any]:
     """
     Synchronous entry for backup (to run in thread from async job).
-    Detects DB type from settings.
+    Detects DB type from settings (or explicit db_url for tests/hermeticity).
     """
-    settings = get_settings()
-    db_url = settings.database_url
+    if db_url is None:
+        settings = get_settings()
+        db_url = settings.database_url
     ts = datetime.utcnow().strftime("%Y%m%d-%H%M")
     if db_url.startswith("sqlite"):
         # run async in sync? use asyncio.run for vacuum

@@ -11,6 +11,7 @@ from collections.abc import AsyncGenerator
 from contextlib import suppress
 from pathlib import Path
 
+import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
@@ -95,3 +96,18 @@ async def db_session(
 
 # Алиас для совместимости с именем в тестах репозиториев
 async_session = db_session
+
+
+@pytest.fixture(autouse=True)
+def _clear_settings_cache():
+    """Autouse fixture to reset get_settings() lru_cache between every test.
+
+    Prevents "leaked" DATABASE_URL (and other settings) from one test affecting
+    another (e.g. backup test reading wrong cached DB URL → order-dependent flakes).
+    Recommended by TASK-0038 / AUDIT-M6.
+    """
+    from wrbot.config import get_settings
+
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()

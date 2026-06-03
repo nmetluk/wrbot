@@ -8,12 +8,14 @@
 """
 
 import asyncio
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from wrbot.config import get_settings
 from wrbot.db.models import Charge, User
 from wrbot.services.backup import create_backup, rotate_backups
 from wrbot.services.stats import get_hourly_summary
@@ -22,10 +24,14 @@ from wrbot.services.stats import get_hourly_summary
 @pytest.mark.asyncio
 async def test_sqlite_backup_creates_valid_file(test_engine, tmp_path):
     """SQLite backup (VACUUM INTO) создаёт файл, который можно открыть."""
+    # Ensure hermetic: clear lru_cache (get_settings in create_backup) + pass explicit db_url
+    # (prevents order-dependent failures when other tests cached different DATABASE_URL)
+    get_settings.cache_clear()
+    db_url = os.environ.get("DATABASE_URL")
     # patch BACKUPS_DIR to tmp
     with patch("wrbot.services.backup.BACKUPS_DIR", tmp_path):
-        # run
-        info = await asyncio.to_thread(create_backup)
+        # run with explicit db_url for test isolation (preferred per TASK-0038)
+        info = await asyncio.to_thread(create_backup, db_url)
         assert info["success"] is True
         assert info["file"] is not None
         f = Path(info["file"])
