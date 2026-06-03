@@ -41,4 +41,4 @@
 - backups/ ignored in git (dumps not committed).
 
 ## Коммиты
-- feat(m6): TASK-0033 — backup service + stats + hourly job + docker volumes + tests (Task: TASK-0033)
+- a4d8382 feat(m6): TASK-0033 — backup service + stats + hourly job + docker volumes + tests (Task: TASK-0033; pushed)
