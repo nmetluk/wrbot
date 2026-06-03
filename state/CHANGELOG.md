@@ -8,6 +8,13 @@
 ## [Unreleased]
 
 ### Audit
+- **TASK-0038 ПРИНЯТ + AUDIT-M6 повторно ПРОЙДЕН (SESSION-2026-06-03-15).** Блокер закрыт:
+  `create_backup(db_url=None)` (прод-вызов `to_thread(create_backup)` без аргумента — дефолт
+  `get_settings()` сохранён), autouse `_clear_settings_cache` в conftest, явный db_url в тесте.
+  Детерминизм подтверждён независимо: полный pytest **208 passed**; backup-тест в одиночку, после
+  прежних «отравителей» (config/admin_notify) и в adversarial-сценарии (предварительно закэширован
+  богус `DATABASE_URL`) — везде зелено. ruff/mypy (42 файла)/alembic check/validate — чисто. M6 готов
+  к релизу **v0.2.0**.
 - **AUDIT-M6 (SESSION-2026-06-03-13): НЕ ПРИНЯТО.** Гейт начисто: ruff/format/mypy (42 файла) ✅,
   alembic upgrade + autogenerate diff `[]` ✅, санитизация секретов и `audit_log` без чувствительных
   данных ✅, 3 джобы scheduler и бэкап через `to_thread` ✅. Но `pytest` = 1 failed / 207 passed:

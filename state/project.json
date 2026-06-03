@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-03T08:45:00Z",
-  "current_phase": "M6: TASK-0038 (flaky backup test fix) завершён. Готов к повторному аудиту M6 и релизу v0.2.0.",
+  "updated_at": "2026-06-03T09:10:00Z",
+  "current_phase": "TASK-0038 ПРИНЯТ; повторный AUDIT-M6 ПРОЙДЕН (гейт зелёный, тест бэкапа детерминирован). M6 завершён, готов к релизу v0.2.0.",
   "current_milestone": "M6",
   "active_task": null,
-  "last_session": "SESSION-2026-06-03-14",
+  "last_session": "SESSION-2026-06-03-15",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "TASK-0038 (flaky test) done. M6 готов к повторному аудиту (отдельная сессия) → релиз v0.2.0. Inbox пуст."
+  "next_step": "M6 принят (повторный аудит пройден). Следующий шаг — релиз v0.2.0: bump версии + аннотированный тег + /CHANGELOG.md. Вне кода: живой смоук + деплой. Inbox пуст."
 }
