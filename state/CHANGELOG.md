@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+### Audit
+- **AUDIT-M6 (SESSION-2026-06-03-13): НЕ ПРИНЯТО.** Гейт начисто: ruff/format/mypy (42 файла) ✅,
+  alembic upgrade + autogenerate diff `[]` ✅, санитизация секретов и `audit_log` без чувствительных
+  данных ✅, 3 джобы scheduler и бэкап через `to_thread` ✅. Но `pytest` = 1 failed / 207 passed:
+  `test_backup.py::test_sqlite_backup_creates_valid_file` падает в полном прогоне (проходит в одиночку) —
+  `create_backup()` берёт `get_settings()` (lru_cache), тест не сбрасывает кэш/не задаёт БД → CI
+  зависит от порядка тестов (недетерминирован). Заведена **TASK-0038** (герметизировать тест/настройки).
+  После фикса — повторный аудит M6 и релиз v0.2.0.
+
 ### Process
 - **Чек-лист живого потока (архитектор, SESSION-2026-06-03-07).** По урокам TASK-0008/0027/0035/0036
   в `executor-guide.md` и `audit-protocol.md` закреплено: новый экран/шаг — e2e через `dp.feed_update`

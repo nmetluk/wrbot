@@ -3,7 +3,7 @@
   "generated_at": "2026-06-03T05:50:37Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 1,
     "in_progress": 0,
     "done": 37,
     "blocked": 0
@@ -304,6 +304,14 @@
       "file": "handoff/done/TASK-0037-ux-close-cancel-semantics.md",
       "milestone": "M6",
       "report": "handoff/reports/TASK-0037-report.md"
+    },
+    {
+      "id": "TASK-0038",
+      "title": "M6 BLOCKER: нестабильный тест бэкапа (order-dependent через get_settings lru_cache)",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0038-m6-fix-flaky-backup-test.md",
+      "milestone": "M6",
+      "report": null
     }
   ]
 }
