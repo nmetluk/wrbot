@@ -47,4 +47,4 @@
 ## Коммиты
 - `8e89233 fix(categories): переупорядочить хэндлеры category_notify_* (специфичные раньше broad list); убрать guard-return (Task: TASK-0046)`
 - `7a9f131 chore(session): завершить TASK-0046 (отчёт, state/project, CHANGELOG, сессия) (Task: TASK-0046)`
-- (минорные chore для синхронизации хэшей после amend)
+- `c742e2d chore: подчистить список коммитов в report/session (Task: TASK-0046)`
