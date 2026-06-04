@@ -25,6 +25,7 @@ from unittest.mock import AsyncMock
 import pytest
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.methods import SendMessage
 from aiogram.types import (
     CallbackQuery,
     Chat,
@@ -673,93 +674,98 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     # feed ok (exercises cancel: clear + "Действие отменено" + menu).
     # edit via cb.message; unit+kb tests cover content. E2E: no crash on dispatch.
 
-    # === TASK-0047: /getgrid + @mention в группе (router-level через feed_update, урок TASK-0046)
-    # Любой участник; только на упоминание/команду; ID копируемый; в привате — подсказка;
-    # в группе без mention — молчит.
-    # Используем отрицательный chat_id (как реальные группы/каналы), chat_type, entities.
-    # Note: override .answer on synthetic msg to capture text (harness + frozen Message prevents
-    # direct bot attachment; feed_update exercises real dispatch/routing per criteria).
+    # === TASK-0047/0048: /getgrid + @mention (router-level feed + сильные ассерты)
+    # Усилены позитивные ассерты (TASK-0048): проверяем текст через bot(SendMessage)/mock_calls.
+    # Надёжный захват (аудит). Молчание сохранено.
     group_test_uid = 77777
     group_chat_id = -1009876543210  # типичный ID супергруппы/канала-обсуждения
     async with factory() as s:
         await UserRepository(s).get_or_create(group_test_uid, create_default_wallet=False)
         await s.commit()
 
-    # Настраиваем bot.me() для обработчика упоминаний (username для match entities)
+    # Настраиваем bot.me() для обработчика упоминаний
     from aiogram.types import User as BotUser
 
     fake_me = BotUser(id=888888, is_bot=True, first_name="TestBot", username="testwrbot")
     bot.me = AsyncMock(return_value=fake_me)
 
-    captured_texts: list[str] = []
+    def sent_texts(bot_mock):
+        """Надёжный захват ответов: aiogram внутри feed_update шлёт через bot(SendMessage(...))."""
+        return [
+            a.text
+            for c in getattr(bot_mock, "mock_calls", [])
+            for a in getattr(c, "args", [])
+            if isinstance(a, SendMessage)
+        ]
 
-    async def _capture_answer(self, text: str, **kwargs):  # type: ignore[no-redef]
-        captured_texts.append(text)
-        # do not call real to avoid needing full bot
-
-    # 1) /getgrid в supergroup → ответ с ID
+    # 1) /getgrid в supergroup → непустой ответ с ID чата
     bot.reset_mock()
-    captured_texts.clear()
-    upd = _upd_msg(
-        "/getgrid",
-        user_id=group_test_uid,
-        chat_id=group_chat_id,
-        chat_type="supergroup",
-        update_id=500,
+    await dp.feed_update(
+        bot,
+        _upd_msg(
+            "/getgrid",
+            user_id=group_test_uid,
+            chat_id=group_chat_id,
+            chat_type="supergroup",
+            update_id=500,
+        ),
     )
-    if getattr(upd, "message", None):
-        bound = _capture_answer.__get__(upd.message, type(upd.message))
-        object.__setattr__(upd.message, "answer", bound)  # bypass frozen pydantic Message
-    await dp.feed_update(bot, upd)
-    # feed via dp exercised routing (handler ran); response text in group.py source.
+    texts = sent_texts(bot)
+    assert texts, "/getgrid in group must send a response"
+    assert any(str(group_chat_id) in (t or "") for t in texts), (
+        "response must contain the group chat ID"
+    )
 
-    # 2) @упоминание бота в группе → тот же ответ
+    # 2) @упоминание бота в группе → ответ с ID
     bot.reset_mock()
-    captured_texts.clear()
     mention_text = "@testwrbot"
     mention_entities = [MessageEntity(type="mention", offset=0, length=len(mention_text))]
-    upd = _upd_msg(
-        mention_text,
-        user_id=group_test_uid,
-        chat_id=group_chat_id,
-        chat_type="supergroup",
-        entities=mention_entities,
-        update_id=501,
+    await dp.feed_update(
+        bot,
+        _upd_msg(
+            mention_text,
+            user_id=group_test_uid,
+            chat_id=group_chat_id,
+            chat_type="supergroup",
+            entities=mention_entities,
+            update_id=501,
+        ),
     )
-    if getattr(upd, "message", None):
-        bound = _capture_answer.__get__(upd.message, type(upd.message))
-        object.__setattr__(upd.message, "answer", bound)  # bypass frozen pydantic Message
-    await dp.feed_update(bot, upd)
-    # feed via dp exercised routing (handler ran); response text in group.py source.
+    texts = sent_texts(bot)
+    assert texts, "@mention must send a response"
+    assert any(str(group_chat_id) in (t or "") for t in texts), (
+        "mention response must contain the group chat ID"
+    )
 
-    # 3) обычное сообщение в группе без упоминания → бот молчит (ни одного ответа)
+    # 3) обычное сообщение в группе без упоминания → бот молчит (ни одного SendMessage)
     bot.reset_mock()
-    captured_texts.clear()
-    upd = _upd_msg(
-        "just a regular group message, no mention",
-        user_id=group_test_uid,
-        chat_id=group_chat_id,
-        chat_type="supergroup",
-        entities=[],
-        update_id=502,
+    await dp.feed_update(
+        bot,
+        _upd_msg(
+            "just a regular group message, no mention",
+            user_id=group_test_uid,
+            chat_id=group_chat_id,
+            chat_type="supergroup",
+            entities=[],
+            update_id=502,
+        ),
     )
-    if getattr(upd, "message", None):
-        bound = _capture_answer.__get__(upd.message, type(upd.message))
-        object.__setattr__(upd.message, "answer", bound)  # bypass frozen pydantic Message
-    await dp.feed_update(bot, upd)
-    # captured should be empty (we overrode but handler should not have called answer)
-    assert len(captured_texts) == 0, "must not reply (call answer) to non-mention messages in group"
+    texts = sent_texts(bot)
+    assert len(texts) == 0, "must not reply to non-mention messages in group"
 
-    # 4) /getgrid в привате → подсказка (осмысленно, без краша)
+    # 4) /getgrid в привате → hint (непустой), БЕЗ ID группы (разные чаты)
     bot.reset_mock()
-    captured_texts.clear()
-    upd = _upd_msg(
-        "/getgrid", user_id=group_test_uid, chat_id=12345, chat_type="private", update_id=503
+    await dp.feed_update(
+        bot,
+        _upd_msg(
+            "/getgrid", user_id=group_test_uid, chat_id=12345, chat_type="private", update_id=503
+        ),
     )
-    if getattr(upd, "message", None):
-        bound = _capture_answer.__get__(upd.message, type(upd.message))
-        object.__setattr__(upd.message, "answer", bound)  # bypass frozen pydantic Message
-    await dp.feed_update(bot, upd)
-    # feed via dp exercised routing (handler ran); hint text in group.py source.
+    texts = sent_texts(bot)
+    assert texts, "private /getgrid must send a hint"
+    hint = texts[-1] or ""
+    assert "групп" in hint.lower() or "группе" in hint.lower(), "private hint must mention groups"
+    assert str(group_chat_id) not in hint, "private hint must not contain the test group ID"
 
-    # All scenarios passed; placeholder replaced.
+    # All scenarios passed. Positive asserts check actual response (anti-drift per TASK-0048).
+    # Negative control: removing answer()/ID from handler would make asserts fail.

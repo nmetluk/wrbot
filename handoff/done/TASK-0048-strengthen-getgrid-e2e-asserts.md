@@ -2,7 +2,7 @@
 id: TASK-0048
 title: "Усилить e2e-ассерты /getgrid: проверять сам ответ (анти-дрейф), а не только сценарий молчания"
 milestone: M7
-status: inbox
+status: done
 priority: low
 created_by: architect
 created_at: 2026-06-04T04:00:00Z
