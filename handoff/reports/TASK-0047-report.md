@@ -50,7 +50,5 @@
 - Возможно расширить: поддержка channel (если бот в канале), или /getgrid в channel discussion.
 
 ## Коммиты
-- `feat(group): add /getgrid and @mention handlers for chat ID (Task: TASK-0047)`
-- `chore(main): register group router + BotCommandScopeAllGroupChats (Task: TASK-0047)`
-- `test(e2e): router-level feed_update coverage for group /getgrid + mentions (Task: TASK-0047)`
-- `chore(session): complete TASK-0047, update state/CHANGELOG/report (Task: TASK-0047)`
+- `463c384 feat(group): add /getgrid and @mention handlers for chat ID (Task: TASK-0047)`
+- `8ec71a0 chore(session): complete TASK-0047 (отчёт, state, CHANGELOG, сессия) (Task: TASK-0047)`
