@@ -75,6 +75,7 @@ class UserRepository:
             notify_time=notify_time,
             tz=tz,
             global_days=global_days,
+            last_currency="RUB",
         )
         self._session.add(user)
         await self._session.flush()
@@ -91,6 +92,25 @@ class UserRepository:
             except Exception as exc:  # pragma: no cover - не должно случаться для свежего
                 logger.warning("Failed to create default wallet for tg_id=%s: %s", tg_id, exc)
 
+        return user
+
+    async def set_last_currency(self, tg_id: int, last_currency: str) -> User | None:
+        """
+        Установить last_currency пользователя (для преселекта, TASK-0049/0050).
+
+        Вызывается из ChargeRepository.create. None трактуется как RUB.
+        """
+        from sqlalchemy import update
+
+        result = await self._session.execute(
+            update(User)
+            .where(User.tg_id == tg_id)
+            .values(last_currency=last_currency)
+            .returning(User)
+        )
+        user = result.scalar_one_or_none()
+        if user:
+            logger.info("last_currency updated: tg_id=%s, last_currency=%s", tg_id, last_currency)
         return user
 
     async def get(self, tg_id: int) -> User | None:

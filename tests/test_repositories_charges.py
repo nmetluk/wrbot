@@ -34,8 +34,14 @@ async def test_create_charge(async_session):
     assert charge.id is not None
     assert charge.user_id == user.tg_id
     assert charge.amount == Decimal("1500.50")
+    assert charge.currency == "RUB"
     assert charge.period == "monthly"
     assert charge.status == "active"
+
+    # last_currency обновляется при создании (TASK-0049)
+    u = await user_repo.get(user.tg_id)
+    assert u is not None
+    assert u.last_currency == "RUB"
 
 
 @pytest.mark.asyncio

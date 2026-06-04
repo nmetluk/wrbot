@@ -39,6 +39,7 @@ class User(Base):
     notify_time: Mapped[time] = mapped_column(Time, nullable=False, default=lambda: time(10, 0))
     tz: Mapped[str] = mapped_column(Text, nullable=False, default="Europe/Moscow")
     global_days: Mapped[str] = mapped_column(Text, nullable=False, default="[5,3,1]")  # JSON
+    last_currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=lambda: datetime.now()
     )
@@ -101,6 +102,7 @@ class Charge(Base):
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, default="RUB")
     wallet_id: Mapped[int] = mapped_column(
         ForeignKey("wallets.id", ondelete="RESTRICT"), nullable=False
     )

@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-04T12:23:04Z",
+  "generated_at": "2026-06-04T13:32:29Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 2,
+    "inbox": 1,
     "in_progress": 0,
-    "done": 48,
+    "done": 49,
     "blocked": 0
   },
   "tasks": [
@@ -396,10 +396,10 @@
     {
       "id": "TASK-0049",
       "title": "\"Валюты (1/2): схема Charge.currency + User.last_currency, загрузчик справочника, валютно-зависимое отображение (убрать зашитый ₽)\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0049-currency-schema-reference-display.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0049-currency-schema-reference-display.md",
       "milestone": "M8",
-      "report": null
+      "report": "handoff/reports/TASK-0049-report.md"
     },
     {
       "id": "TASK-0050",

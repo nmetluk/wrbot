@@ -63,13 +63,21 @@ async def test_hourly_summary_counts(db_session, test_engine):
     one_hour_ago = now - timedelta(hours=1)
 
     # seed users
-    u1 = User(tg_id=1, notify_time=now.time(), tz="UTC", global_days="[5,3,1]", created_at=now)
+    u1 = User(
+        tg_id=1,
+        notify_time=now.time(),
+        tz="UTC",
+        global_days="[5,3,1]",
+        last_currency="RUB",
+        created_at=now,
+    )
     db_session.add(u1)
     # charges
     c1 = Charge(
         user_id=1,
         name="a",
         amount=1,
+        currency="RUB",
         wallet_id=1,
         next_date=now.date() + timedelta(days=1),
         period="monthly",
@@ -80,6 +88,7 @@ async def test_hourly_summary_counts(db_session, test_engine):
         user_id=1,
         name="b",
         amount=2,
+        currency="RUB",
         wallet_id=1,
         next_date=now.date() + timedelta(days=1),
         period="monthly",

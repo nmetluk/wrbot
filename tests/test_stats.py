@@ -28,12 +28,20 @@ from wrbot.services.stats import (
 async def test_hourly_summary_still_works(db_session: AsyncSession):
     """Существующая hourly не сломалась после добавления метрик."""
     now = datetime(2026, 6, 3, 12, 0)
-    u = User(tg_id=42, notify_time=now.time(), tz="UTC", global_days="[1,2]", created_at=now)
+    u = User(
+        tg_id=42,
+        notify_time=now.time(),
+        tz="UTC",
+        global_days="[1,2]",
+        last_currency="RUB",
+        created_at=now,
+    )
     db_session.add(u)
     c = Charge(
         user_id=42,
         name="test",
         amount=123,
+        currency="RUB",
         wallet_id=1,
         next_date=now.date() + timedelta(days=1),
         period="monthly",
@@ -104,6 +112,7 @@ async def test_charges_created_and_payments(db_session: AsyncSession):
             user_id=1,
             name=f"c{delta}",
             amount=10,
+            currency="RUB",
             wallet_id=1,
             next_date=now.date(),
             period="monthly",
@@ -116,6 +125,7 @@ async def test_charges_created_and_payments(db_session: AsyncSession):
         user_id=1,
         name="paid",
         amount=99.5,
+        currency="RUB",
         wallet_id=1,
         next_date=now.date(),
         period="once",

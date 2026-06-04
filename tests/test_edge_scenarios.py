@@ -52,7 +52,7 @@ async def test_empty_charges_list_handling(db_session):
 @pytest.mark.asyncio
 async def test_repeated_mark_paid_no_double_shift(db_session):
     """Повторная отметка оплаченного одного списания — next_date не сдвигается второй раз (edge)."""
-    user = User(tg_id=123, notify_time=time(9, 0), tz="Europe/Moscow")
+    user = User(tg_id=123, notify_time=time(9, 0), tz="Europe/Moscow", last_currency="RUB")
     wallet = Wallet(user_id=123, name="Test")
     db_session.add_all([user, wallet])
     await db_session.commit()
@@ -62,6 +62,7 @@ async def test_repeated_mark_paid_no_double_shift(db_session):
         wallet_id=wallet.id,
         name="Test",
         amount=Decimal("100"),
+        currency="RUB",
         period="monthly",
         next_date=date(2026, 6, 15),
         status="active",
@@ -94,7 +95,7 @@ def test_tz_boundary_midnight():
 @pytest.mark.asyncio
 async def test_wallet_delete_with_active_charges_friendly(db_session):
     """Удаление кошелька с активными списаниями — friendly handling (from 0021, edge for 0024)."""
-    user = User(tg_id=123, notify_time=time(9, 0), tz="Europe/Moscow")
+    user = User(tg_id=123, notify_time=time(9, 0), tz="Europe/Moscow", last_currency="RUB")
     wallet = Wallet(user_id=123, name="WithCharges")
     db_session.add_all([user, wallet])
     await db_session.commit()
@@ -104,6 +105,7 @@ async def test_wallet_delete_with_active_charges_friendly(db_session):
         wallet_id=wallet.id,
         name="Active",
         amount=Decimal("50"),
+        currency="RUB",
         period="monthly",
         next_date=date(2026, 7, 1),
         status="active",

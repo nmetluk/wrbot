@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any
 from wrbot.bot.texts import Texts
 from wrbot.repositories.categories import CategoryRepository
 from wrbot.repositories.wallets import WalletRepository
+from wrbot.services import currencies
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -122,9 +123,14 @@ async def build_new_charge_summary(
     period = format_period_ru(data.get("period"))
     notify = format_notify_from_fsm(data.get("notify"))
 
+    amount_raw = data.get("amount", "?")
+    curr = data.get("currency")
+    curr = curr if isinstance(curr, str) else currencies.get_default()
+    formatted_amount = currencies.format_amount(amount_raw, curr)
+
     return Texts.new_charge_summary.format(
         name=data.get("name", "?"),
-        amount=data.get("amount", "?"),
+        amount=formatted_amount,
         wallet=wallet,
         category=category,
         next_date=next_date,
@@ -141,9 +147,14 @@ async def build_charge_card_text(session: AsyncSession, user_id: int, charge: An
     period = format_period_ru(getattr(charge, "period", None))
     notify = format_notify_for_charge(charge)
 
+    amount_raw = getattr(charge, "amount", "?")
+    curr = getattr(charge, "currency", None)
+    curr = curr if isinstance(curr, str) else currencies.get_default()
+    formatted_amount = currencies.format_amount(amount_raw, curr)
+
     return Texts.my_charges_card.format(
         name=getattr(charge, "name", "?"),
-        amount=str(getattr(charge, "amount", "?")),
+        amount=formatted_amount,
         wallet=wallet,
         category=category,
         next_date=next_date,
@@ -163,9 +174,15 @@ async def build_reminder_text(session: AsyncSession, user_id: int, charge: Any) 
     """Текст push-уведомления (reminder_notification) с реальным кошельком и ДД.ММ.ГГГГ."""
     wallet = await resolve_wallet_name(session, user_id, getattr(charge, "wallet_id", None))
     next_date = format_date_ru(getattr(charge, "next_date", None))
+
+    amount_raw = getattr(charge, "amount", "?")
+    curr = getattr(charge, "currency", None)
+    curr = curr if isinstance(curr, str) else currencies.get_default()
+    formatted_amount = currencies.format_amount(amount_raw, curr)
+
     return Texts.reminder_notification.format(
         name=getattr(charge, "name", "?"),
-        amount=str(getattr(charge, "amount", "?")),
+        amount=formatted_amount,
         wallet=wallet,
         next_date=next_date,
     )

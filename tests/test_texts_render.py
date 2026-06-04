@@ -32,7 +32,12 @@ from wrbot.bot.texts import Texts
         # M4 reminders (TASK-0015)
         (
             Texts.reminder_notification,
-            {"name": "Тест", "amount": "1500.00", "wallet": "Тинькофф", "next_date": "2026-06-15"},
+            {
+                "name": "Тест",
+                "amount": "1500.00 ₽",
+                "wallet": "Тинькофф",
+                "next_date": "2026-06-15",
+            },
         ),
         (Texts.reminder_paid_periodic, {"next_date": "2026-07-15"}),
         # Глобальные уведомления (TASK-0026)
@@ -43,7 +48,7 @@ from wrbot.bot.texts import Texts
         (Texts.notify_custom, {"days": "1, 3, 5"}),
         (
             Texts.my_charges_button,
-            {"name": "VPN", "amount": "299.00", "wallet": "Сбер", "next_date": "15.07.2026"},
+            {"name": "VPN", "amount": "299.00 ₽", "wallet": "Сбер", "next_date": "15.07.2026"},
         ),
         # M7 TASK-0041 grouped (TASK-0041)
         (Texts.my_charges_grouped_title, {}),
@@ -86,7 +91,7 @@ def test_reminder_notification_render_real_example():
     """Реальный рендер текста уведомления (TASK-0015, переиспользуется в свипе 0016)."""
     result = Texts.reminder_notification.format(
         name="Оплата VPN",
-        amount="299.00",
+        amount="299.00 ₽",
         wallet="Сбер",
         next_date="2026-06-10",
     )
@@ -133,7 +138,7 @@ def test_notify_custom_and_my_charges_button_render_real_example():
     assert "свои: 1, 15" in custom
 
     button = Texts.my_charges_button.format(
-        name="Оплата", amount="1200.00", wallet="Наличные", next_date="03.06.2026"
+        name="Оплата", amount="1200.00 ₽", wallet="Наличные", next_date="03.06.2026"
     )
     assert "Оплата" in button
     assert "1200.00 ₽ (Наличные)" in button

@@ -26,6 +26,7 @@ from wrbot.bot.texts import Texts
 from wrbot.repositories.categories import CategoryRepository
 from wrbot.repositories.charges import ChargeRepository
 from wrbot.repositories.users import UserRepository
+from wrbot.services import currencies
 from wrbot.services.formatters import (
     build_charge_card_text,
     format_date_ru,
@@ -79,7 +80,10 @@ async def list_charges(callback: CallbackQuery, state: FSMContext, session: Asyn
         for c in chs:
             wname = await resolve_wallet_name(session, user.tg_id, c.wallet_id)
             dstr = format_date_ru(c.next_date)
-            text_lines.append(f"• {c.name} — {c.amount!s} ₽ ({wname}) — {dstr}")
+            curr = getattr(c, "currency", None)
+            curr = curr if isinstance(curr, str) else currencies.get_default()
+            amt_str = currencies.format_amount(c.amount, curr)
+            text_lines.append(f"• {c.name} — {amt_str} ({wname}) — {dstr}")
         category_buttons.append({"id": cat_id, "name": cname})
 
     no_cat_chs = grouped.get(None, [])
@@ -88,12 +92,15 @@ async def list_charges(callback: CallbackQuery, state: FSMContext, session: Asyn
         for c in no_cat_chs:
             wname = await resolve_wallet_name(session, user.tg_id, c.wallet_id)
             dstr = format_date_ru(c.next_date)
-            text_lines.append(f"• {c.name} — {c.amount!s} ₽ ({wname}) — {dstr}")
+            curr = getattr(c, "currency", None)
+            curr = curr if isinstance(curr, str) else currencies.get_default()
+            amt_str = currencies.format_amount(c.amount, curr)
+            text_lines.append(f"• {c.name} — {amt_str} ({wname}) — {dstr}")
             uncategorized_data.append(
                 {
                     "id": c.id,
                     "name": c.name,
-                    "amount": str(c.amount),
+                    "amount": amt_str,
                     "next_date": dstr,
                     "wallet": wname,
                 }
@@ -143,11 +150,14 @@ async def list_charges_by_category(
     for c in chs:
         wname = await resolve_wallet_name(session, user_id, c.wallet_id)
         dstr = format_date_ru(c.next_date)
+        curr = getattr(c, "currency", None)
+        curr = curr if isinstance(curr, str) else currencies.get_default()
+        amt_str = currencies.format_amount(c.amount, curr)
         charge_data.append(
             {
                 "id": c.id,
                 "name": c.name,
-                "amount": str(c.amount),
+                "amount": amt_str,
                 "next_date": dstr,
                 "wallet": wname,
             }

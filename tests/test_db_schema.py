@@ -46,6 +46,7 @@ async def test_users_table_columns(db_session) -> None:
         "notify_time": "TIME",
         "tz": "TEXT",
         "global_days": "TEXT",
+        "last_currency": "TEXT",
         "created_at": "DATETIME",
     }
 
@@ -68,6 +69,7 @@ async def test_charges_table_columns(db_session) -> None:
         "user_id",
         "name",
         "amount",
+        "currency",
         "wallet_id",
         "category_id",
         "next_date",
@@ -127,7 +129,7 @@ async def test_cascade_delete_charge_removes_sent_reminders(db_session) -> None:
     from datetime import date
 
     # Создаём пользователя
-    user = User(tg_id=12345)
+    user = User(tg_id=12345, last_currency="RUB")
     db_session.add(user)
     await db_session.flush()
 
@@ -142,6 +144,7 @@ async def test_cascade_delete_charge_removes_sent_reminders(db_session) -> None:
         user_id=12345,
         name="Test Charge",
         amount=Decimal("100.00"),
+        currency="RUB",
         wallet_id=1,
         next_date=date(2026, 6, 1),
         period="monthly",
@@ -181,7 +184,7 @@ async def test_unique_constraint_prevents_duplicate_reminders(db_session) -> Non
     await db_session.commit()
 
     # Создаём тестовые данные
-    user = User(tg_id=99999)
+    user = User(tg_id=99999, last_currency="RUB")
     db_session.add(user)
     await db_session.flush()
 
@@ -194,6 +197,7 @@ async def test_unique_constraint_prevents_duplicate_reminders(db_session) -> Non
         user_id=99999,
         name="C",
         amount=Decimal("1.00"),
+        currency="RUB",
         wallet_id=wallet_id,
         next_date=date(2026, 6, 1),
         period="monthly",

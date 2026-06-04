@@ -18,6 +18,7 @@
   Решения владельца: список+поиск, запоминать последнюю. Зависимости: 0049→0050. По итогам — v0.5.0.
 
 ### Released
+- **TASK-0049 ВЫПОЛНЕНА (исполнитель, SESSION-2026-06-04-12).** Фундамент M8: схема `Charge.currency` + `User.last_currency` (миграция Alembic с backfill RUB + round-trip), загрузчик `services/currencies.py` (153 валюты, presets, is_valid/get/search/format_amount; символ для пресетов, код для прочих; оффлайн кэш). Форматтеры сумм через `currencies.format_amount`; все зашитые «₽» в `texts.py`/`charges_list.py` (и напоминания/карточки/кнопки) убраны — теперь валюта списания (дефолт RUB). Репозитории: create принимает currency, обновляет last_currency пользователя. Обновлены domain models, тесты (вкл. новый test_currencies.py), db_schema checks. CI: ruff/mypy/pytest 260/alembic check/validate — зелёно. (см. handoff/reports/TASK-0049-report.md)
 - **v0.4.0 ВЫПУЩЕН (архитектор, SESSION-2026-06-04-10).** Объединяет TASK-0046 (фикс зависания
   добавления канала — порядок callback-фильтров), TASK-0047 (`/getgrid` + @упоминание → ID группы)
   и TASK-0048 (усиление e2e-ассертов). Bump 0.4.0 (pyproject + `__init__`), `/CHANGELOG.md [0.4.0]`,

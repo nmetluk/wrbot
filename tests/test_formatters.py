@@ -77,13 +77,13 @@ def test_format_notify_for_charge() -> None:
 def test_format_charge_button_text_real_template() -> None:
     """Реальный рендер через Texts (анти-дрейф, без мока)."""
     result = format_charge_button_text(
-        name="Тест", amount="42.00", wallet="Кошелёк", next_date="05.05.2026"
+        name="Тест", amount="42.00 ₽", wallet="Кошелёк", next_date="05.05.2026"
     )
     assert result == "Тест — 42.00 ₽ (Кошелёк) — 05.05.2026"
     # Убеждаемся, что шаблон из Texts использован (содержит паттерн)
     assert (
         Texts.my_charges_button.format(
-            name="Тест", amount="42.00", wallet="Кошелёк", next_date="05.05.2026"
+            name="Тест", amount="42.00 ₽", wallet="Кошелёк", next_date="05.05.2026"
         )
         == result
     )
@@ -97,6 +97,7 @@ async def test_build_reminder_text_real_template() -> None:
     fake_charge.wallet_id = 7
     fake_charge.name = "Оплата VPN"
     fake_charge.amount = Decimal("299.00")
+    fake_charge.currency = "RUB"
     fake_charge.next_date = "2026-07-15"  # formatter handles iso str
 
     with patch("wrbot.services.formatters.resolve_wallet_name", new_callable=AsyncMock) as mock_res:
@@ -112,6 +113,6 @@ async def test_build_reminder_text_real_template() -> None:
 
     # verify used the Texts template (real, no mock of t())
     expected = Texts.reminder_notification.format(
-        name="Оплата VPN", amount="299.00", wallet="Сбер", next_date="15.07.2026"
+        name="Оплата VPN", amount="299.00 ₽", wallet="Сбер", next_date="15.07.2026"
     )
     assert result == expected

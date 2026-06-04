@@ -349,6 +349,7 @@ async def confirm_create_charge(
                 category_id=data.get("category_id"),
                 next_date=date.fromisoformat(data["next_date"]),
                 period=data["period"],
+                currency=data.get("currency") or "RUB",
             )
             await callback.message.edit_text(  # type: ignore[union-attr]
                 Texts.new_charge_created.format(
@@ -392,6 +393,7 @@ async def start_edit_charge(
         user_id=tg_id,
         name=charge.name,
         amount=str(charge.amount),
+        currency=getattr(charge, "currency", "RUB"),
         wallet_id=charge.wallet_id,
         category_id=charge.category_id,
         next_date=charge.next_date.isoformat() if charge.next_date else None,

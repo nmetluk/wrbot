@@ -27,6 +27,7 @@ def make_user(
         notify_time=notify_time,
         tz=tz,
         global_days=global_days,
+        last_currency="RUB",
         created_at=datetime.now(UTC),
     )
     # For tests we don't persist
@@ -45,6 +46,7 @@ def make_charge(
         user_id=user_id,
         name="Test",
         amount=100,
+        currency="RUB",
         wallet_id=1,
         category_id=None,
         next_date=next_date,

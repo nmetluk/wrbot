@@ -190,7 +190,7 @@ class Texts:
     new_charge_summary = (
         "📋 *Проверьте данные списания:*\n\n"
         "Название: {name}\n"
-        "Сумма: {amount} ₽\n"
+        "Сумма: {amount}\n"
         "Кошелёк: {wallet}\n"
         "Категория: {category}\n"
         "Дата: {next_date}\n"
@@ -209,10 +209,10 @@ class Texts:
         "Нажмите «➕ Новое списание», чтобы создать первое."
     )
     my_charges_title = "📋 *Мои списания*\n\nБлижайшие платежи:"
-    my_charges_item = "• {name} — {amount} ₽ ({wallet}) — {next_date}"
+    my_charges_item = "• {name} — {amount} ({wallet}) — {next_date}"
     my_charges_card = (
         "📋 *{name}*\n\n"
-        "Сумма: {amount} ₽\n"
+        "Сумма: {amount}\n"
         "Кошелёк: {wallet}\n"
         "Категория: {category}\n"
         "Следующая дата: {next_date}\n"
@@ -233,7 +233,7 @@ class Texts:
     notify_disabled = "отключены"
     notify_custom = "свои: {days}"
     category_skipped = "—"
-    my_charges_button = "{name} — {amount} ₽ ({wallet}) — {next_date}"
+    my_charges_button = "{name} — {amount} ({wallet}) — {next_date}"
 
     # M7 TASK-0041 grouped list
     my_charges_grouped_title = "📋 *Мои списания*\n\nПо категориям:"
@@ -246,7 +246,7 @@ class Texts:
     reminder_notification = (
         "🔔 *Напоминание о списании*\n\n"
         "📋 {name}\n"
-        "💰 Сумма: {amount} ₽\n"
+        "💰 Сумма: {amount}\n"
         "👛 Кошелёк: {wallet}\n"
         "📅 Дата: {next_date}\n\n"
         "Выберите действие:"

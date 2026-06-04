@@ -23,6 +23,7 @@ from wrbot.repositories.audit_log import (
     ACTION_CHARGE_SNOOZE,
     AuditLogRepository,
 )
+from wrbot.repositories.users import UserRepository
 from wrbot.services.charges import validate_charge_amount, validate_period
 from wrbot.services.dates import calculate_next_date
 from wrbot.services.reference import (
@@ -47,6 +48,7 @@ class ChargeRepository:
         category_id: int | None,
         next_date: date,
         period: ChargePeriod,
+        currency: str = "RUB",
     ) -> Charge:
         """
         Создать новое списание для пользователя.
@@ -59,6 +61,7 @@ class ChargeRepository:
             category_id: ID категории (опционально)
             next_date: Дата следующего списания
             period: Период (once/monthly/quarterly/yearly)
+            currency: Код валюты (по умолчанию RUB; из справочника)
 
         Returns:
             Созданное списание
@@ -81,6 +84,7 @@ class ChargeRepository:
             user_id=user_id,
             name=name.strip(),
             amount=validated_amount,
+            currency=currency,
             wallet_id=wallet_id,
             category_id=category_id,
             next_date=next_date,
@@ -90,12 +94,16 @@ class ChargeRepository:
         self._session.add(charge)
         await self._session.flush()
         logger.info(
-            "Created charge: user_id=%s, name=%s, amount=%s, period=%s",
+            "Created charge: user_id=%s, name=%s, amount=%s, currency=%s, period=%s",
             user_id,
             name,
             validated_amount,
+            currency,
             validated_period,
         )
+
+        # Обновляем последнюю валюту пользователя (для преселекта в TASK-0050)
+        await UserRepository(self._session).set_last_currency(user_id, currency)
         # Audit (TASK-0032)
         await AuditLogRepository(self._session).record(
             actor_id=user_id,

@@ -22,6 +22,7 @@ class User:
     notify_time: time
     tz: str
     global_days: list[int]
+    last_currency: str | None
     created_at: datetime
 
 
@@ -51,6 +52,7 @@ class Charge:
     user_id: int
     name: str
     amount: Decimal
+    currency: str
     wallet_id: int
     category_id: int | None
     next_date: date

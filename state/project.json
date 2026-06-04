@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T05:45:00Z",
-  "current_phase": "M8 (валюты) спланирован по срочному отзыву: ADR-0013 + справочник ISO 4217 в src/wrbot/data/ (153 валюты) + TASK-0049 (схема/справочник/отображение) и TASK-0050 (выбор валюты: пресеты + список/поиск, запоминать последнюю) в inbox. По итогам — релиз v0.5.0.",
+  "updated_at": "2026-06-04T14:30:00Z",
+  "current_phase": "M8: TASK-0049 ПРИНЯТА (схема currency + last_currency, currencies loader 153, format_amount, убраны все зашитые ₽; тесты/CI/миграции зелёно). Следующий — TASK-0050 (выбор валюты).",
   "current_milestone": "M8",
   "active_task": null,
-  "last_session": "SESSION-2026-06-04-11",
+  "last_session": "SESSION-2026-06-04-12",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Исполнитель: /take-task → TASK-0049 (фундамент валют: схема Charge.currency/User.last_currency, загрузчик currencies.json, отображение без зашитого ₽), затем TASK-0050 (выбор валюты: пресеты + список/поиск, запоминать последнюю). После M8 — аудит и релиз v0.5.0. Справочник уже в src/wrbot/data/."
+  "next_step": "Исполнитель: /take-task → TASK-0050 (выбор валюты: 5 пресетов + «Другая» (список+поиск), запоминать последнюю, смена при редактировании, router-тесты). После M8 — аудит и релиз v0.5.0."
 }
