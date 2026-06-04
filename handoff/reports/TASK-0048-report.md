@@ -17,7 +17,7 @@
 | Тест чувствителен (negative-control) | ✅ | Комментарий: "removing answer()/ID from handler would make asserts fail." (и старый слабый capture удалён) |
 | Весь CI начисто зелёный | ✅ | ruff format/check, mypy 45, pytest 241, alembic, validate.py |
 
-Изменения только в тестах (поведение `handlers/group.py` не тронуто — подтверждено аудитом TASK-0047). |
+Изменения только в тестах (поведение `handlers/group.py` не тронуто — подтверждено аудитом TASK-0047).
 
 ## Как проверено
 - Тесты: `BOT_TOKEN=test uv run pytest tests/test_e2e_smoke.py::test_e2e_dispatcher_full_scenarios -q --tb=short` → 1 passed. Полный: `uv run pytest` → **241 passed** (158 warnings pre-existing).
