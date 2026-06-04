@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T09:30:00Z",
-  "current_phase": "TASK-0047 завершён (исполнитель). TASK-0046 (принят) + TASK-0047 готовы. Отдельный v0.3.1 отменён — релиз v0.4.0 (bump, /CHANGELOG, тег).",
+  "updated_at": "2026-06-04T04:10:00Z",
+  "current_phase": "TASK-0047 ПРИНЯТ (проверено реальным dp.feed_update). TASK-0046 + 0047 готовы к v0.4.0. Находка по слабым тестам → TASK-0048 (низкий, не блокер). Следующий — релиз v0.4.0.",
   "current_milestone": "M7",
   "active_task": null,
-  "last_session": "SESSION-2026-06-04-06",
+  "last_session": "SESSION-2026-06-04-07",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Релиз v0.4.0 (объединяет TASK-0046 фикс + TASK-0047 /getgrid). Живой смоук группы + bump/CHANGELOG/тег. Inbox пуст."
+  "next_step": "Релиз v0.4.0 (TASK-0046 фикс + TASK-0047 /getgrid): bump 0.4.0, /CHANGELOG.md [0.4.0], release-notes, тег v0.4.0 — по решению владельца. TASK-0048 (усиление e2e-ассертов, низкий) — отдельной сессией, можно после релиза. Живой смоук: /getgrid в группе + добавление канала."
 }

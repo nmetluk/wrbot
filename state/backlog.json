@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-04T09:28:28Z",
+  "generated_at": "2026-06-04T10:58:27Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 1,
     "in_progress": 0,
     "done": 47,
     "blocked": 0
@@ -384,6 +384,14 @@
       "file": "handoff/done/TASK-0047-getgrid-group-id.md",
       "milestone": "M7",
       "report": "handoff/reports/TASK-0047-report.md"
+    },
+    {
+      "id": "TASK-0048",
+      "title": "\"Усилить e2e-ассерты /getgrid: проверять сам ответ (анти-дрейф), а не только сценарий молчания\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0048-strengthen-getgrid-e2e-asserts.md",
+      "milestone": "M7",
+      "report": null
     }
   ]
 }
