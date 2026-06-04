@@ -5,7 +5,7 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T11:15:00Z",
+  "updated_at": "2026-06-04T11:30:00Z",
   "current_phase": "TASK-0048 ПРИНЯТ (e2e-ассерты /getgrid усилены: позитивные через bot(SendMessage) capture + negative-control; 241 pytest). TASK-0046 + 0047 + 0048 готовы к v0.4.0. Следующий — релиз v0.4.0.",
   "current_milestone": "M7",
   "active_task": null,
