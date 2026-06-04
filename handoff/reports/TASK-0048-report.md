@@ -20,9 +20,9 @@
 Изменения только в тестах (поведение `handlers/group.py` не тронуто — подтверждено аудитом TASK-0047). |
 
 ## Как проверено
-- Тесты: `BOT_TOKEN=test uv run pytest tests/test_e2e_smoke.py::test_e2e_dispatcher_full_scenarios -q --tb=short` → 1 passed. Полный: `uv run pytest` → **241 passed**.
-- Линт/типы: `uv run ruff format --check src tests` (76 files already formatted), `uv run ruff check src tests` (All checks passed!), `uv run mypy src` (Success: no issues found in 45 source files).
-- Полный CI gate (как в .github/workflows/ci.yml): + `BOT_TOKEN=test uv run alembic upgrade head`, `uv run python scripts/validate.py` → "Валидация пройдена: handoff/ и state/ согласованы."
+- Тесты: `BOT_TOKEN=test uv run pytest tests/test_e2e_smoke.py::test_e2e_dispatcher_full_scenarios -q --tb=short` → 1 passed. Полный: `uv run pytest` → **241 passed** (158 warnings pre-existing).
+- Линт/типы: `uv run ruff format --check src tests` (76 files already formatted), `uv run ruff check src tests` (All checks passed!), `uv run mypy src` (Success: no issues found in 45 source files; note unused pyproject section tests.* ok).
+- Полный CI gate (ровно как .github/workflows/ci.yml, после uv sync): `uv run ruff format --check src tests`, `uv run ruff check src tests`, `uv run mypy src`, `uv run pytest`, `BOT_TOKEN=test uv run alembic upgrade head`, `uv run python scripts/validate.py` → "Валидация пройдена: handoff/ и state/ согласованы." Всё 0. Перепрогон в конце сессии — зелено.
 - Отрицательный контроль: старый код с `object.__setattr__(msg, "answer", ...)` и `captured_texts` (без реального вызова SendMessage) заменён; теперь ассерты упадут, если хэндлер перестанет слать ответ или уберёт ID (см. diff и комментарий в тесте).
 - Ручная: просмотр `git diff tests/test_e2e_smoke.py` — capture исправлен точно по рекомендации из TASK-0048; позитивные пути покрыты.
 
