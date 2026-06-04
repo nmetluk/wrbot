@@ -7,6 +7,12 @@
 
 ## [Unreleased]
 
+### Released
+- **v0.5.0 ВЫПУЩЕН (архитектор, SESSION-2026-06-04-14).** Майлстоун M8 (валюты): TASK-0049+0050.
+  Bump 0.5.0 (pyproject + `__init__`), `/CHANGELOG.md [0.5.0]`, release-notes `docs/release-notes/v0.5.0.md`.
+  Гейт начисто зелёный (ruff/mypy 46/**pytest 263**/validate; миграция `alembic check` пусто, round-trip).
+  Проставлен аннотированный git-тег **`v0.5.0`**. Вне кода: деплой (миграция currency после бекапа) + смоук.
+
 ### Audit
 - **AUDIT-M8 ПРОЙДЕН — ПРИНЯТО (архитектор-аудитор, SESSION-2026-06-04-14).** TASK-0049+0050 в `done/`.
   Гейт начисто: ruff/mypy (46)/**pytest 263**/validate; миграция currency — `alembic check` пусто,
