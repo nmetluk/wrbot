@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T00:30:00Z",
-  "current_phase": "M7 batch 042-045 завершён (0042 icons, 0043 notify schema+UI, 0044 dups+owner notify, 0045 live edit card). Все в done/. После — финальный аудит M7 + релиз v0.3.0.",
+  "updated_at": "2026-06-04T00:50:00Z",
+  "current_phase": "AUDIT-M7 ФИНАЛЬНЫЙ — ПРИНЯТО. Все 7 задач (0039–0045) приняты, гейт зелёный (pytest 240), миграции безопасны. M7 закрыт. Следующий шаг — релиз v0.3.0.",
   "current_milestone": "M7",
   "active_task": null,
-  "last_session": "SESSION-2026-06-03-22",
+  "last_session": "SESSION-2026-06-04-01",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Batch 042-045 done (все 4 задачи). Обновлены отчёты/state/changelog. Запушить. Затем — финальный аудит M7 (отдельная сессия) + релиз v0.3.0."
+  "next_step": "M7 принят (AUDIT-M7-2026-06-04). Релиз v0.3.0: bump версии + /CHANGELOG.md [0.3.0] + release-notes + тег v0.3.0. Вне кода: живой смоук (дубли в реальный канал/группу; миграции на проде только с бекапом) + деплой."
 }

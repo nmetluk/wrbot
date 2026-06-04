@@ -52,6 +52,15 @@
   start_edit: load + store card msg id; live card через build_edit_live_card (0039). process_amount (и name): если edit — edit_message_text stored card с обновлёнными данными (через .bot). Нет осиротевших. Cancel/saved как обычно. e2e: edit+amount change (live) + cancel (не persist). CI ок.
 
 ### Audit
+- **AUDIT-M7 ФИНАЛЬНЫЙ — ПРИНЯТО (архитектор, SESSION-2026-06-04-01).** Все 7 задач (0039–0045) в `done/`.
+  Гейт начисто: ruff/mypy (44 файла)/**pytest 240**/validate ✅; миграции `wallets.icon` и
+  `categories.notify_chat_ids` — `alembic check` пусто, round-trip ок, single head; `icon` NOT NULL
+  добавлен с `server_default`+backfill (безопасно на непустой БД). 0044: личное напоминание
+  фиксируется до дублей (идемпотентность только personal), изоляция ошибок + уведомление владельца
+  при Forbidden. Замечание (низкий): `getattr(charge,"category_id",None)` в sweep — против анти-дрейфа,
+  не блокер. M7 закрыт → релиз **v0.3.0**. Отчёт: `handoff/reports/AUDIT-M7-2026-06-04.md`.
+
+### Audit
 - **AUDIT-M7 ПРОМЕЖУТОЧНЫЙ — ЧАСТИЧНО (архитектор, SESSION-2026-06-03-21).** По запросу «39-45 готово».
   Факт по репозиторию: готовы только **0039–0041** (done/ + отчёты); **0042/0043/0045** — в `in-progress/`,
   **0044** — в `inbox/`; коммитов/миграций/полей (`Wallet.icon`, `Category.notify_chat_ids`) по 0042–0045 нет.
