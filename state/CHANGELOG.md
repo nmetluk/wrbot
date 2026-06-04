@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+### Audit
+- **AUDIT-M8 ПРОЙДЕН — ПРИНЯТО (архитектор-аудитор, SESSION-2026-06-04-14).** TASK-0049+0050 в `done/`.
+  Гейт начисто: ruff/mypy (46)/**pytest 263**/validate; миграция currency — `alembic check` пусто,
+  round-trip, `charges.currency` server_default+backfill, `users.last_currency` nullable (дефолт RUB
+  в коде). Загрузчик `services/currencies.py` оффлайн (format_amount RUB→₽/USD→$/не-пресеты→код;
+  search/is_valid; 153 валюты). Зашитый ₽ убран. Выбор валюты: пресеты + список/поиск, last_currency,
+  edit; роутинг без шадовинга (стейт-фильтр + различимые префиксы), router+e2e тесты. M8 закрыт →
+  релиз **v0.5.0**. Отчёт: `handoff/reports/AUDIT-M8-2026-06-04.md`.
+
 ### Planned
 - **Декомпозиция M8 — валюты списаний (архитектор, SESSION-2026-06-04-11).** Срочный отзыв.
   ADR-0013 (валюта на списание, bundled ISO 4217, пресеты+список/поиск, запоминать последнюю).

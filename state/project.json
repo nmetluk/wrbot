@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T16:30:00Z",
-  "current_phase": "M8: TASK-0050 ПРИНЯТА (выбор валюты: пресеты+список/поиск, last_currency, edit support, router+e2e тесты; CI 263 зелёно). M8 готов к аудиту/релизу v0.5.0.",
+  "updated_at": "2026-06-04T06:10:00Z",
+  "current_phase": "AUDIT-M8 ПРОЙДЕН: TASK-0049+0050 приняты (валюты: схема+оффлайн-справочник+отображение, выбор пресеты/список/поиск, last_currency). Гейт зелёный (pytest 263), миграция безопасна, роутинг без шадовинга. M8 закрыт. Следующий — релиз v0.5.0.",
   "current_milestone": "M8",
   "active_task": null,
-  "last_session": "SESSION-2026-06-04-13",
+  "last_session": "SESSION-2026-06-04-14",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "После M8: отдельная сессия аудита (безопасность/архитектура/качество) + релиз v0.5.0 (bump, CHANGELOG, release-notes, tag)."
+  "next_step": "M8 принят (AUDIT-M8-2026-06-04). Релиз v0.5.0: bump 0.5.0, /CHANGELOG.md [0.5.0], release-notes, тег v0.5.0 — по решению владельца. Вне кода: деплой (миграция currency только после бекапа) + смоук (списание в др. валюте)."
 }
