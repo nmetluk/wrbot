@@ -16,6 +16,14 @@
   широкого, убрать мёртвый guard, `answer()` на всех ветках, **router-level регресс-тест через
   feed_update**. Урок: аудит пропустил — handler-тесты дёргали функции напрямую, шадовинг по порядку
   фильтров так не ловится. → хотфикс v0.3.1.
+- **TASK-0046 (исполнитель, SESSION-2026-06-04-03).** Реализация: в `src/wrbot/bot/handlers/categories.py`
+  специфичные `category_notify_remove_` / `_add_start` перемещены в исходнике ПЕРЕД широким
+  `category_notify_list` (регистрация раньше → не шадовит); удалён нерабочий guard `if _remove_/_add_: return`
+  (без answer). Гарантирован `callback.answer()` на всех ветках notify. Перепроверены прочие
+  startswith на аналогичный риск — чисто (кроме этой семьи). Добавлены регресс-тесты: introspection
+  порядка в `test_callback_routing.py` (assert idx < broad), e2e в `test_e2e_smoke.py` — теперь
+  реальный feed msg после add_cb (полный FSM + persist, без repo-bypass); тест падал бы на сломанном.
+  Полный CI (ruff/mypy/pytest 241/alembic/validate) начисто зелёный. Готово к v0.3.1.
 
 ### Released
 - **v0.3.0 ВЫПУЩЕН (архитектор, SESSION-2026-06-04-01).** Майлстоун M7 (доработки по отзывам):
