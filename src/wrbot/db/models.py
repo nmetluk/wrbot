@@ -65,6 +65,7 @@ class Wallet(Base):
         ForeignKey("users.tg_id", ondelete="CASCADE"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    icon: Mapped[str] = mapped_column(String(10), nullable=False, default="👛")
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="wallets")
@@ -81,6 +82,8 @@ class Category(Base):
         ForeignKey("users.tg_id", ondelete="CASCADE"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    # notify_chat_ids: JSON list[int] chat_id для дубля (TASK-0043/ADR-0012)
+    notify_chat_ids: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="categories")

@@ -184,7 +184,7 @@ async def test_wallet_delete_not_found(mock_state, mock_session):
 
 @pytest.mark.asyncio
 async def test_wallet_name_handler_create(mock_state, mock_session):
-    """Создание кошелька через ввод названия."""
+    """Имя кошелька -> переход к выбору иконки (TASK-0042; create в icon handler)."""
     tg_user = Mock(spec=User)
     tg_user.id = 12345
 
@@ -193,25 +193,17 @@ async def test_wallet_name_handler_create(mock_state, mock_session):
     message.from_user = tg_user
     message.answer = AsyncMock()
 
-    with patch("wrbot.bot.handlers.wallets.WalletRepository") as mock_repo_class:
-        mock_wallet = MagicMock()
-        mock_wallet.id = 1
-        mock_wallet.name = "Новый кошелёк"
-
-        mock_repo = AsyncMock()
-        mock_repo.create.return_value = mock_wallet
-        mock_repo.list_by_user.return_value = [mock_wallet]
-        mock_repo_class.return_value = mock_repo
-
-        mock_state.get_data.return_value = {
-            "wallet_id": None,
-        }
+    with patch("wrbot.bot.handlers.wallets.WalletRepository"):
+        mock_state.get_data.return_value = {"wallet_id": None}
 
         await wallets_handler.wallet_name_handler(message, mock_state, session=mock_session)
 
-        mock_repo.create.assert_called_once_with(12345, "Новый кошелёк")
+        # Теперь: валидация + set pending_name + set_state(icon) + show kb, НЕ create и НЕ clear
+        mock_state.update_data.assert_called()  # pending_name
+        mock_state.set_state.assert_called_once_with(WalletStates.icon)
         message.answer.assert_called()
-        mock_state.clear.assert_called_once()
+        # clear НЕ вызывается (пользователь продолжит в icon)
+        mock_state.clear.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -267,9 +259,10 @@ async def test_wallet_name_handler_empty_name(mock_state, mock_session):
 
         await wallets_handler.wallet_name_handler(message, mock_state, session=mock_session)
 
-        # Проверка, что был хотя бы один вызов answer (возможно, несколько)
+        # Для add: при ошибке имени clear НЕ вызывается
+        # (пользователь может ввести заново, state=name сохранён)
         message.answer.assert_called()
-        mock_state.clear.assert_called_once()
+        mock_state.clear.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -287,16 +280,16 @@ async def test_wallet_name_handler_duplicate_name(mock_state, mock_session):
 
     with patch("wrbot.bot.handlers.wallets.WalletRepository") as mock_repo_class:
         mock_repo = AsyncMock()
-        mock_repo.create.side_effect = DuplicateName("уже существует")
+        mock_repo.rename.side_effect = DuplicateName("уже существует")
         mock_repo_class.return_value = mock_repo
 
         mock_state.get_data.return_value = {
-            "wallet_id": None,
+            "wallet_id": 42,  # rename path: dup проверяется в rename на name step
         }
 
         await wallets_handler.wallet_name_handler(message, mock_state, session=mock_session)
 
-        # Проверка, что было отправлено сообщение об ошибке дубля
+        # Проверка, что было отправлено сообщение об ошибке дубля (для rename)
         assert any("уже существует" in str(call.args[0]) for call in message.answer.call_args_list)
         mock_state.clear.assert_called_once()
 
@@ -304,7 +297,6 @@ async def test_wallet_name_handler_duplicate_name(mock_state, mock_session):
 @pytest.mark.asyncio
 async def test_wallet_name_handler_limit_exceeded(mock_state, mock_session):
     """Превышение лимита вызывает ошибку."""
-    from wrbot.services.reference import LimitExceeded
 
     tg_user = Mock(spec=User)
     tg_user.id = 12345
@@ -316,7 +308,8 @@ async def test_wallet_name_handler_limit_exceeded(mock_state, mock_session):
 
     with patch("wrbot.bot.handlers.wallets.WalletRepository") as mock_repo_class:
         mock_repo = AsyncMock()
-        mock_repo.create.side_effect = LimitExceeded("превышен лимит")
+        # Лимит теперь срабатывает на шаге иконки (create), на name step только валидация имени.
+        # Тест: add name step не вызывает create и не чистит state (позже в icon).
         mock_repo_class.return_value = mock_repo
 
         mock_state.get_data.return_value = {
@@ -325,12 +318,9 @@ async def test_wallet_name_handler_limit_exceeded(mock_state, mock_session):
 
         await wallets_handler.wallet_name_handler(message, mock_state, session=mock_session)
 
-        # Проверка, что было отправлено сообщение об ошибке лимита
-        assert any(
-            "лимит" in str(call.args[0]) or "Превышен" in str(call.args[0])
-            for call in message.answer.call_args_list
-        )
-        mock_state.clear.assert_called_once()
+        # name step для add: create не вызван (будет в icon_choice), clear не вызван
+        mock_repo.create.assert_not_called()
+        mock_state.clear.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -352,3 +342,68 @@ async def test_wallet_name_handler_no_session(mock_state):
 
     message.answer.assert_called_once()
     mock_state.clear.assert_called_once()
+
+
+# === TASK-0042: тесты для flow иконок ===
+
+
+@pytest.mark.asyncio
+async def test_wallet_icon_start(mock_state, mock_session):
+    """Старт смены иконки: грузит текущую, показывает kb иконок."""
+    tg_user = Mock(spec=User)
+    tg_user.id = 12345
+
+    callback = AsyncMock(spec=CallbackQuery)
+    callback.data = "wallet_icon_42"
+    callback.message = AsyncMock()
+    callback.answer = AsyncMock()
+    callback.from_user = tg_user
+
+    mock_wallet = MagicMock()
+    mock_wallet.id = 42
+    mock_wallet.name = "Карта"
+    mock_wallet.icon = "💳"
+
+    with patch("wrbot.bot.handlers.wallets.WalletRepository") as mock_repo_class:
+        mock_repo = AsyncMock()
+        mock_repo.get.return_value = mock_wallet
+        mock_repo_class.return_value = mock_repo
+
+        await wallets_handler.wallet_icon_start(callback, mock_state, **{"session": mock_session})
+
+        mock_state.update_data.assert_called()
+        mock_state.set_state.assert_called_once_with(WalletStates.icon)
+        callback.message.edit_text.assert_called_once()
+        callback.answer.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_wallet_icon_choice_set_for_existing(mock_state, mock_session):
+    """Выбор иконки для существующего кошелька -> set_icon + список."""
+    tg_user = Mock(spec=User)
+    tg_user.id = 12345
+
+    callback = AsyncMock(spec=CallbackQuery)
+    callback.data = "wallet_choose_icon_💰"
+    callback.message = AsyncMock()
+    callback.answer = AsyncMock()
+    callback.from_user = tg_user
+
+    mock_wallet = MagicMock()
+    mock_wallet.id = 42
+    mock_wallet.name = "Карта"
+    mock_wallet.icon = "💰"
+
+    with patch("wrbot.bot.handlers.wallets.WalletRepository") as mock_repo_class:
+        mock_repo = AsyncMock()
+        mock_repo.set_icon.return_value = mock_wallet
+        mock_repo.list_by_user.return_value = [mock_wallet]
+        mock_repo_class.return_value = mock_repo
+
+        mock_state.get_data.return_value = {"wallet_id": 42}
+
+        await wallets_handler.wallet_icon_choice(callback, mock_state, session=mock_session)
+
+        mock_repo.set_icon.assert_called_once_with(12345, 42, "💰")
+        mock_state.clear.assert_called_once()
+        callback.answer.assert_called_once()

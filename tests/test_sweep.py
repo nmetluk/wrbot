@@ -282,3 +282,74 @@ async def test_sweep_respects_notify_time_and_timezone(mock_bot, mock_session_fa
                     # Убедимся, что передали user_tg_ids в get_due
                     _, kwargs = mock_due.call_args
                     assert kwargs.get("user_tg_ids") == [123]
+
+
+@pytest.mark.asyncio
+async def test_sweep_duplicates_to_category_targets_and_forbidden_notify_owner(
+    mock_bot, mock_session_factory
+):
+    """
+    TASK-0044: дубли в чаты; Forbidden в одном → notify owner + остальные;
+    изоляция от личного.
+    """
+    from aiogram.exceptions import TelegramForbiddenError
+
+    factory, _session = mock_session_factory
+
+    charge = _make_charge()
+    charge.category_id = 7  # has targets
+    user = _make_user()
+
+    due = [
+        {
+            "charge": charge,
+            "user": user,
+            "target_date": date(2026, 6, 10),
+            "days_before": 5,
+            "effective_days": [5],
+        }
+    ]
+
+    async def fake_get_due(*a, **k):
+        return due
+
+    with patch("wrbot.scheduler.sweep.get_due_reminders_today", new_callable=AsyncMock) as mock_due:
+        mock_due.side_effect = fake_get_due
+
+        with patch(
+            "wrbot.scheduler.sweep.select_users_to_notify_at", new_callable=AsyncMock
+        ) as mock_select:
+            mock_select.return_value = [user]
+
+            with patch("wrbot.scheduler.sweep.SentReminderRepository") as mock_repo_cls:
+                mock_repo = mock_repo_cls.return_value
+                mock_repo.record = AsyncMock(return_value=True)
+
+                with patch(
+                    "wrbot.scheduler.sweep.build_reminder_text", new_callable=AsyncMock
+                ) as mock_build:
+                    mock_build.return_value = "🔔 test dup"
+
+                    # мок Category repo с 2 targets, один forbidden
+                    with patch("wrbot.scheduler.sweep.CategoryRepository") as mock_cat_cls:
+                        mock_cat = AsyncMock()
+                        mock_cat.get_notify_chat_ids.return_value = [-100111, -100222]
+                        mock_cat_cls.return_value = mock_cat
+
+                        # send side: dup1 ok, dup2 forbidden (triggers owner notify), personal ok
+                        async def send_side(chat_id, **kw):
+                            if chat_id == -100222:
+                                raise TelegramForbiddenError(
+                                    method_name="send", message="no rights"
+                                )
+                            return True
+
+                        mock_bot.send_message.side_effect = send_side
+
+                        await run_sweep(mock_bot, factory)
+
+                        # personal + good dup + owner notify (for forbidden)
+                        calls = mock_bot.send_message.call_count
+                        assert calls >= 3  # personal + good + owner notify
+                        # record only personal
+                        mock_repo.record.assert_awaited_once()

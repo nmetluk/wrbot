@@ -86,7 +86,7 @@ class UserRepository:
 
             wrepo = WalletRepository(self._session)
             try:
-                await wrepo.create(tg_id, "Основная карта")
+                await wrepo.create(tg_id, "Основная карта", icon="💳")
                 logger.info("Created default wallet for new user: tg_id=%s", tg_id)
             except Exception as exc:  # pragma: no cover - не должно случаться для свежего
                 logger.warning("Failed to create default wallet for tg_id=%s: %s", tg_id, exc)

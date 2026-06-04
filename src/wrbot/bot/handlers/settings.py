@@ -342,13 +342,16 @@ async def wallets_list(callback: CallbackQuery, state: FSMContext, **data: Any) 
 
     # Получаем кошельки
     wallets = await wallet_repo.list_by_user(tg_id)
-    wallet_data = [{"id": w.id, "name": w.name} for w in wallets]
+    wallet_data = [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
 
     if not wallet_data:
         text = Texts.wallets_list_empty
         keyboard = get_wallets_keyboard([])
     else:
-        lines = [Texts.wallet_list_item.format(name=w["name"]) for w in wallet_data]
+        lines = [
+            Texts.wallet_list_item.format(icon=w.get("icon", "👛"), name=w["name"])
+            for w in wallet_data
+        ]
         text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
         keyboard = get_wallets_keyboard(wallet_data)
 

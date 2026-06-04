@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-03T23:36:41Z",
+  "generated_at": "2026-06-04T00:08:57Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
-    "in_progress": 3,
-    "done": 41,
+    "inbox": 0,
+    "in_progress": 0,
+    "done": 45,
     "blocked": 0
   },
   "tasks": [
@@ -340,34 +340,34 @@
     {
       "id": "TASK-0042",
       "title": "\"Иконки кошельков/карт: выбор эмодзи из пресета при добавлении/редактировании + отображение\"",
-      "status": "in_progress",
-      "file": "handoff/in-progress/TASK-0042-wallet-icons.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0042-wallet-icons.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0042-report.md"
     },
     {
       "id": "TASK-0043",
       "title": "\"Каналы/группы для дубля напоминаний: схема (Category.notify_chat_ids) + UI управления в настройках категории\"",
-      "status": "in_progress",
-      "file": "handoff/in-progress/TASK-0043-category-notify-targets-schema-ui.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0043-category-notify-targets-schema-ui.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0043-report.md"
     },
     {
       "id": "TASK-0044",
       "title": "\"Дублирование напоминаний в каналы/группы категории + уведомление владельца при отсутствии прав\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0044-duplicate-reminders-to-channels.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0044-duplicate-reminders-to-channels.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0044-report.md"
     },
     {
       "id": "TASK-0045",
       "title": "\"Редактирование списания: держать и обновлять карточку текущих данных, затирать введённое из рабочей области\"",
-      "status": "in_progress",
-      "file": "handoff/in-progress/TASK-0045-edit-flow-persistent-card.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0045-edit-flow-persistent-card.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0045-report.md"
     }
   ]
 }

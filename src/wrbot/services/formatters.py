@@ -88,13 +88,14 @@ def format_notify_for_charge(charge: Any) -> str:
 
 
 async def resolve_wallet_name(session: AsyncSession, user_id: int, wallet_id: int | None) -> str:
-    """Имя кошелька через репозиторий (с изоляцией по user)."""
+    """Имя кошелька (с иконкой) через репозиторий. Иконка: TASK-0042."""
     if wallet_id is None:
         return "?"
     repo = WalletRepository(session)
     w = await repo.get(user_id, wallet_id)
     if w and getattr(w, "name", None):
-        return w.name
+        icon = getattr(w, "icon", None) or "👛"
+        return f"{icon} {w.name}"
     return f"ID {wallet_id}"
 
 
@@ -168,3 +169,21 @@ async def build_reminder_text(session: AsyncSession, user_id: int, charge: Any) 
         wallet=wallet,
         next_date=next_date,
     )
+
+
+async def build_edit_live_card(
+    session: AsyncSession, user_id: int, data: dict[str, Any], step: str
+) -> str:
+    """Живая карточка редактирования (TASK-0045): текущие (подтверждённые) данные + текущий шаг."""
+    base = await build_new_charge_summary(session, user_id, data)
+    step_labels = {
+        "name": "название",
+        "amount": "сумма",
+        "wallet": "кошелёк",
+        "category": "категория",
+        "period": "период",
+        "next_date": "дата (ДД.ММ.ГГГГ)",
+        "notify": "уведомления",
+    }
+    label = step_labels.get(step, step)
+    return base + f"\n\n✏️ Редактирование шага: {label}\nВведите значение или выберите кнопку."

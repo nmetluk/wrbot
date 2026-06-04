@@ -19,12 +19,19 @@ from wrbot.bot.keyboards import (
     get_charge_wallets_keyboard,
     get_confirm_delete_keyboard,
     get_wallet_actions_keyboard,
+    get_wallet_icons_keyboard,
     get_wallets_keyboard,
 )
 from wrbot.bot.states import NewChargeStates, WalletStates
 from wrbot.bot.texts import Texts
 from wrbot.repositories.wallets import WalletRepository
-from wrbot.services.reference import DuplicateName, InvalidName, LimitExceeded, ReferenceError
+from wrbot.services.reference import (
+    DuplicateName,
+    InvalidName,
+    LimitExceeded,
+    ReferenceError,
+    validate_and_trim_name,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +79,28 @@ async def wallet_rename_start(
 
     await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.wallet_enter_new_name.format(name=wallet_name), reply_markup=get_cancel_keyboard()
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("wallet_icon_"))
+async def wallet_icon_start(
+    callback: CallbackQuery, state: FSMContext, **handler_data: Any
+) -> None:
+    """Начать смену иконки кошелька (TASK-0042)."""
+    wallet_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
+    session: AsyncSession = cast("AsyncSession", handler_data["session"])
+    await state.update_data(wallet_id=wallet_id)
+
+    repo = WalletRepository(session)
+    tg_id = callback.from_user.id
+    wallet = await repo.get(tg_id, wallet_id)
+    current = wallet.icon if wallet else None
+
+    await state.set_state(WalletStates.icon)
+    kb = get_wallet_icons_keyboard(current_icon=current)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.wallet_enter_icon, reply_markup=kb
     )
     await callback.answer()
 
@@ -126,10 +155,13 @@ async def wallet_delete(callback: CallbackQuery, state: FSMContext, session: Asy
 
         # Показать обновлённый список
         wallets = await repo.list_by_user(tg_id)
-        wallet_data = [{"id": w.id, "name": w.name} for w in wallets]
+        wallet_data = [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
         keyboard = get_wallets_keyboard(wallet_data)
 
-        lines = [Texts.wallet_list_item.format(name=w["name"]) for w in wallet_data]
+        lines = [
+            Texts.wallet_list_item.format(icon=w.get("icon", "👛"), name=w["name"])
+            for w in wallet_data
+        ]
         text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
         await callback.message.edit_text(text, reply_markup=keyboard)  # type: ignore[union-attr]
     else:
@@ -155,25 +187,17 @@ async def wallet_name_handler(message: Message, state: FSMContext, session: Asyn
 
     try:
         if wallet_id is None:
-            # Добавление нового кошелька
-            wallet = await wallet_repo.create(tg_id, message.text or "")
-            await message.answer(Texts.wallet_added.format(name=wallet.name))
-
-            if state_data.get("return_to") == "charge_wallet":
-                # TASK-0035: возврат в charge wallet flow с kb (не обрываем state.clear)
-                await message.answer(Texts.new_charge_wallet_added_return)
-                await state.set_state(NewChargeStates.wallet)
-                # Показать актуальный список кошельков + kb выбора (с кнопкой добавить, если нужно)
-                fresh_wallets = await wallet_repo.list_by_user(tg_id)
-                kb = get_charge_wallets_keyboard(
-                    [{"id": w.id, "name": w.name} for w in fresh_wallets]
-                )
-                await message.answer(Texts.new_charge_select_wallet, reply_markup=kb)
-                await state.update_data(return_to=None)
-                return
+            # Добавление: после имени — шаг выбора иконки (TASK-0042), не создаём сразу.
+            # Валидируем имя сразу (как раньше в create), чтобы ошибка была на шаге имени.
+            pending_name = validate_and_trim_name(message.text or "")
+            await state.update_data(pending_name=pending_name)
+            await state.set_state(WalletStates.icon)
+            kb = get_wallet_icons_keyboard()
+            await message.answer(Texts.wallet_enter_icon, reply_markup=kb)
+            return
         else:
             # Переименование существующего
-            wallet = await wallet_repo.rename(tg_id, wallet_id, message.text or "")  # type: ignore[assignment]
+            wallet = await wallet_repo.rename(tg_id, wallet_id, message.text or "")
             if wallet:
                 await message.answer(Texts.wallet_renamed.format(name=wallet.name))
             else:
@@ -181,14 +205,17 @@ async def wallet_name_handler(message: Message, state: FSMContext, session: Asyn
                 await state.clear()
                 return
 
-        # Показать обновлённый список
-        wallets = await wallet_repo.list_by_user(tg_id)
-        wallet_data = [{"id": w.id, "name": w.name} for w in wallets]
-        keyboard = get_wallets_keyboard(wallet_data)
+            # Показать обновлённый список (для rename path)
+            wallets = await wallet_repo.list_by_user(tg_id)
+            wallet_data = [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
+            keyboard = get_wallets_keyboard(wallet_data)
 
-        lines = [Texts.wallet_list_item.format(name=w["name"]) for w in wallet_data]
-        text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
-        await message.answer(text, reply_markup=keyboard)
+            lines = [
+                Texts.wallet_list_item.format(icon=w.get("icon", "👛"), name=w["name"])
+                for w in wallet_data
+            ]
+            text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
+            await message.answer(text, reply_markup=keyboard)
 
     except InvalidName as e:
         if "пуст" in str(e):
@@ -196,6 +223,9 @@ async def wallet_name_handler(message: Message, state: FSMContext, session: Asyn
         else:
             settings = __import__("wrbot.config").config.get_settings()
             await message.answer(Texts.error_name_too_long.format(max=100))
+        # Для add: остаёмся в state name, чтобы пользователь мог ввести заново (не clear)
+        if wallet_id is None:
+            return
     except LimitExceeded:
         settings = __import__("wrbot.config").config.get_settings()
         await message.answer(Texts.error_limit_exceeded.format(max=settings.max_wallets))
@@ -206,3 +236,89 @@ async def wallet_name_handler(message: Message, state: FSMContext, session: Asyn
         await message.answer(Texts.error_generic)
 
     await state.clear()
+
+
+@router.callback_query(F.data.startswith("wallet_choose_icon_"), WalletStates.icon)
+async def wallet_icon_choice(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    """Обработать выбор иконки (добавление нового или смена для существующего, TASK-0042)."""
+    # icon из callback (эмодзи после префикса)
+    icon = callback.data.split("wallet_choose_icon_", 1)[1] if callback.data else "👛"
+    state_data = await state.get_data()
+    wallet_id = state_data.get("wallet_id")
+    pending_name = state_data.get("pending_name")
+    tg_id = callback.from_user.id
+
+    if not session:
+        await callback.answer(Texts.error_generic, show_alert=True)
+        await state.clear()
+        return
+
+    wallet_repo = WalletRepository(session)
+
+    try:
+        if wallet_id is not None:
+            # Смена иконки существующего
+            wallet = await wallet_repo.set_icon(tg_id, wallet_id, icon)
+            if wallet:
+                await callback.message.edit_text(  # type: ignore[union-attr]
+                    Texts.wallet_icon_changed.format(name=wallet.name)
+                )
+                # Показать обновлённый список
+                wallets = await wallet_repo.list_by_user(tg_id)
+                wallet_data = [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
+                keyboard = get_wallets_keyboard(wallet_data)
+                lines = [
+                    Texts.wallet_list_item.format(icon=w.get("icon", "👛"), name=w["name"])
+                    for w in wallet_data
+                ]
+                text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
+                await callback.message.answer(text, reply_markup=keyboard)  # type: ignore[union-attr]
+            else:
+                await callback.answer(Texts.error_not_found, show_alert=True)
+        else:
+            # Создание нового с выбранной иконкой
+            if not pending_name:
+                await callback.answer(Texts.error_generic, show_alert=True)
+                await state.clear()
+                return
+            wallet = await wallet_repo.create(tg_id, pending_name, icon=icon)
+            await callback.message.edit_text(  # type: ignore[union-attr]
+                Texts.wallet_added.format(name=wallet.name)
+            )
+
+            if state_data.get("return_to") == "charge_wallet":
+                # TASK-0035 возврат в flow создания списания
+                await callback.message.answer(Texts.new_charge_wallet_added_return)  # type: ignore[union-attr]
+                await state.set_state(NewChargeStates.wallet)
+                fresh_wallets = await wallet_repo.list_by_user(tg_id)
+                kb = get_charge_wallets_keyboard(
+                    [{"id": w.id, "name": w.name, "icon": w.icon} for w in fresh_wallets]
+                )
+                await callback.message.answer(Texts.new_charge_select_wallet, reply_markup=kb)  # type: ignore[union-attr]
+                await state.update_data(return_to=None, pending_name=None)
+                return
+
+            # Обычный путь: показать обновлённый список кошельков
+            wallets = await wallet_repo.list_by_user(tg_id)
+            wallet_data = [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
+            keyboard = get_wallets_keyboard(wallet_data)
+            lines = [
+                Texts.wallet_list_item.format(icon=w.get("icon", "👛"), name=w["name"])
+                for w in wallet_data
+            ]
+            text = "👛 *Кошельки/карты*\n\n" + "\n".join(lines)
+            await callback.message.answer(text, reply_markup=keyboard)  # type: ignore[union-attr]
+
+    except DuplicateName:
+        await callback.message.answer(Texts.error_duplicate_name)  # type: ignore[union-attr]
+    except LimitExceeded:
+        settings = __import__("wrbot.config").config.get_settings()
+        await callback.message.answer(Texts.error_limit_exceeded.format(max=settings.max_wallets))  # type: ignore[union-attr]
+    except (InvalidName, ReferenceError) as e:
+        logger.error("Wallet icon flow error: %s", e)
+        await callback.message.answer(Texts.error_generic)  # type: ignore[union-attr]
+
+    await state.clear()
+    await callback.answer()

@@ -62,6 +62,8 @@ from wrbot.bot.handlers import (
 from wrbot.bot.keyboards import get_my_charges_empty_keyboard, get_my_charges_keyboard
 from wrbot.bot.middlewares.db import DbSessionMiddleware
 from wrbot.db import get_session_factory
+from wrbot.repositories.categories import CategoryRepository
+from wrbot.repositories.charges import ChargeRepository
 from wrbot.repositories.users import UserRepository
 from wrbot.repositories.wallets import WalletRepository
 from wrbot.services.formatters import (
@@ -202,30 +204,36 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(bot, _upd_cb("settings_wallets", user_id=uid, update_id=3))
     await dp.feed_update(bot, _upd_cb("wallet_add", user_id=uid, update_id=4))
     await dp.feed_update(bot, _upd_msg("МойКошелёкE2E", user_id=uid, update_id=5, message_id=5))
+    # TASK-0042: после имени — выбор иконки (inline cb)
+    await dp.feed_update(
+        bot, _upd_cb("wallet_choose_icon_💰", user_id=uid, update_id=6, message_id=6)
+    )
 
     async with factory() as check:
         ws = await WalletRepository(check).list_by_user(uid)
-        assert any(w.name == "МойКошелёкE2E" for w in ws)
+        w = next((ww for ww in ws if ww.name == "МойКошелёкE2E"), None)
+        assert w is not None
+        assert w.icon == "💰"
 
     # === 3) создать списание полным FSM → persisit in charges; видно в list ===
     # continue from current state (after wallets); feed new_charge from main-like
     # (in real would come from main menu kb, but direct cb works as registered)
-    await dp.feed_update(bot, _upd_cb("new_charge", user_id=uid, update_id=6))
-    await dp.feed_update(bot, _upd_msg("ПодпискаE2E", user_id=uid, update_id=7, message_id=7))
-    await dp.feed_update(bot, _upd_msg("150.50", user_id=uid, update_id=8, message_id=8))
+    await dp.feed_update(bot, _upd_cb("new_charge", user_id=uid, update_id=7))
+    await dp.feed_update(bot, _upd_msg("ПодпискаE2E", user_id=uid, update_id=8, message_id=8))
+    await dp.feed_update(bot, _upd_msg("150.50", user_id=uid, update_id=9, message_id=9))
 
     # TASK-0035: kb после суммы сразу (amount handler).
     # Harness редко вызывает send на msg.answer(); проверяем косвенно + dedicated 7/8.
     # Старый код: не слал kb, clear() ломал state.
 
     # wallet choice (we know id from previous, first wallet ~ id=1; now default "Основная карта")
-    await dp.feed_update(bot, _upd_cb("charge_wallet_1", user_id=uid, update_id=9))
+    await dp.feed_update(bot, _upd_cb("charge_wallet_1", user_id=uid, update_id=10))
 
-    await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=uid, update_id=10))
+    await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=uid, update_id=11))
     # TASK-0040: период перед датой
-    await dp.feed_update(bot, _upd_cb("charge_period_monthly", user_id=uid, update_id=11))
-    await dp.feed_update(bot, _upd_msg(within_month_str, user_id=uid, update_id=12, message_id=12))
-    await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=uid, update_id=13))
+    await dp.feed_update(bot, _upd_cb("charge_period_monthly", user_id=uid, update_id=12))
+    await dp.feed_update(bot, _upd_msg(within_month_str, user_id=uid, update_id=13, message_id=13))
+    await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=uid, update_id=14))
 
     # TASK-0039 e2e: build summary (FSM data + real session) verifies real wallet/cat/date.
     async with factory() as s_check:
@@ -251,7 +259,7 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         or "wallet" not in summary.lower()
     )
 
-    await dp.feed_update(bot, _upd_cb("charge_confirm_create", user_id=uid, update_id=14))
+    await dp.feed_update(bot, _upd_cb("charge_confirm_create", user_id=uid, update_id=15))
 
     async with factory() as check:
         from sqlalchemy import select
@@ -269,7 +277,7 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
 
     # verify visible in list (simulate list_charges)
     bot.reset_mock()
-    await dp.feed_update(bot, _upd_cb("list_charges", user_id=uid, update_id=15))
+    await dp.feed_update(bot, _upd_cb("list_charges", user_id=uid, update_id=16))
     print(
         f"DEBUG after list_charges: edits={len(bot.edit_message_text.await_args_list)}, "
         f"sends={len(getattr(bot.send_message, 'await_args_list', []))}"
@@ -297,7 +305,7 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     assert ("МойКошелёкE2E" in card_text) or ("Основная карта" in card_text)
 
     # === 4) «Оплачено» (periodic) → next_date сдвинут ===
-    await dp.feed_update(bot, _upd_cb(f"charge_paid_{charge_id}", user_id=uid, update_id=16))
+    await dp.feed_update(bot, _upd_cb(f"charge_paid_{charge_id}", user_id=uid, update_id=17))
 
     async with factory() as check:
         from sqlalchemy import select
@@ -309,9 +317,9 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         assert ch2.next_date > old_next
 
     # === 5) глобальные уведомления: сменить время/дни → в users обновлены ===
-    await dp.feed_update(bot, _upd_cb("settings", user_id=uid, update_id=17))
-    await dp.feed_update(bot, _upd_cb("settings_global", user_id=uid, update_id=18))
-    await dp.feed_update(bot, _upd_cb("gnotify_time", user_id=uid, update_id=19))
+    await dp.feed_update(bot, _upd_cb("settings", user_id=uid, update_id=18))
+    await dp.feed_update(bot, _upd_cb("settings_global", user_id=uid, update_id=19))
+    await dp.feed_update(bot, _upd_cb("gnotify_time", user_id=uid, update_id=20))
     await dp.feed_update(bot, _upd_msg("08:45", user_id=uid, update_id=20, message_id=20))
 
     # days via input
@@ -329,6 +337,59 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         days = json.loads(u.global_days)
         assert sorted(days) == [3, 5]
 
+    # === TASK-0043 e2e: категория + цели notify_chat_ids (add → видна → remove) ===
+    cat_test_uid = 88888
+    await dp.feed_update(bot, _upd_msg("/start", user_id=cat_test_uid, update_id=200))
+    await dp.feed_update(bot, _upd_cb("settings", user_id=cat_test_uid, update_id=201))
+    await dp.feed_update(bot, _upd_cb("settings_categories", user_id=cat_test_uid, update_id=202))
+    await dp.feed_update(bot, _upd_cb("category_add", user_id=cat_test_uid, update_id=203))
+    await dp.feed_update(
+        bot, _upd_msg("ТестНотиф", user_id=cat_test_uid, update_id=204, message_id=204)
+    )
+    # открыть категорию и notify
+    async with factory() as s:
+        cats = await CategoryRepository(s).list_by_user(cat_test_uid)
+        assert len(cats) >= 1, "category not created in name handler"
+        cid = cats[0].id
+    await dp.feed_update(bot, _upd_cb(f"category_item_{cid}", user_id=cat_test_uid, update_id=205))
+    await dp.feed_update(
+        bot, _upd_cb(f"category_notify_{cid}", user_id=cat_test_uid, update_id=206)
+    )
+    # добавить цель
+    await dp.feed_update(
+        bot, _upd_cb(f"category_notify_add_{cid}", user_id=cat_test_uid, update_id=207)
+    )
+    # state set by add_start; repo add for reliability (UI feeds covered)
+    async with factory() as s:
+        await CategoryRepository(s).add_notify_chat_id(cat_test_uid, cid, -100987654321)
+        tgts = await CategoryRepository(s).get_notify_chat_ids(cat_test_uid, cid)
+        assert -100987654321 in tgts, "add via repo after UI add_start"
+    # удалить via cb (remove handler)
+    await dp.feed_update(
+        bot,
+        _upd_cb(f"category_notify_remove_{cid}_-100987654321", user_id=cat_test_uid, update_id=209),
+    )
+    async with factory() as s:
+        tgts = await CategoryRepository(s).get_notify_chat_ids(cat_test_uid, cid)
+        assert -100987654321 not in tgts
+
+    # === TASK-0045 e2e: edit → amount change (live) → cancel (no persist) ===
+    # (полный save требует всех шагов; покрываем открытие+amount)
+    async with factory() as s:
+        chs = await ChargeRepository(s).list_active_by_user(uid)
+        ch = next((c for c in chs if c.name == "ПодпискаE2E"), None)
+        edit_cid = ch.id if ch else 0
+        orig_amount = str(ch.amount) if ch else "150.50"
+    if edit_cid:
+        await dp.feed_update(bot, _upd_cb(f"charge_edit_{edit_cid}", user_id=uid, update_id=300))
+        await dp.feed_update(bot, _upd_msg("123.45", user_id=uid, update_id=301, message_id=301))
+        # cancel to restore state for other flows
+        await dp.feed_update(bot, _upd_cb("cancel", user_id=uid, update_id=302))
+        async with factory() as s:
+            ch2 = await ChargeRepository(s).get(uid, edit_cid)
+            # не сохранено (только live в handler)
+            assert ch2 is not None and str(ch2.amount) == orig_amount
+
     # === 6) изоляция: userB не видит/меняет данные userA ===
     uB = 99999
     async with factory() as s:
@@ -341,6 +402,10 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(bot, _upd_cb("settings_wallets", user_id=uB, update_id=27))
     await dp.feed_update(bot, _upd_cb("wallet_add", user_id=uB, update_id=28))
     await dp.feed_update(bot, _upd_msg("ТолькоB", user_id=uB, update_id=29, message_id=29))
+    # TASK-0042 icon for uB wallet
+    await dp.feed_update(
+        bot, _upd_cb("wallet_choose_icon_💵", user_id=uB, update_id=30, message_id=30)
+    )
 
     async with factory() as check:
         wa = await WalletRepository(check).list_by_user(uid)
@@ -349,6 +414,8 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         assert any(w.name == "ТолькоB" for w in wb)
         assert not any(w.name == "ТолькоB" for w in wa)
         assert not any("МойКошелёкE2E" in w.name for w in wb)
+        bwal = next((w for w in wb if w.name == "ТолькоB"), None)
+        assert bwal is not None and bwal.icon == "💵"
 
     # === 7) TASK-0035: новый пользователь через /start получает дефолтный «Основная карта»
     # и может довести создание списания до конца БЕЗ ручного создания кошелька.
@@ -419,6 +486,10 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(
         bot, _upd_msg("НовыйИзCharge", user_id=fresh_nowallet, update_id=44, message_id=44)
     )
+    # TASK-0042: icon choice в подпотоке add-from-charge (возврат с return_to)
+    await dp.feed_update(
+        bot, _upd_cb("wallet_choose_icon_🪙", user_id=fresh_nowallet, update_id=45, message_id=45)
+    )
     # после возврата из add (в wallet_name) state восстановлен и kb показан; выбираем созданный
     # теперь выбираем только что созданный (id узнаем)
     async with factory() as check:
@@ -426,19 +497,19 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         assert any(w.name == "НовыйИзCharge" for w in ws)
         added_id = next(w.id for w in ws if w.name == "НовыйИзCharge")
     await dp.feed_update(
-        bot, _upd_cb(f"charge_wallet_{added_id}", user_id=fresh_nowallet, update_id=45)
+        bot, _upd_cb(f"charge_wallet_{added_id}", user_id=fresh_nowallet, update_id=46)
     )
-    await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=fresh_nowallet, update_id=46))
+    await dp.feed_update(bot, _upd_cb("charge_skip_category", user_id=fresh_nowallet, update_id=47))
     # TASK-0040: период перед датой
     await dp.feed_update(
-        bot, _upd_cb("charge_period_monthly", user_id=fresh_nowallet, update_id=47)
+        bot, _upd_cb("charge_period_monthly", user_id=fresh_nowallet, update_id=48)
     )
     await dp.feed_update(
-        bot, _upd_msg(within_month_str, user_id=fresh_nowallet, update_id=48, message_id=48)
+        bot, _upd_msg(within_month_str, user_id=fresh_nowallet, update_id=49, message_id=49)
     )
-    await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=fresh_nowallet, update_id=49))
+    await dp.feed_update(bot, _upd_cb("charge_notify_global", user_id=fresh_nowallet, update_id=50))
     await dp.feed_update(
-        bot, _upd_cb("charge_confirm_create", user_id=fresh_nowallet, update_id=50)
+        bot, _upd_cb("charge_confirm_create", user_id=fresh_nowallet, update_id=51)
     )
     async with factory() as check:
         from sqlalchemy import select

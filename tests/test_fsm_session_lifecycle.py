@@ -97,12 +97,23 @@ async def test_fsm_lifecycle_wallet_create_persists(test_engine):
 
     await mw(dispatch2, msg, data)
 
-    # Проверка: запись реально в БД
+    # TASK-0042: после имени — dispatch выбора иконки (cb), чтобы create произошёл
+    icon_cb = _make_cb("wallet_choose_icon_💰")
+    data = {}
+
+    async def dispatch_icon(event, d):
+        sess = d["session"]
+        await wallets_handler.wallet_icon_choice(event, state=state, session=sess)
+
+    await mw(dispatch_icon, icon_cb, data)
+
+    # Проверка: запись реально в БД (с иконкой)
     async with factory() as check:
         repo = WalletRepository(check)
         ws = await repo.list_by_user(12345)
         assert len(ws) == 1
         assert ws[0].name == "КошелёкЖизни"
+        assert ws[0].icon == "💰"
 
 
 @pytest.mark.asyncio

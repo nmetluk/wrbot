@@ -124,6 +124,7 @@ async def test_get_or_create_creates_default_wallet(async_session):
     assert len(ws) == 1
     assert ws[0].name == "Основная карта"
     assert ws[0].user_id == 12345
+    assert ws[0].icon == "💳"  # TASK-0042 default for card
 
 
 @pytest.mark.asyncio

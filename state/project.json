@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T00:10:00Z",
-  "current_phase": "AUDIT-M7 промежуточный: приняты 0039–0041 (гейт зелёный, pytest 235). 0042/0043/0045 в in-progress, 0044 в inbox — НЕ выполнены в репо. M7 не завершён.",
+  "updated_at": "2026-06-04T00:30:00Z",
+  "current_phase": "M7 batch 042-045 завершён (0042 icons, 0043 notify schema+UI, 0044 dups+owner notify, 0045 live edit card). Все в done/. После — финальный аудит M7 + релиз v0.3.0.",
   "current_milestone": "M7",
   "active_task": null,
-  "last_session": "SESSION-2026-06-03-21",
+  "last_session": "SESSION-2026-06-03-22",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "0039–0041 приняты (AUDIT-M7-interim). Исполнителю: довести 0042→0043→0044(dep 0043)→0045(deps 0039,0040), пушить в GitHub; проверить недокоммиченные правки по 0042/0043/0045. После готовности — финальный аудит M7 и релиз v0.3.0."
+  "next_step": "Batch 042-045 done (все 4 задачи). Обновлены отчёты/state/changelog. Запушить. Затем — финальный аудит M7 (отдельная сессия) + релиз v0.3.0."
 }

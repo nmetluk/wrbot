@@ -207,3 +207,47 @@ async def test_delete_other_users_category_returns_false(async_session):
     deleted = await category_repo.delete(user2.tg_id, category.id)
 
     assert deleted is False
+
+
+@pytest.mark.asyncio
+async def test_category_notify_chat_ids_add_remove_get(async_session):
+    """get/add/remove notify_chat_ids (идемпотент, дедуп, JSON, TASK-0043)."""
+
+    user_repo = UserRepository(async_session)
+    cat_repo = CategoryRepository(async_session)
+
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
+    cat = await cat_repo.create(user.tg_id, "Коммуналка")
+
+    # пусто по умолчанию
+    assert await cat_repo.get_notify_chat_ids(user.tg_id, cat.id) == []
+
+    # add
+    ok = await cat_repo.add_notify_chat_id(user.tg_id, cat.id, -100123)
+    assert ok is True
+    ids = await cat_repo.get_notify_chat_ids(user.tg_id, cat.id)
+    assert ids == [-100123]
+
+    # дедуп
+    ok2 = await cat_repo.add_notify_chat_id(user.tg_id, cat.id, -100123)
+    assert ok2 is False
+    assert await cat_repo.get_notify_chat_ids(user.tg_id, cat.id) == [-100123]
+
+    # add второй
+    await cat_repo.add_notify_chat_id(user.tg_id, cat.id, -100999)
+    ids = await cat_repo.get_notify_chat_ids(user.tg_id, cat.id)
+    assert sorted(ids) == [-100999, -100123]
+
+    # remove
+    ok3 = await cat_repo.remove_notify_chat_id(user.tg_id, cat.id, -100123)
+    assert ok3 is True
+    assert await cat_repo.get_notify_chat_ids(user.tg_id, cat.id) == [-100999]
+
+    # remove last -> пустой
+    await cat_repo.remove_notify_chat_id(user.tg_id, cat.id, -100999)
+    assert await cat_repo.get_notify_chat_ids(user.tg_id, cat.id) == []
+
+    # чужой не видит/не меняет
+    other = await user_repo.get_or_create(99999, create_default_wallet=False)
+    assert await cat_repo.get_notify_chat_ids(other.tg_id, cat.id) == []
+    assert await cat_repo.add_notify_chat_id(other.tg_id, cat.id, -1001) is False

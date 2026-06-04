@@ -14,6 +14,7 @@ from wrbot.repositories.audit_log import (
     ACTION_WALLET_CREATE,
     ACTION_WALLET_DELETE,
     ACTION_WALLET_RENAME,
+    ACTION_WALLET_SET_ICON,
     AuditLogRepository,
 )
 from wrbot.services.reference import (
@@ -37,13 +38,14 @@ class WalletRepository:
         """
         self._session = session
 
-    async def create(self, user_id: int, name: str) -> Wallet:
+    async def create(self, user_id: int, name: str, icon: str = "👛") -> Wallet:
         """
         Создать новый кошелёк для пользователя.
 
         Args:
             user_id: ID пользователя (tg_id)
             name: Название кошелька
+            icon: Эмодзи-иконка (по умолчанию 👛; TASK-0042)
 
         Returns:
             Созданный кошелёк
@@ -69,10 +71,11 @@ class WalletRepository:
             raise DuplicateName(f"Кошелёк «{validated_name}» уже существует")
 
         # Создание
-        wallet = Wallet(user_id=user_id, name=validated_name)
+        icon = icon or "👛"
+        wallet = Wallet(user_id=user_id, name=validated_name, icon=icon)
         self._session.add(wallet)
         await self._session.flush()
-        logger.info("Created wallet: user_id=%s, name=%s", user_id, validated_name)
+        logger.info("Created wallet: user_id=%s, name=%s, icon=%s", user_id, validated_name, icon)
         await AuditLogRepository(self._session).record(
             actor_id=user_id,
             actor_role="user",
@@ -193,3 +196,42 @@ class WalletRepository:
                 entity_id=wallet_id,
             )
         return deleted
+
+    async def set_icon(self, user_id: int, wallet_id: int, icon: str) -> Wallet | None:
+        """
+        Сменить иконку кошелька (TASK-0042).
+
+        Args:
+            user_id: ID пользователя (tg_id)
+            wallet_id: ID кошелька
+            icon: новая эмодзи-иконка (из пресета)
+
+        Returns:
+            Обновлённый кошелёк или None, если не найден
+
+        Raises:
+            (валидация иконки минимальна — пресет проверяется в handler)
+        """
+        icon = icon or "👛"
+        result = await self._session.execute(
+            update(Wallet)
+            .where(Wallet.user_id == user_id, Wallet.id == wallet_id)
+            .values(icon=icon)
+            .returning(Wallet)
+        )
+        wallet = result.scalar_one_or_none()
+        if wallet:
+            logger.info(
+                "Set wallet icon: user_id=%s, wallet_id=%s, icon=%s",
+                user_id,
+                wallet_id,
+                icon,
+            )
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_WALLET_SET_ICON,
+                entity_type="wallet",
+                entity_id=wallet_id,
+            )
+        return wallet

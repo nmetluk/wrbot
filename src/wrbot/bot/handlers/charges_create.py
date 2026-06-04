@@ -38,6 +38,7 @@ from wrbot.repositories.wallets import WalletRepository
 from wrbot.services.charges import validate_charge_amount
 from wrbot.services.dates import get_period_upper_bound, validate_next_date
 from wrbot.services.formatters import (
+    build_edit_live_card,
     build_new_charge_summary,
     format_date_ru,
     format_period_ru,
@@ -103,15 +104,33 @@ async def process_amount(message: Message, state: FSMContext, session: AsyncSess
     await state.update_data(amount=str(amount))
     await state.set_state(NewChargeStates.wallet)
 
-    # Показать выбор кошелька СРАЗУ (TASK-0035 hotfix): грузим и шлём kb в этом же сообщении,
-    # без отдельного @router.message(NewChargeStates.wallet) и без ожидания доп. сообщения от юзера.
     data: dict[str, Any] = await state.get_data()
+    if data.get("editing_charge_id"):
+        # live card update on amount change (TASK-0045 e2e key)
+        mid = data.get("edit_card_msg_id")
+        bot = getattr(message, "bot", None)
+        if mid and bot:
+            try:
+                card = await build_edit_live_card(session, data.get("user_id", 0), data, "wallet")
+                await bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=mid,
+                    text=card,
+                    reply_markup=get_cancel_keyboard(),
+                )
+                return
+            except Exception:
+                pass
+
+    # normal (create or edit fallback)
     user_id: int = data.get("user_id") or 0
     wallet_repo = WalletRepository(session)
     wallets = await wallet_repo.list_by_user(user_id)
     if not wallets:
         await message.answer(Texts.new_charge_no_wallets)
-    keyboard = get_charge_wallets_keyboard([{"id": w.id, "name": w.name} for w in wallets])
+    keyboard = get_charge_wallets_keyboard(
+        [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
+    )
     await message.answer(Texts.new_charge_select_wallet, reply_markup=keyboard)
 
 
@@ -351,28 +370,42 @@ async def confirm_create_charge(
 async def start_edit_charge(
     callback: CallbackQuery, state: FSMContext, session: AsyncSession
 ) -> None:
-    """Start editing a charge by loading data into NewChargeStates FSM."""
+    """Start editing: load + live updating card (TASK-0045, no orphan drafts)."""
     charge_id = int(callback.data.split("_")[2])  # type: ignore[union-attr]
     charge_repo = ChargeRepository(session)
-    charge = await charge_repo.get(callback.from_user.id, charge_id)
+    tg_id = callback.from_user.id
+    charge = await charge_repo.get(tg_id, charge_id)
     if not charge:
         await callback.answer(Texts.error_not_found)
         return
 
+    msg = callback.message
+    msg_id = getattr(msg, "message_id", None)
+    chat_id = getattr(getattr(msg, "chat", None), "id", None)
+
+    # load + notify default if needed (для live card)
+    notify_data = (
+        {"type": "global"} if not charge.individual_days else {"type": "custom", "days": []}
+    )
     await state.update_data(
         editing_charge_id=charge_id,
-        user_id=callback.from_user.id,
+        user_id=tg_id,
         name=charge.name,
         amount=str(charge.amount),
         wallet_id=charge.wallet_id,
         category_id=charge.category_id,
         next_date=charge.next_date.isoformat() if charge.next_date else None,
         period=charge.period,
+        notify=notify_data,
+        edit_card_msg_id=msg_id,
+        edit_chat_id=chat_id,
     )
     await state.set_state(NewChargeStates.name)
+
+    # live card via formatter (TASK-0039) + prompt
+    card = await build_edit_live_card(session, tg_id, await state.get_data(), "name")
     await callback.message.edit_text(  # type: ignore[union-attr]
-        Texts.charge_edit_started + "\n\n" + Texts.new_charge_enter_name,
-        reply_markup=get_cancel_keyboard(),
+        card, reply_markup=get_cancel_keyboard()
     )
     await callback.answer()
 

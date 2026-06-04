@@ -23,6 +23,7 @@ async def test_create_wallet(async_session):
     assert wallet.id is not None
     assert wallet.user_id == user.tg_id
     assert wallet.name == "Наличные"
+    assert wallet.icon == "👛"  # TASK-0042 default
 
 
 @pytest.mark.asyncio
@@ -209,3 +210,26 @@ async def test_delete_other_users_wallet_returns_false(async_session):
     deleted = await wallet_repo.delete(user2.tg_id, wallet.id)
 
     assert deleted is False
+
+
+@pytest.mark.asyncio
+async def test_create_wallet_with_icon_and_set_icon(async_session):
+    """Создание с иконкой + смена иконки (TASK-0042)."""
+    user_repo = UserRepository(async_session)
+    wallet_repo = WalletRepository(async_session)
+
+    user = await user_repo.get_or_create(12345, create_default_wallet=False)
+    w = await wallet_repo.create(user.tg_id, "Карта", icon="💳")
+    assert w.icon == "💳"
+
+    updated = await wallet_repo.set_icon(user.tg_id, w.id, "💰")
+    assert updated is not None
+    assert updated.icon == "💰"
+
+    # чужой не меняет
+    other = await user_repo.get_or_create(999, create_default_wallet=False)
+    bad = await wallet_repo.set_icon(other.tg_id, w.id, "🏦")
+    assert bad is None
+    # original unchanged
+    refetched = await wallet_repo.get(user.tg_id, w.id)
+    assert refetched.icon == "💰"

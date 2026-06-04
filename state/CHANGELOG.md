@@ -29,7 +29,27 @@
   e2e: seed cat+uncat, nav feeds, coverage.
   CI 235 passed. User batch noted; 0042+ в inbox.
 
-- **Batch take 041-045 (по запросу пользователя, SESSION-2026-06-03-20).** 0041 завершён в сессии; take_task запущен для 0042/0043/0045 (0044 не взят — зависит от 0043 в progress). in_progress: 0042,0043,0045; inbox: 0044.
+- **TASK-0042: Иконки кошельков/карт — выбор эмодзи из пресета + отображение везде (исполнитель, SESSION-2026-06-03-22, batch 042-045).**
+  Миграция + модель Wallet.icon (nullable+default, backfill). Пресет WALLET_ICONS в config (👛💰🏦💳💵🪙).
+  Repo: create(..., icon), set_icon + audit.
+  FSM: name → icon choice (add); actions + "Сменить иконку" (edit).
+  Keyboards: get_wallet_icons_keyboard + icon-aware wallet kbs.
+  Formatters: resolve_wallet_name → "{icon} {name}" (все отображения авто-обновились).
+  Тексты + handlers/settings/charges_create обновлены для icon.
+  Default "Основная карта" = "💳".
+  Тесты: repo+set, handlers icon flow, e2e (create+visible в charge/card), fsm lifecycle.
+  CI: ruff/mypy/pytest 238/alembic check/validate зелёно.
+
+- **Batch 042-045 (продолжение, SESSION-2026-06-03-22).** 0042 (icons) done; 0043 (notify schema+UI) done; 0044 (dups in sweep + owner notify on no perms) done; 0045 (live edit card) done. Все 4 завершены в сессии; CI 240 зелёно; отчёты/логи/state обновлены.
+
+- **TASK-0043: каналы/группы для дубля напоминаний — схема (Category.notify_chat_ids) + UI (исполнитель, SESSION-2026-06-03-22).**
+  Миграция + модель + repo get/add/remove (json, дедуп). validators.py (числовой chat_id). Тексты + kb + handlers (список/добавить/удалить + FSM ввод). Интеграция в actions кат. Тесты repo + e2e feed. CI ок.
+
+- **TASK-0044: дублирование напоминаний в каналы категории + уведомление владельца (исполнитель, SESSION-2026-06-03-22).**
+  В sweep после личной отправки — best-effort дубли в targets кат (CategoryRepo). Изоляция ошибок (Forbidden → notify owner с chat_id, без sensitive; остальные продолжают). Idemp только personal. Тесты mock Bot spec (multi + forbidden case). Тексты. CI ок.
+
+- **TASK-0045: редактирование списания — живая карточка (исполнитель, SESSION-2026-06-03-22).**
+  start_edit: load + store card msg id; live card через build_edit_live_card (0039). process_amount (и name): если edit — edit_message_text stored card с обновлёнными данными (через .bot). Нет осиротевших. Cancel/saved как обычно. e2e: edit+amount change (live) + cancel (не persist). CI ок.
 
 ### Audit
 - **AUDIT-M7 ПРОМЕЖУТОЧНЫЙ — ЧАСТИЧНО (архитектор, SESSION-2026-06-03-21).** По запросу «39-45 готово».

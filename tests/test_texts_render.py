@@ -13,7 +13,7 @@ from wrbot.bot.texts import Texts
     ("template", "kwargs"),
     [
         # Кошельки
-        (Texts.wallet_list_item, {"name": "Тинькофф"}),
+        (Texts.wallet_list_item, {"icon": "👛", "name": "Тинькофф"}),
         (Texts.wallet_added, {"name": "Наличные"}),
         (Texts.wallet_renamed, {"name": "Сбер"}),
         (Texts.wallet_deleted, {"name": "VTB"}),

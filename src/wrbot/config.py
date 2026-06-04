@@ -94,3 +94,9 @@ def get_settings() -> Settings:
         Settings с загруженными значениями из окружения
     """
     return Settings()
+
+
+# TASK-0042: пресет иконок кошельков (минимум 2+ на группу "кошельки"/"карты")
+# Вынесено в конфиг, не хардкод в handlers (как просит ТЗ).
+WALLET_ICONS: list[str] = ["👛", "💰", "🏦", "💳", "💵", "🪙"]
+DEFAULT_WALLET_ICON: str = "👛"

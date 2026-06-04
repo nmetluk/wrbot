@@ -9,6 +9,7 @@ from typing import Any
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from wrbot.config import WALLET_ICONS
 from wrbot.services.formatters import format_charge_button_text
 
 # Curated list of main Russian timezones for UI (per TASK-0025, not full IANA)
@@ -87,12 +88,12 @@ def get_wallets_keyboard(wallets: list[dict[str, Any]]) -> InlineKeyboardMarkup:
     """
     builder = InlineKeyboardBuilder()
 
-    # Кнопки кошельков
+    # Кнопки кошельков (иконка из данных, TASK-0042)
     for wallet in wallets:
-        # Кнопка с названием кошелька
+        icon = wallet.get("icon") or "👛"
         builder.add(
             InlineKeyboardButton(
-                text=f"👛 {wallet['name']}",
+                text=f"{icon} {wallet['name']}",
                 callback_data=f"wallet_item_{wallet['id']}",
             )
         )
@@ -124,6 +125,9 @@ def get_wallet_actions_keyboard(wallet_id: int) -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(text="✏️ Переименовать", callback_data=f"wallet_rename_{wallet_id}"),
         InlineKeyboardButton(text="🗑 Удалить", callback_data=f"wallet_delete_{wallet_id}"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="🖼 Сменить иконку", callback_data=f"wallet_icon_{wallet_id}")
     )
     builder.row(InlineKeyboardButton(text="◀️ Назад", callback_data="settings_wallets"))
     return builder.as_markup()
@@ -180,6 +184,12 @@ def get_category_actions_keyboard(category_id: int) -> InlineKeyboardMarkup:
         ),
         InlineKeyboardButton(text="🗑 Удалить", callback_data=f"category_delete_{category_id}"),
     )
+    # TASK-0043: управление целями дубля напоминаний (каналы/группы)
+    builder.row(
+        InlineKeyboardButton(
+            text="🔔 Каналы для напоминаний", callback_data=f"category_notify_{category_id}"
+        )
+    )
     builder.row(InlineKeyboardButton(text="◀️ Назад", callback_data="settings_categories"))
     return builder.as_markup()
 
@@ -213,9 +223,10 @@ def get_charge_wallets_keyboard(wallets: list[dict[str, Any]]) -> InlineKeyboard
     """Выбор кошелька при создании списания + кнопка добавить новый."""
     builder = InlineKeyboardBuilder()
     for w in wallets:
+        icon = w.get("icon") or "👛"
         builder.add(
             InlineKeyboardButton(
-                text=f"👛 {w['name']}",
+                text=f"{icon} {w['name']}",
                 callback_data=f"charge_wallet_{w['id']}",
             )
         )
@@ -482,4 +493,66 @@ def get_global_days_edit_keyboard(selected: list[int]) -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"),
     )
     builder.row(InlineKeyboardButton(text="✏️ Ввести вручную", callback_data="gdays_input"))
+    return builder.as_markup()
+
+
+# TASK-0043: клавиатуры для управления notify_chat_ids категории (список целей + add/remove)
+
+
+def get_category_notify_keyboard(category_id: int, targets: list[int]) -> InlineKeyboardMarkup:
+    """
+    Экран «Каналы для напоминаний» категории: текущие цели с удалением + добавить.
+    chat_id показываем как есть (каналы обычно -100…).
+    """
+    builder = InlineKeyboardBuilder()
+    for tid in targets:
+        # encode chat_id прямо (поддерживается TG, коротко)
+        builder.row(
+            InlineKeyboardButton(
+                text=f"❌ {tid}",
+                callback_data=f"category_notify_remove_{category_id}_{tid}",
+            )
+        )
+    builder.row(
+        InlineKeyboardButton(
+            text="➕ Добавить канал/группу", callback_data=f"category_notify_add_{category_id}"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="◀️ Назад к категории", callback_data=f"category_item_{category_id}"
+        )
+    )
+    return builder.as_markup()
+
+
+# TASK-0042: клавиатура выбора иконки кошелька (пресет из config/limits, не хардкод)
+
+
+def get_wallet_icons_keyboard(current_icon: str | None = None) -> InlineKeyboardMarkup:
+    """
+    Клавиатура выбора эмодзи-иконки для кошелька/карты.
+
+    Показывает пресет (по 2+ для кошельков и карт). Текущая (при редактировании) — с ✅.
+    Callbacks: wallet_choose_icon_<emoji> — специфичные, не перехватываются broad handlers.
+
+    Args:
+        current_icon: текущая иконка (для пометки ✅ при смене)
+
+    Returns:
+        InlineKeyboard с кнопками иконок + отмена.
+    """
+    builder = InlineKeyboardBuilder()
+    row: list[InlineKeyboardButton] = []
+    for icon in WALLET_ICONS:
+        prefix = "✅ " if icon == current_icon else ""
+        # emoji directly in cb_data (supported by TG, short)
+        cb = f"wallet_choose_icon_{icon}"
+        row.append(InlineKeyboardButton(text=f"{prefix}{icon}", callback_data=cb))
+        if len(row) == 3:
+            builder.row(*row)
+            row = []
+    if row:
+        builder.row(*row)
+    builder.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
     return builder.as_markup()

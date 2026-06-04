@@ -11,11 +11,14 @@ Sweep job for sending due reminders (TASK-0016).
 from __future__ import annotations
 
 import logging
+from contextlib import suppress
 from datetime import UTC, date, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 from wrbot.bot.keyboards import get_reminder_actions_keyboard
+from wrbot.bot.texts import Texts
 from wrbot.repositories.audit_log import ACTION_REMINDER_SENT, AuditLogRepository
+from wrbot.repositories.categories import CategoryRepository
 from wrbot.repositories.sent_reminders import SentReminderRepository
 from wrbot.services.formatters import build_reminder_text
 from wrbot.services.reminders import get_due_reminders_today, select_users_to_notify_at
@@ -25,6 +28,8 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
     from wrbot.models import Charge, User  # only for cast() in sweep
+
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +113,35 @@ async def run_sweep(bot: Bot, session_factory: async_sessionmaker[AsyncSession])
                     charge.name,
                     days_before,
                 )
+
+                # TASK-0044: дубли в notify_chat_ids (best-effort, не ломает personal)
+                # Изоляция: ошибка в одном чате не ломает другие и не отменяет личное.
+                try:
+                    cat_id = getattr(charge, "category_id", None)
+                    if cat_id is not None:
+                        cat_repo = CategoryRepository(session)
+                        targets = await cat_repo.get_notify_chat_ids(charge.user_id, cat_id)
+                        for tchat in targets:
+                            try:
+                                await bot.send_message(chat_id=tchat, text=text)
+                            except (TelegramForbiddenError, TelegramBadRequest):
+                                # уведомить владельца (один раз на этот чат)
+                                with suppress(Exception):
+                                    await bot.send_message(
+                                        chat_id=user.tg_id,
+                                        text=Texts.reminder_duplicate_failed.format(chat_id=tchat),
+                                    )
+                                logger.info(
+                                    "Duplicate forbidden to %s (charge %s); owner notified",
+                                    tchat,
+                                    charge.id,
+                                )
+                            except Exception as derr:
+                                logger.warning(
+                                    "Duplicate send failed to %s (isolated): %s", tchat, derr
+                                )
+                except Exception as dup_exc:
+                    logger.warning("Category notify dups handling failed (isolated): %s", dup_exc)
             except Exception as exc:
                 # Изоляция: не роняем весь свип
                 logger.warning(

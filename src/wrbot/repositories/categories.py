@@ -4,6 +4,7 @@ Category repository.
 Доступ к данным категорий с изоляцией по user_id (FR-13).
 """
 
+import json
 import logging
 
 from sqlalchemy import delete, select, update
@@ -13,6 +14,8 @@ from wrbot.db.models import Category
 from wrbot.repositories.audit_log import (
     ACTION_CATEGORY_CREATE,
     ACTION_CATEGORY_DELETE,
+    ACTION_CATEGORY_NOTIFY_ADD,
+    ACTION_CATEGORY_NOTIFY_REMOVE,
     ACTION_CATEGORY_RENAME,
     AuditLogRepository,
 )
@@ -193,3 +196,85 @@ class CategoryRepository:
                 entity_id=category_id,
             )
         return deleted
+
+    async def get_notify_chat_ids(self, user_id: int, category_id: int) -> list[int]:
+        """Получить список chat_id целей для дубля напоминаний (TASK-0043)."""
+        cat = await self.get(user_id, category_id)
+        if not cat or not cat.notify_chat_ids:
+            return []
+        try:
+            val = json.loads(cat.notify_chat_ids)
+            if isinstance(val, list):
+                return [int(x) for x in val if str(x).strip()]
+        except (json.JSONDecodeError, TypeError, ValueError):
+            pass
+        return []
+
+    async def add_notify_chat_id(self, user_id: int, category_id: int, chat_id: int) -> bool:
+        """
+        Добавить chat_id цели (идемпотентно, дедуп). Сериализация JSON.
+        Возвращает True если добавлено/изменено.
+        """
+        cat = await self.get(user_id, category_id)
+        if not cat:
+            return False
+        current = await self.get_notify_chat_ids(user_id, category_id)
+        if chat_id in current:
+            return False  # уже есть
+        current.append(chat_id)
+        new_val = json.dumps(sorted(set(current)))
+        result = await self._session.execute(
+            update(Category)
+            .where(Category.user_id == user_id, Category.id == category_id)
+            .values(notify_chat_ids=new_val)
+            .returning(Category)
+        )
+        updated = result.scalar_one_or_none()
+        if updated:
+            logger.info(
+                "Added notify chat_id %s for category %s (user %s)",
+                chat_id,
+                category_id,
+                user_id,
+            )
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_CATEGORY_NOTIFY_ADD,
+                entity_type="category",
+                entity_id=category_id,
+            )
+        return bool(updated)
+
+    async def remove_notify_chat_id(self, user_id: int, category_id: int, chat_id: int) -> bool:
+        """Удалить chat_id цели. Если список пуст — ставит NULL."""
+        cat = await self.get(user_id, category_id)
+        if not cat:
+            return False
+        current = await self.get_notify_chat_ids(user_id, category_id)
+        if chat_id not in current:
+            return False
+        current = [c for c in current if c != chat_id]
+        new_val = json.dumps(sorted(current)) if current else None
+        result = await self._session.execute(
+            update(Category)
+            .where(Category.user_id == user_id, Category.id == category_id)
+            .values(notify_chat_ids=new_val)
+            .returning(Category)
+        )
+        updated = result.scalar_one_or_none()
+        if updated:
+            logger.info(
+                "Removed notify chat_id %s for category %s (user %s)",
+                chat_id,
+                category_id,
+                user_id,
+            )
+            await AuditLogRepository(self._session).record(
+                actor_id=user_id,
+                actor_role="user",
+                action=ACTION_CATEGORY_NOTIFY_REMOVE,
+                entity_type="category",
+                entity_id=category_id,
+            )
+        return bool(updated)
