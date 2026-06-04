@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T01:10:00Z",
-  "current_phase": "Релиз v0.3.0 (M7) ВЫПУЩЕН: bump 0.3.0, /CHANGELOG.md [0.3.0], release-notes, git-тег v0.3.0. Гейт зелёный (pytest 240). Вне кода: живой смоук + деплой (миграции только с бекапом).",
+  "updated_at": "2026-06-04T02:10:00Z",
+  "current_phase": "Прод-баг после v0.3.0: добавление канала для категории зависает (порядок callback-фильтров category_notify_ шадовит add/remove — класс TASK-0008). Заведён blocker TASK-0046 → хотфикс v0.3.1.",
   "current_milestone": "M7",
-  "active_task": null,
-  "last_session": "SESSION-2026-06-04-01",
+  "active_task": "TASK-0046",
+  "last_session": "SESSION-2026-06-04-02",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "v0.3.0 выпущен (тег v0.3.0). Вне кода: живой смоук в Telegram (дубли в реальный канал/группу) + деплой по docs/deployment.md (миграции wallets.icon/categories.notify_chat_ids только после бекапа). Inbox пуст; новых майлстоунов нет — ждём отзывов/задач."
+  "next_step": "Исполнитель: /take-task → TASK-0046 (blocker: фикс порядка callback-хэндлеров category_notify_ + router-level тест). После — проверка/аудит и хотфикс-релиз v0.3.1."
 }
