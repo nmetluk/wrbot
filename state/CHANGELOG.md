@@ -8,12 +8,16 @@
 ## [Unreleased]
 
 ### Planned
-- **TASK-0047 — /getgrid + @упоминание → ID группы (архитектор, SESSION-2026-06-04-05).** По запросу:
-  в группе с ботом `/getgrid` или @упоминание возвращает ID чата для вписывания в настройки дубля
-  напоминаний (TASK-0043). Решение владельца: доступно любому участнику (без проверки прав). Новый
-  роутер `handlers/group.py` (скоуп group/supergroup), регистрация команды в group-scope меню,
-  router-level тесты через feed_update (урок TASK-0046). Privacy mode не трогаем. Версия — v0.4.0
-  или вместе с хотфиксом. В `inbox/`.
+- (выполнено)
+
+### Fixed (M7 extension)
+- **TASK-0047 (исполнитель, SESSION-2026-06-04-06).** Реализация: новый `src/wrbot/bot/handlers/group.py`
+  (`/getgrid` scoped на group/supergroup + приватный hint; @mention через entities + bot.me(), молчит
+  на прочие сообщения в группе). В `__main__.py`: include router (после start), set_my_commands с
+  `BotCommandScopeAllGroupChats()`. Тексты в texts.py. Helpers e2e расширены (chat_type, entities);
+  4 сценария dp.feed_update в test_e2e_smoke (getgrid group, mention, non-mention silence, private hint).
+  В test_imports. Ранний include роутера. CI начисто (241 pytest). Дополняет TASK-0043 (источник ID).
+  Готово к релизу (v0.3.1 или v0.4.0).
 
 ### Hotfix (blocker → v0.3.1)
 - **TASK-0046 ПРИНЯТ (архитектор-аудитор, SESSION-2026-06-04-04).** Фикс подтверждён независимо:

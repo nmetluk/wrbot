@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-04T08:00:45Z",
+  "generated_at": "2026-06-04T09:28:28Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 46,
+    "done": 47,
     "blocked": 0
   },
   "tasks": [
@@ -380,10 +380,10 @@
     {
       "id": "TASK-0047",
       "title": "\"Команда /getgrid и ответ на @упоминание в группе — вернуть ID чата для настройки дубля напоминаний\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0047-getgrid-group-id.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0047-getgrid-group-id.md",
       "milestone": "M7",
-      "report": null
+      "report": "handoff/reports/TASK-0047-report.md"
     }
   ]
 }
