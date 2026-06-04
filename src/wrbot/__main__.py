@@ -10,12 +10,13 @@ import signal
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
+from aiogram.types import BotCommand, BotCommandScopeAllGroupChats, BotCommandScopeAllPrivateChats
 
 from wrbot.bot.handlers import categories as categories_handler
 from wrbot.bot.handlers import charges_create as charges_create_handler
 from wrbot.bot.handlers import charges_list as charges_list_handler
 from wrbot.bot.handlers import errors as errors_handler
+from wrbot.bot.handlers import group as group_handler
 from wrbot.bot.handlers import reminders as reminders_handler
 from wrbot.bot.handlers import settings as settings_handler
 from wrbot.bot.handlers import start as start_handler
@@ -56,7 +57,11 @@ async def run_migrations() -> None:
 
 
 async def setup_bot_commands(bot: Bot) -> None:
-    """Настроить команды бота в меню Telegram."""
+    """Настроить команды бота в меню Telegram.
+
+    Приватный скоуп — как раньше.
+    Group scope (TASK-0047): /getgrid для получения ID чата в группах (для notify_chat_ids).
+    """
 
     commands = [
         BotCommand(command="start", description="Главное меню"),
@@ -65,6 +70,12 @@ async def setup_bot_commands(bot: Bot) -> None:
     ]
 
     await bot.set_my_commands(commands, scope=BotCommandScopeAllPrivateChats())
+
+    # TASK-0047: команда для групп (любой участник может получить ID чата)
+    group_commands = [
+        BotCommand(command="getgrid", description="Получить ID группы для настроек напоминаний"),
+    ]
+    await bot.set_my_commands(group_commands, scope=BotCommandScopeAllGroupChats())
 
 
 async def main() -> None:
@@ -95,6 +106,7 @@ async def main() -> None:
 
     # Регистрация хэндлеров
     dp.include_router(start_handler.router)
+    dp.include_router(group_handler.router)
     dp.include_router(settings_handler.router)
     dp.include_router(wallets_handler.router)
     dp.include_router(categories_handler.router)
