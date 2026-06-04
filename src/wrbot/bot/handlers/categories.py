@@ -199,35 +199,12 @@ async def category_name_handler(message: Message, state: FSMContext, session: As
 
 
 # TASK-0043: управление целями дубля напоминаний (Category.notify_chat_ids)
-
-
-@router.callback_query(F.data.startswith("category_notify_"))
-async def category_notify_list(
-    callback: CallbackQuery, state: FSMContext, **handler_data: Any
-) -> None:
-    """Показать список целей (chat_id) + кнопки удаления/добавить."""
-    data = callback.data or ""
-    # Более специфичные remove_/add_ обрабатываются отдельными хэндлерами.
-    # Гард: если это remove/add — не обрабатываем здесь.
-    if any(x in data for x in ("_remove_", "_add_")):
-        return
-    parts = data.split("_")
-    category_id = int(parts[-1]) if parts[-1].lstrip("-").isdigit() else int(parts[2])
-    session: AsyncSession = cast("AsyncSession", handler_data["session"])
-    tg_id = callback.from_user.id
-
-    repo = CategoryRepository(session)
-    cat = await repo.get(tg_id, category_id)
-    targets = await repo.get_notify_chat_ids(tg_id, category_id) if cat else []
-
-    name = cat.name if cat else "?"
-    title = Texts.category_notify_title.format(name=name)
-    if not targets:
-        title += "\n\n" + Texts.category_notify_empty
-
-    kb = get_category_notify_keyboard(category_id, targets)
-    await callback.message.edit_text(title, reply_markup=kb)  # type: ignore[union-attr]
-    await callback.answer()
+# NOTE: порядок регистрации критичен (TASK-0046 / класс TASK-0008).
+# Специфичные category_notify_add_/remove_ должны быть зарегистрированы РАНЬШЕ широкого
+# category_notify_ (в одном роутере порядок = порядок def в файле). Иначе широкий ловит все,
+# guard-return не делегирует, set_state не происходит, нет answer() → спиннер висит.
+# Регресс-тест: router introspection + dp.feed_update (см. tests/test_callback_routing.py,
+# test_e2e_smoke.py).
 
 
 @router.callback_query(F.data.startswith("category_notify_remove_"))
@@ -270,6 +247,35 @@ async def category_notify_add_start(
     await callback.message.edit_text(  # type: ignore[union-attr]
         Texts.category_notify_enter_chat_id, reply_markup=get_cancel_keyboard()
     )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("category_notify_"))
+async def category_notify_list(
+    callback: CallbackQuery, state: FSMContext, **handler_data: Any
+) -> None:
+    """Показать список целей (chat_id) + кнопки удаления/добавить.
+
+    ВАЖНО: этот хэндлер регистрируется ПОСЛЕ специфичных add/remove (см. выше).
+    Все пути обязаны вызывать callback.answer() (анти-залипание спиннера).
+    """
+    data = callback.data or ""
+    parts = data.split("_")
+    category_id = int(parts[-1]) if parts[-1].lstrip("-").isdigit() else int(parts[2])
+    session: AsyncSession = cast("AsyncSession", handler_data["session"])
+    tg_id = callback.from_user.id
+
+    repo = CategoryRepository(session)
+    cat = await repo.get(tg_id, category_id)
+    targets = await repo.get_notify_chat_ids(tg_id, category_id) if cat else []
+
+    name = cat.name if cat else "?"
+    title = Texts.category_notify_title.format(name=name)
+    if not targets:
+        title += "\n\n" + Texts.category_notify_empty
+
+    kb = get_category_notify_keyboard(category_id, targets)
+    await callback.message.edit_text(title, reply_markup=kb)  # type: ignore[union-attr]
     await callback.answer()
 
 

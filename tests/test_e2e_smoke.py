@@ -355,16 +355,23 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(
         bot, _upd_cb(f"category_notify_{cid}", user_id=cat_test_uid, update_id=206)
     )
-    # добавить цель
+    # добавить цель — ПОЛНЫЙ ПОТОК (TASK-0046 регресс): add_cb должен перевести в notify_chat_id
+    # (раньше broad list + guard-return съедал, state не ставился). Подаём msg с chat_id,
+    # обработчик message по состоянию добавляет; проверяем персистентность.
     await dp.feed_update(
         bot, _upd_cb(f"category_notify_add_{cid}", user_id=cat_test_uid, update_id=207)
     )
-    # state set by add_start; repo add for reliability (UI feeds covered)
+    # реальный ввод chat_id (отрицательный для канала) — теперь state установлен add_start'ом
+    await dp.feed_update(
+        bot,
+        _upd_msg("-100987654321", user_id=cat_test_uid, update_id=208, message_id=208),
+    )
     async with factory() as s:
-        await CategoryRepository(s).add_notify_chat_id(cat_test_uid, cid, -100987654321)
         tgts = await CategoryRepository(s).get_notify_chat_ids(cat_test_uid, cid)
-        assert -100987654321 in tgts, "add via repo after UI add_start"
-    # удалить via cb (remove handler)
+        assert -100987654321 in tgts, (
+            "added via full feed_update flow (add_cb sets state + msg handler)"
+        )
+    # удалить via cb (remove handler) — тоже должен доходить (не перехвачен broad)
     await dp.feed_update(
         bot,
         _upd_cb(f"category_notify_remove_{cid}_-100987654321", user_id=cat_test_uid, update_id=209),

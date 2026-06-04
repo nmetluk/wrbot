@@ -1,5 +1,5 @@
 """
-Tests for callback routing (TASK-0008).
+Tests for callback routing (TASK-0008, TASK-0046).
 
 These tests exercise the actual aiogram router registration and filters
 (what the Dispatcher uses at runtime), not direct handler calls.
@@ -7,6 +7,9 @@ These tests exercise the actual aiogram router registration and filters
 They would have failed (or demonstrated the bug) before the fix:
 - Broad `startswith("wallet_")` / `startswith("category_")` for *_details
   was registered first and caught `wallet_add`, `wallet_rename_*`, etc.
+- Broad `startswith("category_notify_")` shadowed `category_notify_add_` / `_remove_`
+  (TASK-0046 hotfix): specifics must register before broad; router-level tests
+  (introspection + dp.feed_update) required, unit direct calls miss order.
 """
 
 from aiogram.types import CallbackQuery, User
@@ -112,6 +115,35 @@ def test_category_item_routes_to_details():
 
     first = router.callback_query.handlers[0]
     assert getattr(first.callback, "__name__", "") == "category_details"
+
+
+# TASK-0046: router introspection for category_notify_* (add/remove/list).
+# Ensures specific filters register before broad startswith("category_notify_").
+# Mirrors wallet/category add/details tests (TASK-0008). Must fail on broken order.
+
+
+def test_category_notify_routing_order():
+    """add/remove must register before broad list (otherwise shadowing, no set_state, no answer).
+
+    This test exercises real router.handlers registration order (what Dispatcher uses).
+    """
+    router = categories_mod.router
+    names = [getattr(h.callback, "__name__", "") for h in router.callback_query.handlers]
+
+    assert "category_notify_list" in names
+    assert "category_notify_add_start" in names
+    assert "category_notify_remove" in names
+
+    idx_list = names.index("category_notify_list")
+    idx_add = names.index("category_notify_add_start")
+    idx_remove = names.index("category_notify_remove")
+
+    assert idx_add < idx_list, (
+        "category_notify_add_start must be before broad list to prevent shadowing"
+    )
+    assert idx_remove < idx_list, (
+        "category_notify_remove must be before broad list to prevent shadowing"
+    )
 
 
 # M4 TASK-0015: router introspection for reminder notification callbacks
