@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T01:08:00Z",
-  "current_phase": "TASK-0046 (blocker) выполнен исполнителем. Фикс: переупорядочены category_notify_* handlers (специфичные раньше широкого), удалён guard-return, answer() везде; добавлены router-level тесты (introspection + e2e feed_update, падают на сломанном). Полный CI зелёный (241 pytest). Готов к хотфикс-релизу v0.3.1.",
+  "updated_at": "2026-06-04T02:40:00Z",
+  "current_phase": "TASK-0046 ПРИНЯТ (аудит): маршрутизация category_notify_add_/remove_ исправлена и проверена на уровне роутера; гейт зелёный (pytest 241). Готов к хотфикс-релизу v0.3.1.",
   "current_milestone": "M7",
   "active_task": null,
-  "last_session": "SESSION-2026-06-04-03",
+  "last_session": "SESSION-2026-06-04-04",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Хотфикс-релиз v0.3.1 (bump версии, пользовательский /CHANGELOG.md, релиз-ноты, git-тег v0.3.1). Живой смоук в TG (добавить/удалить канал для категории — не должен зависать). Приём работы по TASK-0046."
+  "next_step": "TASK-0046 принят. Хотфикс-релиз v0.3.1 (bump версии, /CHANGELOG.md, релиз-ноты, git-тег v0.3.1) — по решению владельца. Живой смоук в TG (добавить/удалить канал для категории — не должен зависать)."
 }
