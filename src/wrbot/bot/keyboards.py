@@ -10,6 +10,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from wrbot.config import WALLET_ICONS
+from wrbot.services import currencies
 from wrbot.services.formatters import format_charge_button_text
 
 # Curated list of main Russian timezones for UI (per TASK-0025, not full IANA)
@@ -555,4 +556,74 @@ def get_wallet_icons_keyboard(current_icon: str | None = None) -> InlineKeyboard
     if row:
         builder.row(*row)
     builder.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
+    return builder.as_markup()
+
+
+# TASK-0050: клавиатуры выбора валюты (пресеты + постраничный список + поиск)
+# Callbacks: charge_currency_preset_XXX, charge_currency_other, charge_currency_page_N,
+# charge_currency_choose_XXX — все специфичные, чтобы не шадовиться.
+
+
+def get_charge_currency_keyboard(current: str = "RUB") -> InlineKeyboardMarkup:
+    """5 пресетов + «Другая». Текущая (last_currency) отмечена ✅."""
+    builder = InlineKeyboardBuilder()
+    for code in currencies.get_presets():
+        info = currencies.get(code) or {"name": code, "symbol": ""}
+        sym = info.get("symbol", "")
+        label = f"{code} {sym}".strip()
+        if code == current:
+            label = f"✅ {label}"
+        builder.add(
+            InlineKeyboardButton(text=label, callback_data=f"charge_currency_preset_{code}")
+        )
+    builder.adjust(5)
+    builder.row(
+        InlineKeyboardButton(text="🌐 Другая валюта", callback_data="charge_currency_other")
+    )
+    builder.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
+    return builder.as_markup()
+
+
+def get_charge_currency_list_keyboard(
+    items: list[dict[str, Any]], page: int, total_pages: int
+) -> InlineKeyboardMarkup:
+    """Постраничный список валют для «Другой». Кнопки {code} — {name}."""
+    builder = InlineKeyboardBuilder()
+    for c in items:
+        label = f"{c['code']} — {c['name']}"
+        builder.add(
+            InlineKeyboardButton(text=label, callback_data=f"charge_currency_choose_{c['code']}")
+        )
+    builder.adjust(1)
+    # пагинация
+    nav: list[InlineKeyboardButton] = []
+    if page > 0:
+        nav.append(InlineKeyboardButton(text="◀️", callback_data=f"charge_currency_page_{page - 1}"))
+    nav.append(InlineKeyboardButton(text=f"{page + 1}/{total_pages}", callback_data="noop"))
+    if page < total_pages - 1:
+        nav.append(InlineKeyboardButton(text="▶️", callback_data=f"charge_currency_page_{page + 1}"))
+    if nav:
+        builder.row(*nav)
+    builder.row(
+        InlineKeyboardButton(text="◀️ К пресетам", callback_data="charge_currency_back"),
+        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"),
+    )
+    return builder.as_markup()
+
+
+def get_charge_currency_search_results_keyboard(
+    results: list[dict[str, Any]],
+) -> InlineKeyboardMarkup:
+    """Кнопки по результатам поиска (без пагинации, обычно мало)."""
+    builder = InlineKeyboardBuilder()
+    for c in results[:15]:  # защита от слишком длинной клавы
+        label = f"{c['code']} — {c['name']}"
+        builder.add(
+            InlineKeyboardButton(text=label, callback_data=f"charge_currency_choose_{c['code']}")
+        )
+    builder.adjust(1)
+    builder.row(
+        InlineKeyboardButton(text="◀️ К списку", callback_data="charge_currency_other"),
+        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"),
+    )
     return builder.as_markup()

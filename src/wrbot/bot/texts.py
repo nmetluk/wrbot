@@ -160,6 +160,18 @@ class Texts:
     new_charge_invalid_amount = (
         "❌ Неверная сумма. Введите положительное число с двумя знаками после запятой."
     )
+    new_charge_select_currency = (
+        "💱 Выберите валюту списания (преселект — последняя использованная):"
+    )
+    new_charge_other_currency = "🌐 Другая валюта"
+    new_charge_currency_list_header = "🌐 Список валют (стр. {page}/{total_pages}):"
+    new_charge_currency_search_prompt = (
+        "🔍 Введите код (USD, EUR) или часть названия валюты (pound, тенге) для поиска:"
+    )
+    new_charge_currency_search_results = "🔍 Найдено по «{query}» (выберите или уточните запрос):"
+    new_charge_currency_search_no_results = (
+        "❌ Ничего не найдено по «{query}». Попробуйте код (например: KZT) или часть названия."
+    )
     new_charge_select_wallet = "👛 Выберите кошелёк для списания:"
     new_charge_no_wallets = "У вас пока нет кошельков. Создайте первый."
     new_charge_wallet_added_return = "✅ Кошелёк добавлен. Возвращаемся к созданию списания."

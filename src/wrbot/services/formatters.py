@@ -196,6 +196,7 @@ async def build_edit_live_card(
     step_labels = {
         "name": "название",
         "amount": "сумма",
+        "currency": "валюта",
         "wallet": "кошелёк",
         "category": "категория",
         "period": "период",

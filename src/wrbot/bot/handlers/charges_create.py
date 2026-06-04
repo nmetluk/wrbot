@@ -24,6 +24,9 @@ from wrbot.bot.keyboards import (
     get_cancel_keyboard,
     get_charge_categories_keyboard,
     get_charge_confirm_keyboard,
+    get_charge_currency_keyboard,
+    get_charge_currency_list_keyboard,
+    get_charge_currency_search_results_keyboard,
     get_charge_notify_keyboard,
     get_charge_period_keyboard,
     get_charge_wallets_keyboard,  # для возврата после добавления
@@ -35,6 +38,7 @@ from wrbot.repositories.categories import CategoryRepository
 from wrbot.repositories.charges import ChargeRepository
 from wrbot.repositories.users import UserRepository
 from wrbot.repositories.wallets import WalletRepository
+from wrbot.services import currencies
 from wrbot.services.charges import validate_charge_amount
 from wrbot.services.dates import get_period_upper_bound, validate_next_date
 from wrbot.services.formatters import (
@@ -48,6 +52,12 @@ from wrbot.services.reference import InvalidAmount, LimitExceeded
 logger = logging.getLogger(__name__)
 
 router = Router(name="charges_create")
+
+
+@router.callback_query(F.data == "noop")
+async def noop_callback(callback: CallbackQuery) -> None:
+    """No-op для информационных кнопок (номер страницы и т.п.)."""
+    await callback.answer()
 
 
 def _parse_date_ddmmyyyy(text: str) -> date | None:
@@ -102,16 +112,25 @@ async def process_amount(message: Message, state: FSMContext, session: AsyncSess
         return
 
     await state.update_data(amount=str(amount))
-    await state.set_state(NewChargeStates.wallet)
 
+    # TASK-0050: после суммы — шаг валюты (пресеты с преселектом last_currency)
     data: dict[str, Any] = await state.get_data()
+    user_id: int = data.get("user_id") or message.from_user.id if message.from_user else 0
+    user_repo = UserRepository(session)
+    user = await user_repo.get(user_id)
+    last_cur = getattr(user, "last_currency", None) or currencies.get_default()
+    await state.update_data(currency=last_cur)
+    await state.set_state(NewChargeStates.currency)
+
     if data.get("editing_charge_id"):
-        # live card update on amount change (TASK-0045 e2e key)
+        # live card update on amount change (TASK-0045 e2e key) — теперь на currency step
         mid = data.get("edit_card_msg_id")
         bot = getattr(message, "bot", None)
         if mid and bot:
             try:
-                card = await build_edit_live_card(session, data.get("user_id", 0), data, "wallet")
+                card = await build_edit_live_card(
+                    session, data.get("user_id", 0), await state.get_data(), "currency"
+                )
                 await bot.edit_message_text(
                     chat_id=message.chat.id,
                     message_id=mid,
@@ -122,16 +141,121 @@ async def process_amount(message: Message, state: FSMContext, session: AsyncSess
             except Exception:
                 pass
 
-    # normal (create or edit fallback)
-    user_id: int = data.get("user_id") or 0
-    wallet_repo = WalletRepository(session)
-    wallets = await wallet_repo.list_by_user(user_id)
-    if not wallets:
-        await message.answer(Texts.new_charge_no_wallets)
-    keyboard = get_charge_wallets_keyboard(
-        [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
+    # normal: показать клавиатуру валют
+    keyboard = get_charge_currency_keyboard(current=last_cur)
+    await message.answer(Texts.new_charge_select_currency, reply_markup=keyboard)
+
+
+# TASK-0050: 3. Валюта — пресеты
+@router.callback_query(F.data.startswith("charge_currency_preset_"), NewChargeStates.currency)
+async def process_currency_preset(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    code = callback.data.split("_", 3)[3]  # type: ignore[union-attr]
+    if not currencies.is_valid_code(code):
+        await callback.answer("Неверный код валюты")
+        return
+    await state.update_data(currency=code)
+    await _go_to_wallet_step(callback, state, session)
+    await callback.answer()
+
+
+@router.callback_query(F.data == "charge_currency_other", NewChargeStates.currency)
+async def process_currency_other(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    """Открыть постраничный список + возможность поиска."""
+    items, total_pages = currencies.get_page(0, per_page=8)
+    keyboard = get_charge_currency_list_keyboard(items, 0, total_pages)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.new_charge_currency_list_header.format(page=1, total_pages=total_pages),
+        reply_markup=keyboard,
     )
-    await message.answer(Texts.new_charge_select_wallet, reply_markup=keyboard)
+    await state.set_state(NewChargeStates.currency)  # остаёмся в currency для пагинации/выбора
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("charge_currency_page_"), NewChargeStates.currency)
+async def process_currency_page(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    try:
+        page = int(callback.data.split("_", 3)[3])  # type: ignore[union-attr]
+    except Exception:
+        page = 0
+    items, total_pages = currencies.get_page(page, per_page=8)
+    keyboard = get_charge_currency_list_keyboard(items, page, total_pages)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.new_charge_currency_list_header.format(page=page + 1, total_pages=total_pages),
+        reply_markup=keyboard,
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "charge_currency_back", NewChargeStates.currency)
+async def process_currency_back_to_presets(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    data = await state.get_data()
+    current = data.get("currency") or currencies.get_default()
+    keyboard = get_charge_currency_keyboard(current=current)
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.new_charge_select_currency, reply_markup=keyboard
+    )
+    await state.set_state(NewChargeStates.currency)
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("charge_currency_choose_"), NewChargeStates.currency)
+async def process_currency_choose(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    code = callback.data.split("_", 3)[3]  # type: ignore[union-attr]
+    if not currencies.is_valid_code(code):
+        await callback.answer("Неверная валюта")
+        return
+    info = currencies.get(code) or {"code": code, "name": code}
+    await state.update_data(currency=code)
+    await callback.answer(f"✅ {code} — {info.get('name', code)}")
+    await _go_to_wallet_step(callback, state, session)
+
+
+# Поиск по тексту на шаге валюты (когда показан список "Другой" или в search state)
+@router.message(NewChargeStates.currency)
+async def process_currency_text_as_search(message: Message, state: FSMContext) -> None:
+    """Если на шаге списка валют ввели текст — трактуем как поиск."""
+    query = (message.text or "").strip()
+    if not query:
+        return
+    results = currencies.search(query)
+    if not results:
+        await message.answer(
+            Texts.new_charge_currency_search_no_results.format(query=query),
+            reply_markup=get_cancel_keyboard(),
+        )
+        return
+    keyboard = get_charge_currency_search_results_keyboard(results)
+    await message.answer(
+        Texts.new_charge_currency_search_results.format(query=query), reply_markup=keyboard
+    )
+    await state.set_state(NewChargeStates.currency_search)
+
+
+# Поиск валюты (отдельное состояние)
+@router.message(NewChargeStates.currency_search)
+async def process_currency_search(message: Message, state: FSMContext) -> None:
+    query = (message.text or "").strip()
+    results = currencies.search(query)
+    if not results:
+        await message.answer(
+            Texts.new_charge_currency_search_no_results.format(query=query),
+            reply_markup=get_cancel_keyboard(),
+        )
+        return
+    keyboard = get_charge_currency_search_results_keyboard(results)
+    await message.answer(
+        Texts.new_charge_currency_search_results.format(query=query), reply_markup=keyboard
+    )
 
 
 # Обработка выбора кошелька в charge flow
@@ -196,6 +320,72 @@ async def _go_to_date_step(callback: CallbackQuery, state: FSMContext) -> None:
         Texts.new_charge_enter_date, reply_markup=None
     )
     await callback.answer()
+
+
+async def _go_to_wallet_step(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    """Переход к кошельку после валюты (TASK-0050). Показ kb + live update при edit."""
+    await state.set_state(NewChargeStates.wallet)
+    data: dict[str, Any] = await state.get_data()
+    if data.get("editing_charge_id"):
+        mid = data.get("edit_card_msg_id")
+        bot = getattr(callback, "bot", None) or getattr(callback.message, "bot", None)
+        if mid and bot:
+            try:
+                card = await build_edit_live_card(session, data.get("user_id", 0), data, "wallet")
+                chat = getattr(callback.message, "chat", None)
+                chat_id = getattr(chat, "id", None) if chat else None
+                if chat_id:
+                    await bot.edit_message_text(
+                        chat_id=chat_id,
+                        message_id=mid,
+                        text=card,
+                        reply_markup=get_cancel_keyboard(),
+                    )
+                return
+            except Exception:
+                pass
+
+    # обычный показ клавиатуры кошельков
+    user_id: int = data.get("user_id") or callback.from_user.id
+    wallet_repo = WalletRepository(session)
+    wallets = await wallet_repo.list_by_user(user_id)
+    if not wallets:
+        await callback.message.edit_text(  # type: ignore[union-attr]
+            Texts.new_charge_no_wallets, reply_markup=get_cancel_keyboard()
+        )
+        await callback.answer()
+        return
+    keyboard = get_charge_wallets_keyboard(
+        [{"id": w.id, "name": w.name, "icon": w.icon} for w in wallets]
+    )
+    await callback.message.edit_text(  # type: ignore[union-attr]
+        Texts.new_charge_select_wallet, reply_markup=keyboard
+    )
+    await callback.answer()
+    data = await state.get_data()
+    # обновить live card если edit
+    if data.get("editing_charge_id"):
+        mid = data.get("edit_card_msg_id")
+        bot = getattr(callback, "bot", None) or getattr(callback.message, "bot", None)
+        if mid and bot:
+            try:
+                card = await build_edit_live_card(session, data.get("user_id", 0), data, "wallet")
+                chat = getattr(callback.message, "chat", None)
+                chat_id = getattr(chat, "id", None) if chat else None
+                if chat_id:
+                    await bot.edit_message_text(
+                        chat_id=chat_id,
+                        message_id=mid,
+                        text=card,
+                        reply_markup=get_cancel_keyboard(),
+                    )
+                return
+            except Exception:
+                pass
+
+    # (wallet kb shown in _go_to_wallet_step caller path)
 
 
 # 5. Дата (TASK-0040: после периода; валидация окна периода)
@@ -331,6 +521,7 @@ async def confirm_create_charge(
                 editing_id,
                 name=data["name"],
                 amount=Decimal(data["amount"]),
+                currency=data.get("currency") or "RUB",
                 wallet_id=data["wallet_id"],
                 category_id=data.get("category_id"),
                 next_date=date.fromisoformat(data["next_date"]),

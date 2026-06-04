@@ -81,3 +81,25 @@ def format_amount(amount: str | int | float | Decimal, code: str) -> str:
     suffix = cur["symbol"] if code in presets and "symbol" in cur else code
     amt_str = str(amount)
     return f"{amt_str} {suffix}"
+
+
+def get_all() -> list[dict[str, Any]]:
+    """Полный список активных валют (для пагинации 'Другая валюта')."""
+    return [dict(c) for c in _load()["currencies"]]
+
+
+def get_page(page: int = 0, per_page: int = 8) -> tuple[list[dict[str, Any]], int]:
+    """
+    Постраничный доступ к списку валют (для инлайн-списка с пагинацией).
+    Возвращает (items, total_pages). page 0-based, clamped.
+    per_page ~8-10 чтобы влезло в клавиатуру.
+    """
+    all_c = get_all()
+    total = len(all_c)
+    if total == 0:
+        return [], 0
+    total_pages = (total + per_page - 1) // per_page
+    page = max(0, min(page, total_pages - 1))
+    start = page * per_page
+    end = start + per_page
+    return all_c[start:end], total_pages

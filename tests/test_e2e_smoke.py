@@ -247,6 +247,11 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     await dp.feed_update(bot, _upd_msg("ПодпискаE2E", user_id=uid, update_id=8, message_id=8))
     await dp.feed_update(bot, _upd_msg("150.50", user_id=uid, update_id=9, message_id=9))
 
+    # TASK-0050: после суммы — выбор валюты (пресет)
+    await dp.feed_update(
+        bot, _upd_cb("charge_currency_preset_USD", user_id=uid, update_id=950, message_id=9)
+    )
+
     # TASK-0035: kb после суммы сразу (amount handler).
     # Harness редко вызывает send на msg.answer(); проверяем косвенно + dedicated 7/8.
     # Старый код: не слал kb, clear() ломал state.
@@ -266,6 +271,7 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
             "user_id": uid,
             "name": "ПодпискаE2E",
             "amount": "150.50",
+            "currency": "USD",
             "wallet_id": 1,  # chosen via charge_wallet_1 (default "Основная карта" or the added)
             "category_id": None,
             "next_date": within_month_iso,
@@ -297,8 +303,13 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         ch = res.scalar_one_or_none()
         assert ch is not None
         assert ch.status == "active"
+        assert getattr(ch, "currency", None) == "USD", "currency should be saved from choice"
         charge_id = ch.id
         old_next = ch.next_date
+
+        # last_currency updated and will preselct next time
+        u = await UserRepository(check).get(uid)
+        assert u is not None and getattr(u, "last_currency", None) == "USD"
 
     # verify visible in list (simulate list_charges)
     bot.reset_mock()
@@ -422,6 +433,48 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
             # не сохранено (только live в handler)
             assert ch2 is not None and str(ch2.amount) == orig_amount
 
+    # === TASK-0050 currency e2e (preset/other/page/back/search/choose) ===
+    cur_test_uid = 55555
+    async with factory() as s:
+        await UserRepository(s).get_or_create(cur_test_uid, create_default_wallet=True)
+        await s.commit()
+    bot.reset_mock()
+    await dp.feed_update(bot, _upd_cb("new_charge", user_id=cur_test_uid, update_id=400))
+    await dp.feed_update(
+        bot, _upd_msg("CurTest", user_id=cur_test_uid, update_id=401, message_id=401)
+    )
+    await dp.feed_update(
+        bot, _upd_msg("123.45", user_id=cur_test_uid, update_id=402, message_id=402)
+    )
+    # preset
+    await dp.feed_update(
+        bot, _upd_cb("charge_currency_preset_EUR", user_id=cur_test_uid, update_id=403)
+    )
+    # now at wallet, cancel to test other path? restart for other
+    await dp.feed_update(bot, _upd_cb("cancel", user_id=cur_test_uid, update_id=404))
+    # new flow for list + page + back + choose via text search
+    await dp.feed_update(bot, _upd_cb("new_charge", user_id=cur_test_uid, update_id=405))
+    await dp.feed_update(
+        bot, _upd_msg("CurList", user_id=cur_test_uid, update_id=406, message_id=406)
+    )
+    await dp.feed_update(
+        bot, _upd_msg("77.77", user_id=cur_test_uid, update_id=407, message_id=407)
+    )
+    await dp.feed_update(bot, _upd_cb("charge_currency_other", user_id=cur_test_uid, update_id=408))
+    await dp.feed_update(
+        bot, _upd_cb("charge_currency_page_1", user_id=cur_test_uid, update_id=409)
+    )
+    await dp.feed_update(bot, _upd_cb("charge_currency_back", user_id=cur_test_uid, update_id=410))
+    # text search while on presets? but to trigger list search, go other again, type
+    await dp.feed_update(bot, _upd_cb("charge_currency_other", user_id=cur_test_uid, update_id=411))
+    await dp.feed_update(bot, _upd_msg("euro", user_id=cur_test_uid, update_id=412, message_id=412))
+    # choose from search results (assume EUR in results)
+    await dp.feed_update(
+        bot, _upd_cb("charge_currency_choose_EUR", user_id=cur_test_uid, update_id=413)
+    )
+    # now at wallet, cancel
+    await dp.feed_update(bot, _upd_cb("cancel", user_id=cur_test_uid, update_id=414))
+
     # === 6) изоляция: userB не видит/меняет данные userA ===
     uB = 99999
     async with factory() as s:
@@ -466,6 +519,10 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
         bot, _upd_msg("ТестДефолтКошелёк", user_id=fresh_new, update_id=32, message_id=32)
     )
     await dp.feed_update(bot, _upd_msg("99.99", user_id=fresh_new, update_id=33, message_id=33))
+    # TASK-0050: валюта (пресет)
+    await dp.feed_update(
+        bot, _upd_cb("charge_currency_preset_RUB", user_id=fresh_new, update_id=335, message_id=33)
+    )
     # kb уже должен быть (проверка в 1), выбираем дефолт
     await dp.feed_update(
         bot, _upd_cb(f"charge_wallet_{default_wid}", user_id=fresh_new, update_id=34)
@@ -509,6 +566,13 @@ async def test_e2e_dispatcher_full_scenarios(test_engine):
     )
     await dp.feed_update(
         bot, _upd_msg("42.00", user_id=fresh_nowallet, update_id=42, message_id=42)
+    )
+    # TASK-0050: валюта перед wallet (даже если нет кошельков)
+    await dp.feed_update(
+        bot,
+        _upd_cb(
+            "charge_currency_preset_USD", user_id=fresh_nowallet, update_id=425, message_id=42
+        ),
     )
     # amount: "нет"+kb с add btn.
     # Косвенно проверяем (add-cb + subflow -> charge created).

@@ -258,3 +258,36 @@ def test_charge_delete_confirm_routes_correctly():
     names = [getattr(h.callback, "__name__", "") for h in router.callback_query.handlers]
     assert "charge_delete_confirm" in names
     assert "charge_delete" in names
+
+
+# TASK-0050: router-level tests for currency callbacks (specific filters before broad ones)
+# Covers preset, other, page, choose, back, search entry. Uses introspection like TASK-0013/0046.
+
+
+def test_charge_currency_preset_routes():
+    """'charge_currency_preset_*' reaches process_currency_preset."""
+    router = charges_create_mod.router
+    names = [getattr(h.callback, "__name__", "") for h in router.callback_query.handlers]
+    assert any("process_currency_preset" in n for n in names)
+
+
+def test_charge_currency_other_and_page_and_choose_route():
+    """Other, page, choose, back reach their handlers."""
+    router = charges_create_mod.router
+    names = [getattr(h.callback, "__name__", "") for h in router.callback_query.handlers]
+    assert any("process_currency_other" in n for n in names)
+    assert any("process_currency_page" in n for n in names)
+    assert any("process_currency_choose" in n for n in names)
+    assert any("process_currency_back" in n for n in names)
+
+
+def test_charge_currency_search_message_route():
+    """Search state message handler is registered."""
+    router = charges_create_mod.router
+    # message handlers
+    msg_names = []
+    for h in router.message.handlers:
+        cb = getattr(h, "callback", None)
+        if cb:
+            msg_names.append(getattr(cb, "__name__", ""))
+    assert any("process_currency_search" in n or "process_currency_text" in n for n in msg_names)

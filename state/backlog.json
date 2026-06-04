@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-04T13:32:29Z",
+  "generated_at": "2026-06-04T13:50:41Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 1,
+    "inbox": 0,
     "in_progress": 0,
-    "done": 49,
+    "done": 50,
     "blocked": 0
   },
   "tasks": [
@@ -404,10 +404,10 @@
     {
       "id": "TASK-0050",
       "title": "\"Валюты (2/2): выбор валюты в создании/редактировании — 5 пресетов + «Другая» (список+поиск), запоминать последнюю\"",
-      "status": "inbox",
-      "file": "handoff/inbox/TASK-0050-currency-selection-flow.md",
+      "status": "done",
+      "file": "handoff/done/TASK-0050-currency-selection-flow.md",
       "milestone": "M8",
-      "report": null
+      "report": "handoff/reports/TASK-0050-report.md"
     }
   ]
 }
