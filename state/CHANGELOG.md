@@ -7,6 +7,13 @@
 
 ## [Unreleased]
 
+### Released
+- **v0.3.0 ВЫПУЩЕН (архитектор, SESSION-2026-06-04-01).** Майлстоун M7 (доработки по отзывам):
+  TASK-0039…0045. Bump версии 0.3.0 (pyproject + `__init__`), пользовательская запись
+  `/CHANGELOG.md [0.3.0]`, release-notes `docs/release-notes/v0.3.0.md`. Гейт начисто зелёный
+  (ruff/mypy 44 файла/**pytest 240**/validate; миграции `alembic check` пусто, round-trip).
+  Проставлен аннотированный git-тег **`v0.3.0`**. Вне кода: живой смоук + деплой (миграции с бекапом).
+
 ### Fixed
 - **TASK-0039: BUG — некорректное отображение (кошельк/категория/дата/период/notify) в сводке, карточке, списке, уведомлениях и создании (исполнитель, SESSION-2026-06-03-18).**
   Создан общий `services/formatters.py` (`format_date_ru`, `format_period_ru`, `format_*_notify`, `resolve_wallet_name`/`resolve_category_name` через репо, `build_new_charge_summary`/`build_charge_card_text`/`build_reminder_text`, `format_charge_button_text`).
