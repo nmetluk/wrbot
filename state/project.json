@@ -5,8 +5,8 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T09:28:00Z",
-  "current_phase": "TASK-0047 завершён исполнителем (групповые /getgrid + @mention для получения chat.id). Router-level e2e feed_update + group scope команд. CI 241 зелёный. Готов к релизу (v0.3.1 hotfix 46 или v0.4.0 с 47).",
+  "updated_at": "2026-06-04T09:30:00Z",
+  "current_phase": "TASK-0047 завершён (исполнитель). TASK-0046 (принят) + TASK-0047 готовы. Отдельный v0.3.1 отменён — релиз v0.4.0 (bump, /CHANGELOG, тег).",
   "current_milestone": "M7",
   "active_task": null,
   "last_session": "SESSION-2026-06-04-06",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Релиз: хотфикс v0.3.1 (TASK-0046) и/или v0.4.0 (с TASK-0047). Живой смоук /getgrid в группе + интеграция с категориями notify. Inbox пуст."
+  "next_step": "Релиз v0.4.0 (объединяет TASK-0046 фикс + TASK-0047 /getgrid). Живой смоук группы + bump/CHANGELOG/тег. Inbox пуст."
 }
