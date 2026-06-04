@@ -5,8 +5,8 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T05:00:00Z",
-  "current_phase": "TASK-0048 ПРИНЯТ аудитом (e2e-ассерты /getgrid усилены и проверены; pytest 241). TASK-0046 + 0047 + 0048 закрыты и готовы к релизу v0.4.0.",
+  "updated_at": "2026-06-04T05:20:00Z",
+  "current_phase": "Релиз v0.4.0 ВЫПУЩЕН (TASK-0046 фикс роутинга + TASK-0047 /getgrid + TASK-0048 тесты): bump 0.4.0, /CHANGELOG.md [0.4.0], release-notes, git-тег v0.4.0. Гейт зелёный (pytest 241).",
   "current_milestone": "M7",
   "active_task": null,
   "last_session": "SESSION-2026-06-04-10",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "Релиз v0.4.0 (объединяет TASK-0046 + TASK-0047 + TASK-0048): bump 0.4.0 в pyproject/__init__, обновить /CHANGELOG.md [0.4.0] + state/CHANGELOG, создать docs/release-notes/v0.4.0.md, git tag v0.4.0. (TASK-0048 завершена исполнителем в SESSION-2026-06-04-09)."
+  "next_step": "v0.4.0 выпущен (тег v0.4.0). Вне кода: деплой + живой смоук (/getgrid в группе → вставить ID в настройки категории → добавление канала не зависает). Inbox пуст; ждём отзывов/новых задач."
 }

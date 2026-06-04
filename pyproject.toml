@@ -1,6 +1,6 @@
 [project]
 name = "wrbot"
-version = "0.3.0"
+version = "0.4.0"
 description = "Telegram bot for recurring charges reminders"
 readme = "README.md"
 requires-python = ">=3.11"
