@@ -41,4 +41,4 @@
 - TASK-0048 низкий приоритет, не блокер — закрыта.
 
 ## Коммиты
-- `ff3be8f` test(e2e): усилить позитивные ассерты /getgrid через SendMessage capture (TASK-0048)
+- `b956c22` test(e2e): усилить позитивные ассерты /getgrid через SendMessage capture (TASK-0048)
