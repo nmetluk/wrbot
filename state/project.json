@@ -5,11 +5,11 @@
   "spec": "docs/spec/spec-v1.md",
   "spec_version": "1.0",
   "source_of_truth": "https://github.com/nmetluk/wrbot",
-  "updated_at": "2026-06-04T05:20:00Z",
-  "current_phase": "Релиз v0.4.0 ВЫПУЩЕН (TASK-0046 фикс роутинга + TASK-0047 /getgrid + TASK-0048 тесты): bump 0.4.0, /CHANGELOG.md [0.4.0], release-notes, git-тег v0.4.0. Гейт зелёный (pytest 241).",
-  "current_milestone": "M7",
+  "updated_at": "2026-06-04T05:45:00Z",
+  "current_phase": "M8 (валюты) спланирован по срочному отзыву: ADR-0013 + справочник ISO 4217 в src/wrbot/data/ (153 валюты) + TASK-0049 (схема/справочник/отображение) и TASK-0050 (выбор валюты: пресеты + список/поиск, запоминать последнюю) в inbox. По итогам — релиз v0.5.0.",
+  "current_milestone": "M8",
   "active_task": null,
-  "last_session": "SESSION-2026-06-04-10",
+  "last_session": "SESSION-2026-06-04-11",
   "stack": {
     "language": "Python 3",
     "bot_framework": "Aiogram 3.x",
@@ -31,5 +31,5 @@
     "Аудит запускается отдельной сессией после каждого майлстоуна (см. docs/roadmap.md).",
     "Интерфейс бота — только русский (ТЗ §4)."
   ],
-  "next_step": "v0.4.0 выпущен (тег v0.4.0). Вне кода: деплой + живой смоук (/getgrid в группе → вставить ID в настройки категории → добавление канала не зависает). Inbox пуст; ждём отзывов/новых задач."
+  "next_step": "Исполнитель: /take-task → TASK-0049 (фундамент валют: схема Charge.currency/User.last_currency, загрузчик currencies.json, отображение без зашитого ₽), затем TASK-0050 (выбор валюты: пресеты + список/поиск, запоминать последнюю). После M8 — аудит и релиз v0.5.0. Справочник уже в src/wrbot/data/."
 }

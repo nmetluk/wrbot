@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/update_state.py",
-  "generated_at": "2026-06-04T11:06:59Z",
+  "generated_at": "2026-06-04T12:23:04Z",
   "note": "Генерируемый файл. Не редактировать вручную. Источник — каталоги handoff/.",
   "counts": {
-    "inbox": 0,
+    "inbox": 2,
     "in_progress": 0,
     "done": 48,
     "blocked": 0
@@ -392,6 +392,22 @@
       "file": "handoff/done/TASK-0048-strengthen-getgrid-e2e-asserts.md",
       "milestone": "M7",
       "report": "handoff/reports/TASK-0048-report.md"
+    },
+    {
+      "id": "TASK-0049",
+      "title": "\"Валюты (1/2): схема Charge.currency + User.last_currency, загрузчик справочника, валютно-зависимое отображение (убрать зашитый ₽)\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0049-currency-schema-reference-display.md",
+      "milestone": "M8",
+      "report": null
+    },
+    {
+      "id": "TASK-0050",
+      "title": "\"Валюты (2/2): выбор валюты в создании/редактировании — 5 пресетов + «Другая» (список+поиск), запоминать последнюю\"",
+      "status": "inbox",
+      "file": "handoff/inbox/TASK-0050-currency-selection-flow.md",
+      "milestone": "M8",
+      "report": null
     }
   ]
 }
